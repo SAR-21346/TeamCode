@@ -64,8 +64,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="Basic: Omni Linear OpMode", group="Linear Opmode")
-@Disabled
+@TeleOp(name="Mecanum Drivetrain")
+//@Disabled
 public class MecanumTrain extends LinearOpMode {
 
     // Declare OpMode members for each of the 4 motors.
@@ -80,10 +80,10 @@ public class MecanumTrain extends LinearOpMode {
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
-        leftFrontDrive  = hardwareMap.get(DcMotor.class, "left_front_drive");
-        leftBackDrive  = hardwareMap.get(DcMotor.class, "left_back_drive");
-        rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
-        rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
+        leftFrontDrive  = hardwareMap.get(DcMotor.class, "FLdrive");
+        leftBackDrive  = hardwareMap.get(DcMotor.class, "BLdrive");
+        rightFrontDrive = hardwareMap.get(DcMotor.class, "FRdrive");
+        rightBackDrive = hardwareMap.get(DcMotor.class, "BRdrive");
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
@@ -146,12 +146,12 @@ public class MecanumTrain extends LinearOpMode {
             //      the setDirection() calls above.
             // Once the correct motors move in the correct direction re-comment this code.
 
-            /*
+
             leftFrontPower  = gamepad1.x ? 1.0 : 0.0;  // X gamepad
             leftBackPower   = gamepad1.a ? 1.0 : 0.0;  // A gamepad
             rightFrontPower = gamepad1.y ? 1.0 : 0.0;  // Y gamepad
             rightBackPower  = gamepad1.b ? 1.0 : 0.0;  // B gamepad
-            */
+
 
             // Send calculated power to wheels
             leftFrontDrive.setPower(leftFrontPower);
