@@ -81,9 +81,13 @@ public class MecanumTrain extends LinearOpMode {
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
+        //Port 2 control hub
         leftFrontDrive  = hardwareMap.get(DcMotor.class, "FLdrive");
+        //Port X conrtol hub
         leftBackDrive  = hardwareMap.get(DcMotor.class, "BLdrive");
+        //Port X control hub
         rightFrontDrive = hardwareMap.get(DcMotor.class, "FRdrive");
+        //Port X control hub
         rightBackDrive = hardwareMap.get(DcMotor.class, "BRdrive");
 
         // ########################################################################################
