@@ -1,4 +1,4 @@
-//This is the OpMode that will go on the Robot
+//This is the OpMode that will go on the Robot (IT'S IN TESTING RIGHT NOW, DO NOT ACTIVATE)
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
