@@ -77,7 +77,7 @@ public class MecanumTrain extends LinearOpMode {
     private DcMotor rightBackDrive = null;
 
     @Override
-    public void runOpModeDrive() {
+    public void runOpMode() {
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
@@ -153,9 +153,10 @@ public class MecanumTrain extends LinearOpMode {
 
 
            /* leftFrontPower  = gamepad1.x ? 1.0 : 0.0;  // X gamepad
-            leftBackPower   = gamepad1.a ? 1.0 : 0.0;  // A gamepad
-            rightFrontPower = gamepad1.y ? 1.0 : 0.0;  // Y gamepad
-            rightBackPower  = gamepad1.b ? 1.0 : 0.0;  // B gamepad*/
+            *leftBackPower   = gamepad1.a ? 1.0 : 0.0;  // A gamepad
+            *rightFrontPower = gamepad1.y ? 1.0 : 0.0;  // Y gamepad
+            *rightBackPower  = gamepad1.b ? 1.0 : 0.0;  // B gamepad
+            */
 
 
             // Send calculated power to wheels
