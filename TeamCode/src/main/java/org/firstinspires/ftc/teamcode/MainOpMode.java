@@ -9,9 +9,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name="MainOpMode")
 @Disabled
-MecanumTrain driveTrain = new MecanumTrain;
-@Override
-public void runOpMode(){
-    driveTrain.runOpMode();
-};
+MecanumTrain driveTrain= new MecanumTrain;
+
 
