@@ -169,7 +169,7 @@ public class MecanumTrain extends LinearOpMode {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
-            telemetry.addDara("Axial,Lateral,Yaw",axial,lateral,yaw)
+            telemetry.addData("Axial,Lateral,Yaw", "string", axial, lateral, yaw);
             telemetry.update();
         }
     }}
