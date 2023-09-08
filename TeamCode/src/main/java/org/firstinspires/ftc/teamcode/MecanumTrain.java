@@ -31,11 +31,13 @@
 //hi
 package org.firstinspires.ftc.teamcode;
 
+import java.lang.Math;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
 
 /**
  * This file contains an example of a Linear "OpMode".
@@ -128,6 +130,10 @@ public class MecanumTrain extends LinearOpMode {
             double leftBackPower   = axial - lateral + yaw;
             double rightBackPower  = axial + lateral - yaw;
 
+            //setting minimum power of RightBack Motor, It was sticking.
+            if(Math.abs(rightBackPower)<0.11&&Math.abs(rightBackPower)>0.01){
+                rightBackPower=0.11;
+            }
             // Normalize the values so no wheel power exceeds 100%
             // This ensures that the robot maintains the desired motion.
             max = Math.max(Math.abs(leftFrontPower), Math.abs(rightFrontPower));
@@ -152,11 +158,11 @@ public class MecanumTrain extends LinearOpMode {
             // Once the correct motors move in the correct direction re-comment this code.
 
 
-           /* leftFrontPower  = gamepad1.x ? 1.0 : 0.0;  // X gamepad
-            *leftBackPower   = gamepad1.a ? 1.0 : 0.0;  // A gamepad
-            *rightFrontPower = gamepad1.y ? 1.0 : 0.0;  // Y gamepad
-            *rightBackPower  = gamepad1.b ? 1.0 : 0.0;  // B gamepad
-            */
+            /* leftFrontPower  = gamepad1.x ? 1.0 : 0.0;  // X gamepad
+             *leftBackPower   = gamepad1.a ? 1.0 : 0.0;  // A gamepad
+             *rightFrontPower = gamepad1.y ? 1.0 : 0.0;  // Y gamepad
+             *rightBackPower  = gamepad1.b ? 1.0 : 0.0;  // B gamepad
+             */
 
 
             // Send calculated power to wheels
@@ -169,7 +175,7 @@ public class MecanumTrain extends LinearOpMode {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
-            telemetry.addData("Axial,Lateral,Yaw", "string", axial, lateral, yaw);
+            telemetry.addData("Axial,Lateral,Yaw", "%4.2f, %4.2f, %4.2f", axial, lateral, yaw);
             telemetry.update();
         }
     }}
