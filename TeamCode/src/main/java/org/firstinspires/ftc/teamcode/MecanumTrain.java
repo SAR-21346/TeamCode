@@ -33,11 +33,14 @@
 package org.firstinspires.ftc.teamcode;
 
 import java.lang.Math;
+import java.lang.Thread;
+
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
 
 
 /**
@@ -78,6 +81,14 @@ public class MecanumTrain extends LinearOpMode {
     private DcMotor leftBackDrive = null;
     private DcMotor rightFrontDrive = null;
     private DcMotor rightBackDrive = null;
+
+
+    private enum State {
+        READY,
+        NOT_READY
+    }
+
+    private State currentState = State.READY;
 
     @Override
     public void runOpMode() {
@@ -174,4 +185,8 @@ public class MecanumTrain extends LinearOpMode {
             telemetry.addData("Axial,Lateral,Yaw", "%4.2f, %4.2f, %4.2f", axial, lateral, yaw);
             telemetry.update();
         }
+
+        p
     }}
+
+
