@@ -120,12 +120,10 @@ public class MecanumTrain extends LinearOpMode {
         // to the names assigned during the robot configuration step on the DS or RC devices.
         //Port 2 control hub
         leftFrontDrive  = hardwareMap.get(DcMotor.class, "FLdrive");
-        //Port X conrtol hub
+        //Port X control hub
         leftBackDrive  = hardwareMap.get(DcMotor.class, "BLdrive");
-
         //Port X control hub
         rightFrontDrive = hardwareMap.get(DcMotor.class, "FRdrive");
-
         //Port X control hub
         rightBackDrive = hardwareMap.get(DcMotor.class, "BRdrive");
 
@@ -226,5 +224,9 @@ public class MecanumTrain extends LinearOpMode {
             telemetry.addData("Axial,Lateral,Yaw", "%4.2f, %4.2f, %4.2f", axial, lateral, yaw);
             telemetry.update();
         }
+        lfDriveThread.interrupt();
+        rfDriveThread.interrupt();
+        rbDriveThread.interrupt();
+        lbDriveThread.interrupt();
     }}
 
