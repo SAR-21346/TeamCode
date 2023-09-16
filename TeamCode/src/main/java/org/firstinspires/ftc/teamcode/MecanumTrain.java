@@ -91,8 +91,9 @@ public class MecanumTrain extends LinearOpMode {
 
     private State currentState = State.READY;
     private static class MotorController implements Runnable {
-        private final DcMotor motor;
-        private final DcMotorSimple.Direction direction;
+        private final DcMotor motor; // motor definition
+        private final DcMotorSimple.Direction direction; // direction of movement for a motor
+                                                         // (signifies which direction it moves with positive power)
         private double power = 0;
 
         public MotorController(DcMotor motor, DcMotor.Direction direction) {
@@ -100,6 +101,8 @@ public class MecanumTrain extends LinearOpMode {
             this.direction = direction;
         }
 
+        // setPower(power)
+        // power - double
         public void setPower(double power) {
             this.power = power;
         }
@@ -224,6 +227,8 @@ public class MecanumTrain extends LinearOpMode {
             telemetry.addData("Axial,Lateral,Yaw", "%4.2f, %4.2f, %4.2f", axial, lateral, yaw);
             telemetry.update();
         }
+
+        // .interrupt() stops the threads after the loop is done
         lfDriveThread.interrupt();
         rfDriveThread.interrupt();
         rbDriveThread.interrupt();
