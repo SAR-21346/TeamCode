@@ -3,6 +3,8 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import org.firstinspires.ftc.teamcode.AprilTagDetectionPipeline;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -72,6 +74,10 @@ public class AprilTagAutonEx extends LinearOpMode
 
         telemetry.setMsTransmissionInterval(50);
 
+        boolean tagFoundLR = false;
+        boolean tagFoundMR = false;
+        boolean tagFoundRR = false;
+
         /*
          * The INIT-loop:
          * This REPLACES waitForStart!
@@ -82,9 +88,6 @@ public class AprilTagAutonEx extends LinearOpMode
 
             if(currentDetections.size() != 0)
             {
-                boolean tagFoundLR = false;
-                boolean tagFoundMR = false;
-                boolean tagFoundRR = false;
 
                 for(AprilTagDetection tag : currentDetections)
                 {
