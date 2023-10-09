@@ -1,0 +1,112 @@
+/*
+ * Add this to the other stuff
+ * This does't have all the main stuff like the method signature and stuff
+ */
+
+private enum autoStates{
+    AUTO_START;     // Declares when the Auto FSM starts
+    AUTO_READ_TEAM_OBJECT; // Camera will detect which spike the team object is placed on
+    AUTO_PLACE_PURPLE;    // Places the purple pixel on the right spike
+    AUTO_DRIVE_TO_BOARD; // Drives the robot to the position of the backboard
+    AUTO_READ_APRIL_TAG; // Reads the april tags to determine where to place the pixel
+    // This also will have an if statement for the part of the code
+    // where we determine whether we place the extra white pixels
+    AUTO_PLACE_PIXEL; // Places the pixel onto the board
+    AUTO_DRIVE_TO_START; // Drives the robot back to start where it can restart the whole process
+    AUTO_DRIVE_TO_STACK; // Refers to the stack of pixels on the sides of field
+    AUTO_PICK_UP; // Will pick up 2 pixels
+    // After using this, set the state to be the start state, and then set it to
+    // drive to board
+
+}
+
+
+    swtich(startState) {
+        case AUTO_START:
+        waitForStart(); // Checks to see if the autonomous has started
+        startState == autoStates.AUTO_READ_TEAM_OBJECT;
+        break;
+        case autoStates.AUTO_READ_TEAM_OBJECT:
+        // Add opencv Code
+        startState == autoStates.AUTO_READ_TEAM_OBJECT;
+        break;
+        case autoStates.AUTO_PLACE_PURPLE:
+        if() { // Add openCv code for which spike its on
+            Trajectory trajGetToRightSpike = drive.trajectoryBuilder(new Pose2d()).
+                    splineTo() //Add coordinates of the spike
+        } else if (){ // Add openCv code for which spike its on
+            Trajectory trajGetToLeftSpike = drive.trajectoryBuilder(new Pose2d()).
+                    splineTo() //Add coordinates of the spike
+        } else if () { // Add openCv code for which spike its on
+            Trajectory trajGetToForwardSpike = drive.trajectoryBuilder(new Pose2d()).
+                    splineTo() //Add coordinates of the spike
+        }
+        startState == autoStates.DRIVE_TO_BOARD;
+        break;
+        case autoStates.DRIVE_TO_BOARD:
+        if() { // Add openCv code for which spike its on
+            Trajectory trajGetToRightSpike = drive.trajectoryBuilder(new Pose2d()).
+                    splineTo() //Add coordinates of the spike
+        } else if (){ // Add openCv code for which spike its on
+            Trajectory trajGetToLeftSpike = drive.trajectoryBuilder(new Pose2d()).
+                    splineTo() //Add coordinates of the spike
+        } else if () { // Add openCv code for which spike its on
+            Trajectory trajGetToForwardSpike = drive.trajectoryBuilder(new Pose2d()).
+                    splineTo() //Add coordinates of the spike
+        }
+
+        /* Basically depending on which spike its on
+         * we would write the traj and drive it to the
+         * right spot
+         */
+
+        startState == autoStates.READ_APRIL_TAG;
+
+        break;
+        case autoStates.READ_APRIL_TAG:
+        /* Add openCv code to read april tag to determine
+         * which side you have to
+         * place the pixel on
+         */
+        startState == AUTO_PLACE_PIXEL;
+        break;
+        case autoStates.AUTO_PLACE_PIXEL:
+        if() { // Add openCv code for which spike its on
+            // Extend the extension and place the pixel in right spot
+        } else if (){ // Add openCv code for which spike its on
+            // Extend the extension and place the pixel in right spot
+        } else if () { // Add openCv code for which spike its on
+            // Extend the extension and place the pixel in right spot
+        }
+        startState == autoStates.DRIVE_TO_START;
+        break;
+        case autoStates.DRIVE_TO_START:
+
+        // Based on the one where it places the pixel, move back to the start
+
+        if() { // Add openCv code for which spike its on
+            // Extend the extension and place the pixel in right spot
+        } else if (){ // Add openCv code for which spike its on
+            // Extend the extension and place the pixel in right spot
+        } else if () { // Add openCv code for which spike its on
+            // Extend the extension and place the pixel in right spot
+        }
+        startState == autoStates.DRIVE_TO_STACK;
+        break;
+        case autoStates.DRIVE_TO_STACK:
+        Trajectory driveToStack = drive.TrajectoryBuilder(new Pose2d()).
+                splineTo(); // Add cords for the stack
+        startState == autoStates.PICK_UP;
+        break;
+        case autoStates.PICK_UP:
+        // Use claw & Lin exten to pick up 2 pixels
+
+        startState == autoStates.DRIVE_TO_BOARD;
+
+    }
+
+
+// Basically stops the entire thing if "y" is pressed
+            if(gamepad1.y && !liftState = linearExtensionStates.LIFT_START) {
+                    liftState = linearExtensionStates.LIFT_START;
+                    }
