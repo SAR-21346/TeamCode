@@ -47,13 +47,14 @@ public class AprilTagAutonEx extends LinearOpMode
 
     //Currently set to tags stated in gm2
 
-    AprilTagDetection tagOfInterest = null;
+
 
     @Override
     public void runOpMode()
     {
+        AprilTagDetection tagOfInterest = null;
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "camera"), cameraMonitorViewId);
         aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
 
         camera.setPipeline(aprilTagDetectionPipeline);
@@ -84,8 +85,7 @@ public class AprilTagAutonEx extends LinearOpMode
          */
         while (!isStarted() && !isStopRequested())
         {
-            ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
-
+            ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getDetectionsUpdate();
             if(currentDetections.size() != 0)
             {
 
@@ -232,3 +232,4 @@ public class AprilTagAutonEx extends LinearOpMode
 //This might be pretty buggy, and I think it works primarily through the init cycle, but it should work in other parts as well
 
 //this was also heavily reused from last year sooooooo...
+//this is because u took this from the eocv thing and didn't change stuff that was necessary for it to work lol
