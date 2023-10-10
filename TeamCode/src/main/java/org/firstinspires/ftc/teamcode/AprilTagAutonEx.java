@@ -5,6 +5,7 @@ package org.firstinspires.ftc.teamcode;
 
 import org.firstinspires.ftc.teamcode.AprilTagDetectionPipeline;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -21,7 +22,7 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 
 import java.util.ArrayList;
 
-@TeleOp
+@Autonomous
 public class AprilTagAutonEx extends LinearOpMode
 {
     OpenCvCamera camera;
@@ -46,8 +47,6 @@ public class AprilTagAutonEx extends LinearOpMode
     int RIGHT_RED = 6;
 
     //Currently set to tags stated in gm2
-
-
 
     @Override
     public void runOpMode()
@@ -219,13 +218,13 @@ public class AprilTagAutonEx extends LinearOpMode
     {
         Orientation rot = Orientation.getOrientation(detection.pose.R, AxesReference.INTRINSIC, AxesOrder.YXZ, AngleUnit.DEGREES);
 
-        telemetry.addLine(String.format("\nDetected tag ID=%d", detection.id));
-        telemetry.addLine(String.format("Translation X: %.2f feet", detection.pose.x*FEET_PER_METER));
-        telemetry.addLine(String.format("Translation Y: %.2f feet", detection.pose.y*FEET_PER_METER));
-        telemetry.addLine(String.format("Translation Z: %.2f feet", detection.pose.z*FEET_PER_METER));
-        telemetry.addLine(String.format("Rotation Yaw: %.2f degrees", rot.firstAngle));
-        telemetry.addLine(String.format("Rotation Pitch: %.2f degrees", rot.secondAngle));
-        telemetry.addLine(String.format("Rotation Roll: %.2f degrees", rot.thirdAngle));
+        telemetry.addLine(String.format("\nDetected tag ID=%d", detection.id)); //tag id
+        telemetry.addLine(String.format("Translation X: %.2f feet", detection.pose.x*FEET_PER_METER)); //x position
+        telemetry.addLine(String.format("Translation Y: %.2f feet", detection.pose.y*FEET_PER_METER)); //y position
+        telemetry.addLine(String.format("Translation Z: %.2f feet", detection.pose.z*FEET_PER_METER)); //z position
+        telemetry.addLine(String.format("Rotation Yaw: %.2f degrees", rot.firstAngle)); //yaw rotation
+        telemetry.addLine(String.format("Rotation Pitch: %.2f degrees", rot.secondAngle));  //pitch rotation
+        telemetry.addLine(String.format("Rotation Roll: %.2f degrees", rot.thirdAngle)); //roll rotation
     }
 }
 
