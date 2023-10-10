@@ -35,60 +35,56 @@ import java.lang.Thread;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class MecanumTrain {
-    // Declare OpMode members for each of the 4 motors.
-    private DcMotor leftFrontDrive = null;
-    private DcMotor leftBackDrive = null;
-    private DcMotor rightFrontDrive = null;
-    private DcMotor rightBackDrive = null;
 
-    public MecanumTrain(DcMotor leftFrontDrive, DcMotor leftBackDrive, DcMotor rightFrontDrive,
-            DcMotor rightBackDrive) {
-        this.leftFrontDrive = leftFrontDrive;
-        this.leftBackDrive = leftBackDrive;
-        this.rightFrontDrive = rightFrontDrive;
-        this.rightBackDrive = rightBackDrive;
+    // Public OpMode members.
+    public DcMotor leftFrontDrive;
+    public DcMotor leftBackDrive;
+    public DcMotor rightFrontDrive;
+    public DcMotor rightBackDrive;
+
+    MotorController lfDriveController;
+    Thread lfDriveThread;
+    MotorController lbDriveController;
+    Thread lbDriveThread;
+    MotorController rfDriveController;
+    Thread rfDriveThread;
+    MotorController rbDriveController;
+    Thread rbDriveThread;
+
+    public MecanumTrain() {
     }
 
-    private static class MotorController implements Runnable {
-        private final DcMotor motor; // motor definition
-        private final DcMotorSimple.Direction direction; // direction of movement for a motor
-                                                         // (signifies which direction it moves with positive power)
-        private double power = 0;
+    HardwareMap hwMap = null;
 
-        public MotorController(DcMotor motor, DcMotor.Direction direction) {
-            this.motor = motor;
-            this.direction = direction;
-        }
+    public void init(HardwareMap hwMapX) {
+        hwMap = hwMapX;
 
-        // setPower(power)
-        // power - double
-        public void setPower(double power) {
-            this.power = power;
-        }
+        // Initialize the hardware variables. Note that the strings used here
+        // as parameters to 'get' must correspond to the names assigned during the robot
+        // configuration
+        // step (using the FTC Robot Controller app).
+        leftFrontDrive = hwMap.DcMotor.get("leftFrontDrive");
+        leftBackDrive = hwMap.DcMotor.get("leftBackDrive");
+        rightFrontDrive = hwMap.DcMotor.get("rightFrontDrive");
+        rightBackDrive = hwMap.DcMotor.get("rightBackDrive");
 
-        public void run() {
-            motor.setDirection(direction);
-            while (!Thread.currentThread().isInterrupted()) {
-                motor.setPower(power);
-            }
-            motor.setPower(0);
-        }
+        // Create instances of the MotorController class to run the motor asynchronously
+        // in a thread
+        lfDriveController = new MotorController(leftFrontDrive, DcMotor.Direction.FORWARD);
+        lfDriveThread = new Thread(lfDriveController);
+        lbDriveController = new MotorController(leftBackDrive, DcMotor.Direction.REVERSE);
+        lbDriveThread = new Thread(lbDriveController);
+        rfDriveController = new MotorController(rightFrontDrive, DcMotor.Direction.FORWARD);
+        rfDriveThread = new Thread(rfDriveController);
+        rbDriveController = new MotorController(rightBackDrive, DcMotor.Direction.FORWARD);
+        rbDriveThread = new Thread(rbDriveController);
     }
-
-    // Create instances of the MotorController class to run the motor asynchronously
-    // in a thread
-    MotorController lfDriveController = new MotorController(leftFrontDrive, DcMotor.Direction.FORWARD);
-    Thread lfDriveThread = new Thread(lfDriveController);
-    MotorController lbDriveController = new MotorController(leftBackDrive, DcMotor.Direction.REVERSE);
-    Thread lbDriveThread = new Thread(lbDriveController);
-    MotorController rfDriveController = new MotorController(rightFrontDrive, DcMotor.Direction.FORWARD);
-    Thread rfDriveThread = new Thread(rfDriveController);
-    MotorController rbDriveController = new MotorController(rightBackDrive, DcMotor.Direction.FORWARD);
-    Thread rbDriveThread = new Thread(rbDriveController);
 
     // trainStart()
     // Starts the motor threads
@@ -113,29 +109,54 @@ public class MecanumTrain {
         return motorPowers;
     }
 
-    public DcMotor getLeftBackDrive() {
-        return leftBackDrive;
-    }
-
-    public DcMotor getLeftFrontDrive() {
-        return leftFrontDrive;
-    }
-
-    public DcMotor getRightBackDrive() {
-        return rightBackDrive;
-    }
-
-    public DcMotor getRightFrontDrive() {
-        return rightFrontDrive;
+    // statusToTelemetry()
+    // Shows the elapsed game time and wheel power.
+    public void statusToTelemetry() {
+        telemetry.addData("Status", "Run Time: " + runtime.toString());
+        telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
+        telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
+        telemetry.addData("Axial,Lateral,Yaw", "%4.2f, %4.2f, %4.2f", axial, lateral, yaw);
+        telemetry.update();
     }
 
     // trainStop()
     // Stops the motor threads
     public void trainStop() {
-        // .interrupt() stops the threads after the loop is done
+        lfDriveController.setPower(0);
+        lbDriveController.setPower(0);
+        rfDriveController.setPower(0);
+        rbDriveController.setPower(0);
         lfDriveThread.interrupt();
         rfDriveThread.interrupt();
         rbDriveThread.interrupt();
         lbDriveThread.interrupt();
+    }
+
+    // MotorController
+    // A class that controls a motor asynchronously in a thread
+    private static class MotorController implements Runnable {
+        private final DcMotor motor; // motor definition
+        private final DcMotorSimple.Direction direction; // direction of movement for a motor
+                                                         // (signifies which direction it moves with positive power)
+        private double power = 0;
+
+        public MotorController(DcMotor motor, DcMotor.Direction direction) {
+            this.motor = motor;
+            this.direction = direction;
+        }
+
+        // setPower(power)
+        // power - double
+        public void setPower(double power) {
+            this.power = power;
+        }
+
+        public void run() {
+            motor.setDirection(direction);
+            while (!Thread.currentThread().isInterrupted()) {
+                motor.setPower(power);
+            }
+            motor.setPower(0);
+        }
     }
 }

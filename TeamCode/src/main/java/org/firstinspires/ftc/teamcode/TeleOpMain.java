@@ -7,15 +7,10 @@ import org.qualcomm.robotcore.hardware.DcMotor;
 public class TeleOpMain {
     private ElapsedTime runtime = new ElapsedTime();
 
-    // initialize motors
-    private DcMotor lfMotor = hardwareMap.get(DcMotor.class, "leftFrontDrive");
-    private DcMotor lbMotor = hardwareMap.get(DcMotor.class, "leftBackDrive");
-    private DcMotor rbMotor = hardwareMap.get(DcMotor.class, "rightBackDrive");
-    private DcMotor rfMotor = hardwareMap.get(DcMotor.class, "rightFrontDrive");
-
-    private MecanumTrain mecanumTrain = new MecanumTrain(lfMotor, lbMotor, rfMotor, rbMotor);
+    MecanumTrain bot;
 
     public void runOpMode() {
+        bot = new MecanumTrain();
 
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");
@@ -34,17 +29,15 @@ public class TeleOpMain {
             double[] motorPowers = mecanumTrain.calculateMotorPowers(axial, lateral, yaw);
 
             // set motor powers
-            mecanumTrain.getLeftFrontDrive().setPower(motorPowers[0]);
-            mecanumTrain.getLeftBackDrive().setPower(motorPowers[1]);
-            mecanumTrain.getRightFrontDrive().setPower(motorPowers[2]);
-            mecanumTrain.getRightBackDrive().setPower(motorPowers[3]);
+            bot.lfDriveController.setPower(motorPowers[0]);
+            bot.leftBackDrive.setPower(motorPowers[1]);
+            bot.rightFrontDrive.setPower(motorPowers[2]);
+            bot.rightBackDrive.setPower(motorPowers[3]);
 
-            // Show the elapsed game time and wheel power.
-            telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
-            telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
-            telemetry.addData("Axial,Lateral,Yaw", "%4.2f, %4.2f, %4.2f", axial, lateral, yaw);
-            telemetry.update();
+            mecanumTrain.statusToTelemetry();
         }
+
+        // Stop all motion;
+        bot.trainStop();
     }
 }
