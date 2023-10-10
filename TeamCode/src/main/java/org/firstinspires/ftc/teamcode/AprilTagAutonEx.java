@@ -1,6 +1,5 @@
 //NOTE! Currently only setup for Red Side, if approved, will work on blue.
 
-
 package org.firstinspires.ftc.teamcode;
 
 import org.firstinspires.ftc.teamcode.AprilTagDetectionPipeline;
@@ -23,8 +22,7 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 import java.util.ArrayList;
 
 @Autonomous
-public class AprilTagAutonEx extends LinearOpMode
-{
+public class AprilTagAutonEx extends LinearOpMode {
     OpenCvCamera camera;
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
 
@@ -46,28 +44,26 @@ public class AprilTagAutonEx extends LinearOpMode
     int MID_RED = 5;
     int RIGHT_RED = 6;
 
-    //Currently set to tags stated in gm2
+    // Currently set to tags stated in gm2
 
     @Override
-    public void runOpMode()
-    {
+    public void runOpMode() {
         AprilTagDetection tagOfInterest = null;
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "camera"), cameraMonitorViewId);
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id",
+                hardwareMap.appContext.getPackageName());
+        camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "camera"),
+                cameraMonitorViewId);
         aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
 
         camera.setPipeline(aprilTagDetectionPipeline);
-        camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
-        {
+        camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
-            public void onOpened()
-            {
-                camera.startStreaming(800,448, OpenCvCameraRotation.UPRIGHT);
+            public void onOpened() {
+                camera.startStreaming(800, 448, OpenCvCameraRotation.UPRIGHT);
             }
 
             @Override
-            public void onError(int errorCode)
-            {
+            public void onError(int errorCode) {
 
             }
         });
@@ -82,76 +78,53 @@ public class AprilTagAutonEx extends LinearOpMode
          * The INIT-loop:
          * This REPLACES waitForStart!
          */
-        while (!isStarted() && !isStopRequested())
-        {
+        while (!isStarted() && !isStopRequested()) {
             ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getDetectionsUpdate();
-            if(currentDetections.size() != 0)
-            {
+            if (currentDetections.size() != 0) {
 
-                for(AprilTagDetection tag : currentDetections)
-                {
-                    if(tag.id == LEFT_RED)
-                    {
+                for (AprilTagDetection tag : currentDetections) {
+                    if (tag.id == LEFT_RED) {
                         tagOfInterest = tag;
                         tagFoundLR = true;
                         break;
-                    }
-                    else if (tag.id == MID_RED)
-                    {
+                    } else if (tag.id == MID_RED) {
                         tagOfInterest = tag;
                         tagFoundMR = true;
                         break;
-                    }
-                    else if (tag.id == RIGHT_RED)
-                    {
-                     tagOfInterest = tag;
-                     tagFoundRR = true;
-                     break;
+                    } else if (tag.id == RIGHT_RED) {
+                        tagOfInterest = tag;
+                        tagFoundRR = true;
+                        break;
                     }
                 }
 
-                if(tagFoundLR)
-                {
+                if (tagFoundLR) {
                     telemetry.addLine("Left Tag Detected\n Red Alliance\nLocation data:");
                     tagToTelemetry(tagOfInterest);
-                }
-                else if(tagFoundMR)
-                {
+                } else if (tagFoundMR) {
                     telemetry.addLine("Middle Tag Detected\n Red Alliance\nLocation data:");
                     tagToTelemetry(tagOfInterest);
-                }
-                else if (tagFoundRR)
-                {
+                } else if (tagFoundRR) {
                     telemetry.addLine("Right Tag Detected\n Red Alliance\nLocation data:");
                     tagToTelemetry(tagOfInterest);
-                }
-                else
-                {
+                } else {
 
                     telemetry.addLine("Don't see tag of interest :(");
 
-                    if(tagOfInterest == null)
-                    {
+                    if (tagOfInterest == null) {
                         telemetry.addLine("(The tag has never been seen)");
-                    }
-                    else
-                    {
+                    } else {
                         telemetry.addLine("\nBut we HAVE seen the tag before; last seen at:");
                         tagToTelemetry(tagOfInterest);
                     }
                 }
 
-            }
-            else
-            {
+            } else {
                 telemetry.addLine("Don't see tag of interest :(");
 
-                if(tagOfInterest == null)
-                {
+                if (tagOfInterest == null) {
                     telemetry.addLine("(The tag has never been seen)");
-                }
-                else
-                {
+                } else {
                     telemetry.addLine("\nBut we HAVE seen the tag before; last seen at:");
                     tagToTelemetry(tagOfInterest);
                 }
@@ -168,45 +141,36 @@ public class AprilTagAutonEx extends LinearOpMode
          */
 
         /* Update the telemetry */
-        if(tagOfInterest != null)
-        {
+        if (tagOfInterest != null) {
             telemetry.addLine("Tag snapshot:\n");
             tagToTelemetry(tagOfInterest);
             telemetry.update();
-        }
-        else
-        {
+        } else {
             telemetry.addLine("No tag snapshot available, it was never sighted during the init loop :(");
             telemetry.update();
         }
 
         /* Actually do something useful */
-        if(tagOfInterest == null)
-        {
+        if (tagOfInterest == null) {
             /*
-             * Insert your autonomous code here, presumably running some default configuration
+             * Insert your autonomous code here, presumably running some default
+             * configuration
              * since the tag was never sighted during INIT
              */
-        }
-        else
-        {
+        } else {
             /*
-             * Insert your autonomous code here, probably using the tag to decide your configuration.
+             * Insert your autonomous code here, probably using the tag to decide your
+             * configuration.
              */
 
             // e.g.
-            if(tagFoundLR)
-            {
+            if (tagFoundLR) {
                 // do something
                 telemetry.addLine("Red Left Tag path running");
-            }
-            else if(tagFoundMR)
-            {
+            } else if (tagFoundMR) {
                 // do something else
                 telemetry.addLine("Red Mid Tag path running");
-            }
-            else if(tagFoundRR)
-            {
+            } else if (tagFoundRR) {
                 // do something else
                 telemetry.addLine("Red Right Tag path running");
             }
@@ -214,21 +178,23 @@ public class AprilTagAutonEx extends LinearOpMode
 
     }
 
-    void tagToTelemetry(AprilTagDetection detection)
-    {
-        Orientation rot = Orientation.getOrientation(detection.pose.R, AxesReference.INTRINSIC, AxesOrder.YXZ, AngleUnit.DEGREES);
+    void tagToTelemetry(AprilTagDetection detection) {
+        Orientation rot = Orientation.getOrientation(detection.pose.R, AxesReference.INTRINSIC, AxesOrder.YXZ,
+                AngleUnit.DEGREES);
 
-        telemetry.addLine(String.format("\nDetected tag ID=%d", detection.id)); //tag id
-        telemetry.addLine(String.format("Translation X: %.2f feet", detection.pose.x*FEET_PER_METER)); //x position
-        telemetry.addLine(String.format("Translation Y: %.2f feet", detection.pose.y*FEET_PER_METER)); //y position
-        telemetry.addLine(String.format("Translation Z: %.2f feet", detection.pose.z*FEET_PER_METER)); //z position
-        telemetry.addLine(String.format("Rotation Yaw: %.2f degrees", rot.firstAngle)); //yaw rotation
-        telemetry.addLine(String.format("Rotation Pitch: %.2f degrees", rot.secondAngle));  //pitch rotation
-        telemetry.addLine(String.format("Rotation Roll: %.2f degrees", rot.thirdAngle)); //roll rotation
+        telemetry.addLine(String.format("\nDetected tag ID=%d", detection.id)); // tag id
+        telemetry.addLine(String.format("Translation X: %.2f feet", detection.pose.x * FEET_PER_METER)); // x position
+        telemetry.addLine(String.format("Translation Y: %.2f feet", detection.pose.y * FEET_PER_METER)); // y position
+        telemetry.addLine(String.format("Translation Z: %.2f feet", detection.pose.z * FEET_PER_METER)); // z position
+        telemetry.addLine(String.format("Rotation Yaw: %.2f degrees", rot.firstAngle)); // yaw rotation
+        telemetry.addLine(String.format("Rotation Pitch: %.2f degrees", rot.secondAngle)); // pitch rotation
+        telemetry.addLine(String.format("Rotation Roll: %.2f degrees", rot.thirdAngle)); // roll rotation
     }
 }
 
-//This might be pretty buggy, and I think it works primarily through the init cycle, but it should work in other parts as well
+// This might be pretty buggy, and I think it works primarily through the init
+// cycle, but it should work in other parts as well
 
-//this was also heavily reused from last year sooooooo...
-//this is because u took this from the eocv thing and didn't change stuff that was necessary for it to work lol
+// this was also heavily reused from last year sooooooo...
+// this is because u took this from the eocv thing and didn't change stuff that
+// was necessary for it to work lol

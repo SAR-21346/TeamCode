@@ -26,10 +26,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-//hi
-//hi take 2
-//hi
-//HII
+
 package org.firstinspires.ftc.teamcode;
 
 import java.lang.Math;
@@ -39,32 +36,22 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-
-
-@TeleOp(name="Mecanum Drivetrain")
-//@Disabled
-public class MecanumTrain extends LinearOpMode {
-
+public class MecanumTrain {
     // Declare OpMode members for each of the 4 motors.
-    private ElapsedTime runtime = new ElapsedTime();
     private DcMotor leftFrontDrive = null;
     private DcMotor leftBackDrive = null;
     private DcMotor rightFrontDrive = null;
     private DcMotor rightBackDrive = null;
 
-
-    private enum State {
-        READY,
-        NOT_READY
+    public MecanumTrain(DcMotor leftFrontDrive, DcMotor leftBackDrive, DcMotor rightFrontDrive,
+            DcMotor rightBackDrive) {
+        this.leftFrontDrive = leftFrontDrive;
+        this.leftBackDrive = leftBackDrive;
+        this.rightFrontDrive = rightFrontDrive;
+        this.rightBackDrive = rightBackDrive;
     }
-
-    private State lfMotorState = State.READY;
-    private State rfMotorState = State.READY;
-    private State rbMotorState = State.READY;
-    private State lbMotorState = State.READY;
 
     private static class MotorController implements Runnable {
         private final DcMotor motor; // motor definition
@@ -83,7 +70,7 @@ public class MecanumTrain extends LinearOpMode {
             this.power = power;
         }
 
-        public void run(){
+        public void run() {
             motor.setDirection(direction);
             while (!Thread.currentThread().isInterrupted()) {
                 motor.setPower(power);
@@ -92,122 +79,63 @@ public class MecanumTrain extends LinearOpMode {
         }
     }
 
-    @Override
-    public void runOpMode() {
+    // Create instances of the MotorController class to run the motor asynchronously
+    // in a thread
+    MotorController lfDriveController = new MotorController(leftFrontDrive, DcMotor.Direction.FORWARD);
+    Thread lfDriveThread = new Thread(lfDriveController);
+    MotorController lbDriveController = new MotorController(leftBackDrive, DcMotor.Direction.REVERSE);
+    Thread lbDriveThread = new Thread(lbDriveController);
+    MotorController rfDriveController = new MotorController(rightFrontDrive, DcMotor.Direction.FORWARD);
+    Thread rfDriveThread = new Thread(rfDriveController);
+    MotorController rbDriveController = new MotorController(rightBackDrive, DcMotor.Direction.FORWARD);
+    Thread rbDriveThread = new Thread(rbDriveController);
 
-        // Initialize the hardware variables. Note that the strings used here must correspond
-        // to the names assigned during the robot configuration step on the DS or RC devices.
-        //Port 2 control hub
-        leftFrontDrive  = hardwareMap.get(DcMotor.class, "FLdrive");
-        //Port X control hub
-        leftBackDrive  = hardwareMap.get(DcMotor.class, "BLdrive");
-        //Port X control hub
-        rightFrontDrive = hardwareMap.get(DcMotor.class, "FRdrive");
-        //Port X control hub
-        rightBackDrive = hardwareMap.get(DcMotor.class, "BRdrive");
-
-
-        // Create an instance of the MotorController class "lfDriveController" to
-        // run the motor asynchronously in a thread
-        MotorController lfDriveController = new MotorController(leftFrontDrive, DcMotor.Direction.FORWARD);
-        Thread lfDriveThread = new Thread(lfDriveController);
-
-        // Create an instance of the MotorController class "lbDriveController" to
-        // run the motor asynchronously in a thread
-        MotorController lbDriveController = new MotorController(leftBackDrive, DcMotor.Direction.REVERSE);
-        Thread lbDriveThread = new Thread(lbDriveController);
-
-        // Create an instance of the MotorController class "rfDriveController" to
-        // run the motor asynchronously in a thread
-        MotorController rfDriveController = new MotorController(rightFrontDrive, DcMotor.Direction.FORWARD);
-        Thread rfDriveThread = new Thread(rfDriveController);
-
-        // Create an instance of the MotorController class "rbDriveController" to
-        // run the motor asynchronously in a thread
-        MotorController rbDriveController = new MotorController(rightBackDrive, DcMotor.Direction.FORWARD);
-        Thread rbDriveThread = new Thread(rbDriveController);
-
-        // Start each motor thread
+    // trainStart()
+    // Starts the motor threads
+    public void trainStart() {
         lfDriveThread.start();
         lbDriveThread.start();
         rfDriveThread.start();
         rbDriveThread.start();
+    }
 
-        // Wait for the game to start (driver presses PLAY)
-        telemetry.addData("Status", "Initialized");
-        telemetry.update();
+    // calculateMotorPowers(axial, lateral, yaw)
+    // axial - double
+    // lateral - double
+    // yaw - double
+    // returns double[]
+    public double[] calculateMotorPowers(double axial, double lateral, double yaw) {
+        double[] motorPowers = new double[4];
+        motorPowers[0] = axial + lateral + yaw;
+        motorPowers[1] = axial - lateral - yaw;
+        motorPowers[2] = axial - lateral + yaw;
+        motorPowers[3] = axial + lateral - yaw;
+        return motorPowers;
+    }
 
-        waitForStart();
-        runtime.reset();
+    public DcMotor getLeftBackDrive() {
+        return leftBackDrive;
+    }
 
-        // run until the end of the match (driver presses STOP)
-        while (opModeIsActive()) {
-            double max;
+    public DcMotor getLeftFrontDrive() {
+        return leftFrontDrive;
+    }
 
-            // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
-            double axial   = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
-            double lateral =  gamepad1.left_stick_x;
-            double yaw     =  gamepad1.right_stick_x;
+    public DcMotor getRightBackDrive() {
+        return rightBackDrive;
+    }
 
-            // Combine the joystick requests for each axis-motion to determine each wheel's power.
-            // Set up a variable for each drive wheel to save the power level for telemetry.
-            double leftFrontPower  = axial + lateral + yaw;
-            double rightFrontPower = axial - lateral - yaw;
-            double leftBackPower   = axial - lateral + yaw;
-            double rightBackPower  = axial + lateral - yaw;
+    public DcMotor getRightFrontDrive() {
+        return rightFrontDrive;
+    }
 
-            //setting minimum power of RightBack Motor, It was sticking.
-            if(Math.abs(rightBackPower)<0.11&&Math.abs(rightBackPower)>0.01){
-                rightBackPower=0.11;
-            }
-            // Normalize the values so no wheel power exceeds 100%
-            // This ensures that the robot maintains the desired motion.
-            max = Math.max(Math.abs(leftFrontPower), Math.abs(rightFrontPower));
-            max = Math.max(max, Math.abs(leftBackPower));
-            max = Math.max(max, Math.abs(rightBackPower));
-
-            if (max > 1.0) {
-                leftFrontPower  /= max;
-                rightFrontPower /= max;
-                leftBackPower   /= max;
-                rightBackPower  /= max;
-            }
-
-            // This is test code:
-            //
-            // Uncomment the following code to test your motor directions.
-            // Each button should make the corresponding motor run FORWARD.
-            //   1) First get all the motors to take to correct positions on the robot
-            //      by adjusting your Robot Configuration if necessary.
-            //   2) Then make sure they run in the correct direction by modifying the
-            //      the setDirection() calls above.
-            // Once the correct motors move in the correct direction re-comment this code.
-
-
-
-
-            // Send calculated power to wheels
-//          leftFrontDrive.setPower(leftFrontPower);
-            lfDriveController.setPower(leftFrontPower);
-//          rightFrontDrive.setPower(rightFrontPower);
-            rfDriveController.setPower(rightFrontPower);
-//          leftBackDrive.setPower(leftBackPower);
-            lbDriveController.setPower(leftBackPower);
-//          rightBackDrive.setPower(rightBackPower);
-            rbDriveController.setPower(rightBackPower);
-
-            // Show the elapsed game time and wheel power.
-            telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
-            telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
-            telemetry.addData("Axial,Lateral,Yaw", "%4.2f, %4.2f, %4.2f", axial, lateral, yaw);
-            telemetry.update();
-        }
-
+    // trainStop()
+    // Stops the motor threads
+    public void trainStop() {
         // .interrupt() stops the threads after the loop is done
         lfDriveThread.interrupt();
         rfDriveThread.interrupt();
         rbDriveThread.interrupt();
         lbDriveThread.interrupt();
-    }}
-
+    }
+}
