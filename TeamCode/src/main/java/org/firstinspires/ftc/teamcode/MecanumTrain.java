@@ -40,14 +40,22 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-public class MecanumTrain {
+import org.openftc.apriltag.AprilTagDetection;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvInternalCamera;
 
+public class MecanumTrain {
     // Public OpMode members.
     public DcMotor leftFrontDrive;
     public DcMotor leftBackDrive;
     public DcMotor rightFrontDrive;
     public DcMotor rightBackDrive;
+    public OpenCvCamera camera;
+    public AprilTagDetectionPipeline aprilTagDetectionPipeline;
 
+    // MotorController instances and threads
     MotorController lfDriveController;
     Thread lfDriveThread;
     MotorController lbDriveController;
@@ -84,6 +92,14 @@ public class MecanumTrain {
         rfDriveThread = new Thread(rfDriveController);
         rbDriveController = new MotorController(rightBackDrive, DcMotor.Direction.FORWARD);
         rbDriveThread = new Thread(rbDriveController);
+
+        // Camera Initialization
+        int cameraMonitorViewId = hwMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id",
+                hwMap.appContext.getPackageName());
+        camera = OpenCvCameraFactory.getInstance().createWebcam(hwMap.get(WebcamName.class, "camera"),
+                cameraMonitorViewId);
+        aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
+        camera.setPipeline(aprilTagDetectionPipeline);
     }
 
     // trainStart()
