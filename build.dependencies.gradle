@@ -29,6 +29,6 @@ dependencies {
     implementation 'org.openftc:apriltag:2.0.0'
 
     // RoadRunner
-    implementation 'com.acmerobotics.dashboard:dashboard:0.4.12'
+    implementation 'com.acmerobotics.dashboard:dashboard:0.4.13'
 }
 
