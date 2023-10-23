@@ -138,23 +138,23 @@ public class MecanumTrain extends LinearOpMode {
         // to the names assigned during the robot configuration step on the DS or RC devices.
         //Port 2 control hub
         leftFrontDrive  = hardwareMap.get(DcMotor.class, "FLdrive");
-        //Port X control hub
+        //Port 0 control hub
         leftBackDrive  = hardwareMap.get(DcMotor.class, "BLdrive");
-        //Port X control hub
+        //Port 2 control hub
         rightFrontDrive = hardwareMap.get(DcMotor.class, "FRdrive");
-        //Port X control hub
+        //Port 3 control hub
         rightBackDrive = hardwareMap.get(DcMotor.class, "BRdrive");
         /*
-        //Port X expansion hub (Left hand slide drive)
+        //Port 0 expansion hub (Left hand slide drive)
         leftSlide = hardwareMap.get(DcMotor.class, "Lslide");
 
-        //Port X expansion hub (Right hand slide drive)
+        //Port 2 expansion hub (Right hand slide drive)
         rightSlide = hardwareMap.get(DcMotor.class, "Rslide");
 
-        //Port X expansion hub (Spinning Intake)
+        //Port 3 expansion hub (Spinning Intake)
         spinTake = hardwareMap.get(DcMotor.class, "Spintake");
 
-        //Port X expansion hub (4 Bar Outtake Motor)
+        //Port 1 expansion hub (4 Bar Outtake Motor)
         outMotor = hardwareMap.get(DcMotor.class, "Outtake");
          */
 
