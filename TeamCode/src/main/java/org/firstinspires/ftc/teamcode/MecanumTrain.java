@@ -83,21 +83,32 @@ public class MecanumTrain extends LinearOpMode {
     private DcMotor rightFrontDrive = null;
     private DcMotor rightBackDrive = null;
 
-
+    //Create States for motors
     private enum State {
         READY,
         NOT_READY
     }
 
+    //Set the states of all motors to ready
     private State lfMotorState = State.READY;
     private State rfMotorState = State.READY;
     private State rbMotorState = State.READY;
     private State lbMotorState = State.READY;
+    //private State lSlMotorState = State.READY;
+    //private State rSlMotorState = State.READY;
+    //private State inMotorState = State.READY;
+    //private State outMotorState = State.READY;
 
     private static class MotorController implements Runnable {
-        private final DcMotor motor; // motor definition
-        private final DcMotorSimple.Direction direction; // direction of movement for a motor
-                                                         // (signifies which direction it moves with positive power)
+
+        //motor definition
+        private final DcMotor motor;
+
+        // direction of movement for a motor
+        // (signifies which direction it moves with positive power)
+        private final DcMotorSimple.Direction direction;
+
+        //Initial Power set to Zero
         private double power = 0;
 
         public MotorController(DcMotor motor, DcMotor.Direction direction) {
