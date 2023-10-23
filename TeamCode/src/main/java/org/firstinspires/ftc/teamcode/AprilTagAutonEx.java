@@ -2,10 +2,14 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import android.annotation.SuppressLint;
+
 import org.firstinspires.ftc.teamcode.AprilTagDetectionPipeline;
+import org.firstinspires.ftc.teamcode.MecanumTrain;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -14,13 +18,19 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.openftc.apriltag.AprilTagDetection;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+
 
 import java.util.ArrayList;
 
-@Autonomous
+
+@Autonomous(name = "AprilTag Autonomous")
 public class AprilTagAutonEx extends LinearOpMode {
 
     MecanumTrain bot;
+
 
     static final double FEET_PER_METER = 3.28084;
 
@@ -40,13 +50,21 @@ public class AprilTagAutonEx extends LinearOpMode {
     int MID_RED = 5;
     int RIGHT_RED = 6;
 
+    AprilTagDetection tagOfInterest = null; // this is the tag we're interested in
+
     // Currently set to tags stated in gm2
 
     @Override
     public void runOpMode() {
         bot = new MecanumTrain(); // this is the robot instance
+        bot.init(hardwareMap);
 
-        AprilTagDetection tagOfInterest = null; // this is the tag we're interested in
+        AprilTagDetectionPipeline aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
+        bot.camera.setPipeline(aprilTagDetectionPipeline);
+
+
+
+
 
         bot.camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
@@ -63,19 +81,20 @@ public class AprilTagAutonEx extends LinearOpMode {
 
         telemetry.setMsTransmissionInterval(50);
 
-        boolean tagFoundLR = false;
-        boolean tagFoundMR = false;
-        boolean tagFoundRR = false;
 
-        /*
-         * The INIT-loop:
-         * This REPLACES waitForStart!
-         */
-        while (!isStarted() && !isStopRequested()) {
-            ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getDetectionsUpdate();
-            if (currentDetections.size() != 0) {
 
-                for (AprilTagDetection tag : currentDetections) {
+        waitForStart();
+
+
+        while (opModeIsActive()) {
+            ArrayList<AprilTagDetection> detections = aprilTagDetectionPipeline.getLatestDetections();
+
+            if (detections.size() != 0) {
+                boolean tagFoundLR = false;
+                boolean tagFoundMR = false;
+                boolean tagFoundRR = false;
+
+                for (AprilTagDetection tag : detections) {
                     if (tag.id == LEFT_RED) {
                         tagOfInterest = tag;
                         tagFoundLR = true;
@@ -100,18 +119,7 @@ public class AprilTagAutonEx extends LinearOpMode {
                 } else if (tagFoundRR) {
                     telemetry.addLine("Right Tag Detected\n Red Alliance\nLocation data:");
                     tagToTelemetry(tagOfInterest);
-                } else {
-
-                    telemetry.addLine("Don't see tag of interest :(");
-
-                    if (tagOfInterest == null) {
-                        telemetry.addLine("(The tag has never been seen)");
-                    } else {
-                        telemetry.addLine("\nBut we HAVE seen the tag before; last seen at:");
-                        tagToTelemetry(tagOfInterest);
-                    }
                 }
-
             } else {
                 telemetry.addLine("Don't see tag of interest :(");
 
@@ -157,19 +165,20 @@ public class AprilTagAutonEx extends LinearOpMode {
              */
 
             // e.g.
-            if (tagFoundLR) {
-                // do something
-                telemetry.addLine("Red Left Tag path running");
-            } else if (tagFoundMR) {
-                // do something else
-                telemetry.addLine("Red Mid Tag path running");
-            } else if (tagFoundRR) {
-                // do something else
-                telemetry.addLine("Red Right Tag path running");
-            }
+//            if (tagFoundLR) {
+//                // do something
+//                telemetry.addLine("Red Left Tag path running");
+//            } else if (tagFoundMR) {
+//                // do something else
+//                telemetry.addLine("Red Mid Tag path running");
+//            } else if (tagFoundRR) {
+//                // do something else
+//                telemetry.addLine("Red Right Tag path running");
+//            }
         }
 
     }
+
 
     void tagToTelemetry(AprilTagDetection detection) {
         Orientation rot = Orientation.getOrientation(detection.pose.R, AxesReference.INTRINSIC, AxesOrder.YXZ,

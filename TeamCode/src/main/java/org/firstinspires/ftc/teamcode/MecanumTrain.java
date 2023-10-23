@@ -29,22 +29,23 @@
 
 package org.firstinspires.ftc.teamcode;
 
+
 import java.lang.Math;
 import java.lang.Thread;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.openftc.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
-import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvInternalCamera;
+
 
 public class MecanumTrain {
     // Public OpMode members.
@@ -77,10 +78,10 @@ public class MecanumTrain {
         // as parameters to 'get' must correspond to the names assigned during the robot
         // configuration
         // step (using the FTC Robot Controller app).
-        leftFrontDrive = hwMap.DcMotor.get("leftFrontDrive");
-        leftBackDrive = hwMap.DcMotor.get("leftBackDrive");
-        rightFrontDrive = hwMap.DcMotor.get("rightFrontDrive");
-        rightBackDrive = hwMap.DcMotor.get("rightBackDrive");
+        leftFrontDrive = hwMap.get(DcMotor.class, "FLdrive");
+        leftBackDrive = hwMap.get(DcMotor.class, "BLdrive");
+        rightFrontDrive = hwMap.get(DcMotor.class, "FRdrive");
+        rightBackDrive = hwMap.get(DcMotor.class, "BRdrive");
 
         // Create instances of the MotorController class to run the motor asynchronously
         // in a thread
@@ -98,8 +99,6 @@ public class MecanumTrain {
                 hwMap.appContext.getPackageName());
         camera = OpenCvCameraFactory.getInstance().createWebcam(hwMap.get(WebcamName.class, "camera"),
                 cameraMonitorViewId);
-        aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
-        camera.setPipeline(aprilTagDetectionPipeline);
     }
 
     // trainStart()
@@ -125,15 +124,9 @@ public class MecanumTrain {
         return motorPowers;
     }
 
-    // statusToTelemetry()
-    // Shows the elapsed game time and wheel power.
-    public void statusToTelemetry() {
-        telemetry.addData("Status", "Run Time: " + runtime.toString());
-        telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
-        telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
-        telemetry.addData("Axial,Lateral,Yaw", "%4.2f, %4.2f, %4.2f", axial, lateral, yaw);
-        telemetry.update();
-    }
+
+
+
 
     // trainStop()
     // Stops the motor threads
@@ -156,7 +149,7 @@ public class MecanumTrain {
                                                          // (signifies which direction it moves with positive power)
         private double power = 0;
 
-        public MotorController(DcMotor motor, DcMotor.Direction direction) {
+        public MotorController(DcMotor motor, DcMotorSimple.Direction direction) {
             this.motor = motor;
             this.direction = direction;
         }
