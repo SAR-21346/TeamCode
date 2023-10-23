@@ -83,17 +83,32 @@ public class MecanumTrain extends LinearOpMode {
     private DcMotor rightFrontDrive = null;
     private DcMotor rightBackDrive = null;
 
-
+    //Create States for motors
     private enum State {
         READY,
         NOT_READY
     }
 
-    private State currentState = State.READY;
+    //Set the states of all motors to ready
+    private State lfMotorState = State.READY;
+    private State rfMotorState = State.READY;
+    private State rbMotorState = State.READY;
+    private State lbMotorState = State.READY;
+    //private State lSlMotorState = State.READY;
+    //private State rSlMotorState = State.READY;
+    //private State inMotorState = State.READY;
+    //private State outMotorState = State.READY;
+
     private static class MotorController implements Runnable {
-        private final DcMotor motor; // motor definition
-        private final DcMotorSimple.Direction direction; // direction of movement for a motor
-                                                         // (signifies which direction it moves with positive power)
+
+        //motor definition
+        private final DcMotor motor;
+
+        // direction of movement for a motor
+        // (signifies which direction it moves with positive power)
+        private final DcMotorSimple.Direction direction;
+
+        //Initial Power set to Zero
         private double power = 0;
 
         public MotorController(DcMotor motor, DcMotor.Direction direction) {
@@ -123,12 +138,25 @@ public class MecanumTrain extends LinearOpMode {
         // to the names assigned during the robot configuration step on the DS or RC devices.
         //Port 2 control hub
         leftFrontDrive  = hardwareMap.get(DcMotor.class, "FLdrive");
-        //Port X control hub
+        //Port 0 control hub
         leftBackDrive  = hardwareMap.get(DcMotor.class, "BLdrive");
-        //Port X control hub
+        //Port 2 control hub
         rightFrontDrive = hardwareMap.get(DcMotor.class, "FRdrive");
-        //Port X control hub
+        //Port 3 control hub
         rightBackDrive = hardwareMap.get(DcMotor.class, "BRdrive");
+        /*
+        //Port 0 expansion hub (Left hand slide drive)
+        leftSlide = hardwareMap.get(DcMotor.class, "Lslide");
+
+        //Port 2 expansion hub (Right hand slide drive)
+        rightSlide = hardwareMap.get(DcMotor.class, "Rslide");
+
+        //Port 3 expansion hub (Spinning Intake)
+        spinTake = hardwareMap.get(DcMotor.class, "Spintake");
+
+        //Port 1 expansion hub (4 Bar Outtake Motor)
+        outMotor = hardwareMap.get(DcMotor.class, "Outtake");
+         */
 
 
         // Create an instance of the MotorController class "lfDriveController" to
@@ -151,11 +179,37 @@ public class MecanumTrain extends LinearOpMode {
         MotorController rbDriveController = new MotorController(rightBackDrive, DcMotor.Direction.FORWARD);
         Thread rbDriveThread = new Thread(rbDriveController);
 
+        /*
+        // Create an instance of the MotorController class "lSlideController" to
+        // run the motor asynchronously in a thread
+        MotorController lSlideController = new MotorController(leftSlide, DcMotor.Direction.FORWARD);
+        Thread lSlideThread = new Thread(lSlideController);
+
+        // Create an instance of the MotorController class "rSlideController" to
+        // run the motor asynchronously in a thread
+        MotorController rSlideController = new MotorController(rightSlide, DcMotor.Direction.FORWARD);
+        Thread rSlideThread = new Thread(rSlideController);
+
+        // Create an instance of the MotorController class "intakeController" to
+        // run the motor asynchronously in a thread
+        MotorController intakeController = new MotorController(spinTake, DcMotor.Direction.FORWARD);
+        Thread inThread = new Thread(intakeController);
+
+        // Create an instance of the MotorController class "outtakeController" to
+        // run the motor asynchronously in a thread
+        MotorController outtakeController = new MotorController(outMotor, DcMotor.Direction.FORWARD);
+        Thread outThread = new Thread(outtakeController);
+         */
+
         // Start each motor thread
         lfDriveThread.start();
         lbDriveThread.start();
         rfDriveThread.start();
         rbDriveThread.start();
+        //lSlideThread.start();
+        //rSlideThread.start();
+        //inThread.start();
+        //outThread.start();
 
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");
@@ -170,8 +224,8 @@ public class MecanumTrain extends LinearOpMode {
 
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
             double axial   = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
-            double lateral =  gamepad1.left_stick_x;
-            double yaw     =  gamepad1.right_stick_x;
+            double lateral = -gamepad1.left_stick_x;
+            double yaw     = -gamepad1.right_stick_x;
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
             // Set up a variable for each drive wheel to save the power level for telemetry.
@@ -184,6 +238,7 @@ public class MecanumTrain extends LinearOpMode {
             if(Math.abs(rightBackPower)<0.11&&Math.abs(rightBackPower)>0.01){
                 rightBackPower=0.11;
             }
+
             // Normalize the values so no wheel power exceeds 100%
             // This ensures that the robot maintains the desired motion.
             max = Math.max(Math.abs(leftFrontPower), Math.abs(rightFrontPower));
