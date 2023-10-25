@@ -53,6 +53,10 @@ public class MecanumTrain {
     public DcMotor leftBackDrive;
     public DcMotor rightFrontDrive;
     public DcMotor rightBackDrive;
+    public DcMotor leftSlide;
+    public DcMotor rightSlide;
+    public DcMotor spinTake;
+    public DcMotor outMotor;
     public OpenCvCamera camera;
     public AprilTagDetectionPipeline aprilTagDetectionPipeline;
 
@@ -82,6 +86,10 @@ public class MecanumTrain {
         leftBackDrive = hwMap.get(DcMotor.class, "BLdrive");
         rightFrontDrive = hwMap.get(DcMotor.class, "FRdrive");
         rightBackDrive = hwMap.get(DcMotor.class, "BRdrive");
+        leftSlide = hardwareMap.get(DcMotor.class, "Lslide");
+        rightSlide = hardwareMap.get(DcMotor.class, "Rslide");
+        spinTake = hardwareMap.get(DcMotor.class, "Spintake");
+        outMotor = hardwareMap.get(DcMotor.class, "Outtake");
 
         // Create instances of the MotorController class to run the motor asynchronously
         // in a thread
@@ -124,7 +132,21 @@ public class MecanumTrain {
         return motorPowers;
     }
 
+    //Create States for motors
+    private enum State {
+        READY,
+        NOT_READY
+    }
 
+    //Set the states of all motors to ready
+    private State lfMotorState = State.READY;
+    private State rfMotorState = State.READY;
+    private State rbMotorState = State.READY;
+    private State lbMotorState = State.READY;
+    private State lSlMotorState = State.READY;
+    private State rSlMotorState = State.READY;
+    private State inMotorState = State.READY;
+    private State outMotorState = State.READY;
 
 
 
@@ -141,12 +163,19 @@ public class MecanumTrain {
         lbDriveThread.interrupt();
     }
 
+
     // MotorController
     // A class that controls a motor asynchronously in a thread
     private static class MotorController implements Runnable {
-        private final DcMotor motor; // motor definition
-        private final DcMotorSimple.Direction direction; // direction of movement for a motor
-                                                         // (signifies which direction it moves with positive power)
+
+        //motor definition
+        private final DcMotor motor;
+
+        // direction of movement for a motor
+        // (signifies which direction it moves with positive power)
+        private final DcMotorSimple.Direction direction;
+
+        //Initial Power set to Zero
         private double power = 0;
 
         public MotorController(DcMotor motor, DcMotorSimple.Direction direction) {
@@ -168,4 +197,3 @@ public class MecanumTrain {
             motor.setPower(0);
         }
     }
-}
