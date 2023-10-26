@@ -86,10 +86,10 @@ public class MecanumTrain {
         leftBackDrive = hwMap.get(DcMotor.class, "BLdrive");
         rightFrontDrive = hwMap.get(DcMotor.class, "FRdrive");
         rightBackDrive = hwMap.get(DcMotor.class, "BRdrive");
-        leftSlide = hardwareMap.get(DcMotor.class, "Lslide");
-        rightSlide = hardwareMap.get(DcMotor.class, "Rslide");
-        spinTake = hardwareMap.get(DcMotor.class, "Spintake");
-        outMotor = hardwareMap.get(DcMotor.class, "Outtake");
+        leftSlide = hwMap.get(DcMotor.class, "Lslide");
+        rightSlide = hwMap.get(DcMotor.class, "Rslide");
+        spinTake = hwMap.get(DcMotor.class, "Spintake");
+        outMotor = hwMap.get(DcMotor.class, "Outtake");
 
         // Create instances of the MotorController class to run the motor asynchronously
         // in a thread
