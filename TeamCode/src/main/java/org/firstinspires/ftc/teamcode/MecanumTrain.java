@@ -30,7 +30,6 @@
 //hi take 2
 //hi
 //HII
-//hiiiiiiiiii
 package org.firstinspires.ftc.teamcode;
 
 import java.lang.Math;
