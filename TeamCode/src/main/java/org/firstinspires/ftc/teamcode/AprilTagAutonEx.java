@@ -62,10 +62,6 @@ public class AprilTagAutonEx extends LinearOpMode {
         AprilTagDetectionPipeline aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
         bot.camera.setPipeline(aprilTagDetectionPipeline);
 
-
-
-
-
         bot.camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {

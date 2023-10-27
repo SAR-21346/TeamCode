@@ -90,6 +90,7 @@ public class MecanumTrain {
         rightSlide = hwMap.get(DcMotor.class, "Rslide");
         spinTake = hwMap.get(DcMotor.class, "Spintake");
         outMotor = hwMap.get(DcMotor.class, "Outtake");
+        
 
         // Create instances of the MotorController class to run the motor asynchronously
         // in a thread
