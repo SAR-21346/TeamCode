@@ -56,8 +56,7 @@ public class AprilTagAutonEx extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        bot = new MecanumTrain(); // this is the robot instance
-        bot.init(hardwareMap);
+        bot = new MecanumTrain(hardwareMap);
 
         AprilTagDetectionPipeline aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
         bot.camera.setPipeline(aprilTagDetectionPipeline);
