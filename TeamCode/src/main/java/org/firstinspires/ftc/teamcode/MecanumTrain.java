@@ -53,6 +53,7 @@ import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAcceleration
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.qualcomm.hardware.lynx.commands.core.LynxReadVersionStringResponse;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -64,6 +65,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 
@@ -71,6 +73,7 @@ import static org.firstinspires.ftc.teamcode.drive.DriveConstants.*;
 
 import org.firstinspires.ftc.teamcode.trajectorysequence.*;
 import com.acmerobotics.roadrunner.drive.MecanumDrive;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
 public class MecanumTrain extends MecanumDrive {
@@ -83,7 +86,9 @@ public class MecanumTrain extends MecanumDrive {
     public DcMotorEx rightSlide;
     public DcMotorEx spinTake;
     public DcMotorEx outMotor;
+
     public Servo claw;
+    public Servo drone;
 
     public OpenCvCamera camera;
     public AprilTagDetectionPipeline aprilTagDetectionPipeline;
@@ -91,13 +96,16 @@ public class MecanumTrain extends MecanumDrive {
     HardwareMap hwMap = null;
 
     private VoltageSensor vSensor;
+    // Motor Info
     static final double COUNTS_PER_REV = 537.6;
+    static final double COUNTS_PER_INCH = (COUNTS_PER_REV * GEAR_RATIO) /
+            (2 * WHEEL_RADIUS * Math.PI);
     public static int target = 0;
 
     private PIDController controllerArm;
     private PIDController controllerLift;
-    private double p = 0, i = 0, d = 0, f = 0;
-    private double p_lift = 0, i_lift = 0, d_lift = 0, f_lift = 0;
+    public static double p = 0.02, i = 0, d = 0.0001, f = 0.12;
+    public static double p_lift = 0, i_lift = 0, d_lift = 0, f_lift = 0;
 
     // Roadrunner Constants
     public static com.acmerobotics.roadrunner.control.PIDCoefficients TRANSLATIONAL_PID =
@@ -127,11 +135,18 @@ public class MecanumTrain extends MecanumDrive {
     public int liftL_start;
     public int liftR_start;
 
-    public MecanumTrain(HardwareMap hwMapX) {
+    public double CLAW_OPEN = 0.8;
+    public double CLAW_CLOSED = 0.4;
+
+    public Gamepad.RumbleEffect rumbleEffect;
+
+    public MecanumTrain(HardwareMap hwMapX, ElapsedTime runtime) {
         //Roadrunner Initialization
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
                 new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.5);
+
+
 
         hwMap = hwMapX;
 
@@ -149,7 +164,9 @@ public class MecanumTrain extends MecanumDrive {
         rightSlide = hwMap.get(DcMotorEx.class, "Rslide");
         spinTake = hwMap.get(DcMotorEx.class, "Spintake");
         outMotor = hwMap.get(DcMotorEx.class, "Outtake");
+
         claw = hwMap.get(Servo.class, "claw");
+        // drone = hwMap.get(Servo.class, "drone");
 
         motors = Arrays.asList(leftFrontDrive, leftBackDrive, rightFrontDrive, rightBackDrive);
 
@@ -160,7 +177,9 @@ public class MecanumTrain extends MecanumDrive {
                 cameraMonitorViewId);
 
         setMotorsMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        outMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        outMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        //outMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         leftBackDrive.setDirection(DcMotorSimple.Direction.REVERSE);
         leftSlide.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -178,6 +197,14 @@ public class MecanumTrain extends MecanumDrive {
         );
 
         controllerArm = new PIDController(p, i, d);
+
+        rumbleEffect = new Gamepad.RumbleEffect.Builder()
+                .addStep(0.5, 0.5, 500)
+                .addStep(0.0,0.0, 300)
+                .addStep(1.0, 1.0, 500)
+                .addStep(0.0, 0.0, 1000)
+                .build();
+
     }
 
     // calculateMotorPowers(axial, lateral, yaw)
@@ -205,12 +232,19 @@ public class MecanumTrain extends MecanumDrive {
 
     public void runIntake(double power) { spinTake.setPower(power); }
 
-    public void runLift (double power) {
-        leftSlide.setPower(power);
-        rightSlide.setPower(power);
+    public void runLift (int pos) {
+        leftSlide.setTargetPosition((pos + liftL_start));
+        leftSlide.setVelocity(200);
+        leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightSlide.setTargetPosition(pos + liftR_start);
+        rightSlide.setVelocity(200);
+        rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
-    public void runOuttake(double power) {outMotor.setPower(power); }
+    public void runOuttake(double power) { outMotor.setPower(power); }
+
+    public void closeClaw () { claw.setPosition(CLAW_CLOSED); }
+    public void openClaw () { claw.setPosition(CLAW_OPEN); }
 
     public void trainStop() {
         setMotorPowers(0, 0, 0, 0);
@@ -220,14 +254,15 @@ public class MecanumTrain extends MecanumDrive {
         spinTake.setPower(0.0);
     }
 
-    public double updateArmPID() {
+    public void updateArmPID(Telemetry telemetry, double armPos) {
         controllerArm.setPID(p, i, d);
-        int armPos = outMotor.getCurrentPosition();
-        double pid = controllerArm.calculate(armPos, target);
-        double ff =  Math.cos(Math.toRadians(target / (COUNTS_PER_REV / 360))) * f;
+        double pid = controllerArm.calculate(armPos, target + arm_start);
+        telemetry.addData("pid", pid);
 
+        double ff =  Math.cos(Math.toRadians((target + arm_start) / (COUNTS_PER_REV / (2 * Math.PI)))) * f;
         double power = pid + ff;
-        return power;
+
+        outMotor.setPower(power);
     }
 
     public double updateLiftPID() {
@@ -347,8 +382,10 @@ public class MecanumTrain extends MecanumDrive {
         }
     }
 
-
     public double getRawExternalHeading() { return 0; }
 
+    public int inchesToPosition (double inches) {
+        return (int) (inches * COUNTS_PER_INCH);
+    }
 
 }

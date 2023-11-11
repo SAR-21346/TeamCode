@@ -16,16 +16,19 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 @TeleOp(name = "TeleOpMain")
 public class TeleOpMain extends LinearOpMode{
     private final ElapsedTime runtime = new ElapsedTime();
-
     MecanumTrain bot;
-
     static final double SPEED_MULTIPLIER = 0.3;
 
+    @Override
     public void runOpMode() {
         //bot initialization
-        bot = new MecanumTrain(hardwareMap);
+        bot = new MecanumTrain(hardwareMap, runtime);
 
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
+
+        bot.arm_start = bot.outMotor.getCurrentPosition();
+        bot.liftL_start = bot.leftSlide.getCurrentPosition();
+        bot.liftR_start = bot.rightSlide.getCurrentPosition();
 
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");
@@ -34,32 +37,61 @@ public class TeleOpMain extends LinearOpMode{
         runtime.reset();
 
         double intakePower = 0.0;
-        double liftPower = 0.0;
+        int liftPos = 0;
+        double servoPos = 0.3;
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             // get controller inputs
-            double axial = -gamepad1.left_stick_y; // Note: pushing stick forward gives negative value
+            double gamepadLS_Y_adj = Math.abs(gamepad1.left_stick_y) < 15 ? 0 : gamepad1.left_stick_y;
+            double axial = -gamepadLS_Y_adj; // Note: pushing stick forward gives negative value
             double lateral = gamepad1.left_stick_x;
             double yaw = gamepad1.right_stick_x;
 
-            if (gamepad1.dpad_down) { intakePower = -0.65; }
-            if (gamepad1.dpad_up) { intakePower = 0.65; }
-            if (gamepad1.dpad_left) { intakePower = 0; }
+            if (gamepad2.dpad_down) { intakePower = -0.65; }
+            if (gamepad2.dpad_up) { intakePower = 0.65; }
+            if (gamepad2.dpad_left) { intakePower = 0; }
 
-            // TODO: Test values for Lift
-            if (gamepad1.triangle) {
-                liftPower += 0.005;
+
+            if (gamepad2.triangle) {
+                liftPos += 20;
             }
-            if (gamepad1.cross) {
-                liftPower -= 0.005;
+            if (gamepad2.cross) {
+                if (liftPos >= 0) {
+                    liftPos -= 20;
+                }
             }
-            if (gamepad1.square) {
-                liftPower = 0.0;
+            if (gamepad2.square) {
+                liftPos = 0;
             }
 
-            bot.liftL_start = bot.leftSlide.getCurrentPosition();
-            bot.liftR_start = bot.rightSlide.getCurrentPosition();
+            if(gamepad2.left_stick_button){
+                bot.target -= 8;
+            }
+
+            if (gamepad2.right_stick_button) {
+                bot.target += 8;
+            }
+
+//            if (gamepad1.dpad_left) {
+//                servoPos -= 0.01;
+//                bot.claw.setPosition(servoPos);
+//            }
+//            if (gamepad1.dpad_right) {
+//                servoPos += 0.01;
+//                bot.claw.setPosition(servoPos);
+//            }
+
+
+
+            if (gamepad2.left_bumper) {
+                bot.closeClaw();
+            }
+            if (gamepad2.right_bumper) {
+                bot.openClaw();
+            }
+
+
 
             // calculate motor powers
             double[] motorPowers = bot.calculateMotorPowers(axial, lateral, yaw);
@@ -73,28 +105,30 @@ public class TeleOpMain extends LinearOpMode{
                 bot.setMotorPowers(motorPowers[0], motorPowers[1], motorPowers[2], motorPowers[3]);
             }
 
-            telemetry.addData("Pid info", "%4.2f", bot.updateArmPID());
+
+//            bot.runLift(bot.updateLiftPID());
+//            telemetry.addData("pos", bot.leftSlide.getCurrentPosition());
+
+
 
             bot.runIntake(intakePower);
+            bot.runLift(liftPos);
+            bot.updateArmPID(telemetry, bot.outMotor.getCurrentPosition());
 
-
-            // TODO: Run ArmPID test, make sure values work.
-            if (gamepad1.circle) {
-                bot.runOuttake(bot.updateArmPID());
-                telemetry.addData("pos: ", bot.outMotor.getCurrentPosition());
-                telemetry.addData("target: ", bot.target);
-            }
-
-            // TODO: Run LiftPID test, attempt to run lift to a certain position.
 
             //bot.runOuttake(outPower);
+            telemetry.addData("pos: ", bot.outMotor.getCurrentPosition());
+            telemetry.addData("target: ", bot.target);
+
+            telemetry.addData("Servo: ", bot.claw.getPosition());
+            telemetry.addData("Left Slide Pos: ", bot.leftSlide.getCurrentPosition());
+            telemetry.addData("Right Slide Pos: ", bot.rightSlide.getCurrentPosition());
 
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", motorPowers[0], motorPowers[2]);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", motorPowers[2], motorPowers[3]);
             telemetry.addData("Axial,Lateral,Yaw", "%4.2f, %4.2f, %4.2f", axial, lateral, yaw);
             telemetry.addData("Intake Power", "%4.2f", intakePower);
-            telemetry.addData("Lift Power left/right", "%4.2f, %4.2f", liftPower, -liftPower);
             telemetry.update();
         }
 

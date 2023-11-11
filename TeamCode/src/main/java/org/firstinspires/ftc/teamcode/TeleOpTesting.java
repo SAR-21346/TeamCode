@@ -18,7 +18,7 @@ public class TeleOpTesting extends LinearOpMode{
 
     public void runOpMode() {
         //bot initialization
-        bot = new MecanumTrain(hardwareMap);
+        bot = new MecanumTrain(hardwareMap, runtime);
 
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
 
