@@ -39,19 +39,19 @@ public class TeleOpMain extends LinearOpMode{
         double intakePower = 0.0;
         int liftPos = 0;
         double servoPos = 0.3;
+        bot.target = 0;
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             // get controller inputs
-            double gamepadLS_Y_adj = Math.abs(gamepad1.left_stick_y) < 15 ? 0 : gamepad1.left_stick_y;
+            double gamepadLS_Y_adj = Math.abs(gamepad1.left_stick_y) < .15 ? 0 : gamepad1.left_stick_y;
             double axial = -gamepadLS_Y_adj; // Note: pushing stick forward gives negative value
             double lateral = gamepad1.left_stick_x;
             double yaw = gamepad1.right_stick_x;
 
-            if (gamepad2.dpad_down) { intakePower = -0.65; }
-            if (gamepad2.dpad_up) { intakePower = 0.65; }
+            if (gamepad2.dpad_down) { intakePower = -0.80; }
+            if (gamepad2.dpad_up) { intakePower = 0.80; }
             if (gamepad2.dpad_left) { intakePower = 0; }
-
 
             if (gamepad2.triangle) {
                 liftPos += 20;
@@ -71,6 +71,10 @@ public class TeleOpMain extends LinearOpMode{
 
             if (gamepad2.right_stick_button) {
                 bot.target += 8;
+            }
+
+            if (runtime.seconds() >= 90 && gamepad1.dpad_left) {
+                bot.openClaw();
             }
 
 //            if (gamepad1.dpad_left) {

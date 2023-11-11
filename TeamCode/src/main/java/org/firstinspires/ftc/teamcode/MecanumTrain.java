@@ -100,7 +100,7 @@ public class MecanumTrain extends MecanumDrive {
     static final double COUNTS_PER_REV = 537.6;
     static final double COUNTS_PER_INCH = (COUNTS_PER_REV * GEAR_RATIO) /
             (2 * WHEEL_RADIUS * Math.PI);
-    public static int target = 0;
+    public int target = 0;
 
     private PIDController controllerArm;
     private PIDController controllerLift;
@@ -135,8 +135,11 @@ public class MecanumTrain extends MecanumDrive {
     public int liftL_start;
     public int liftR_start;
 
-    public double CLAW_OPEN = 0.8;
-    public double CLAW_CLOSED = 0.4;
+    public static double CLAW_OPEN = 0.2;
+    public static double CLAW_CLOSED = 0;
+
+    public static double DRONE_OPEN = 0;
+    public static double DRONE_CLOSED = 0;
 
     public Gamepad.RumbleEffect rumbleEffect;
 
@@ -166,7 +169,7 @@ public class MecanumTrain extends MecanumDrive {
         outMotor = hwMap.get(DcMotorEx.class, "Outtake");
 
         claw = hwMap.get(Servo.class, "claw");
-        // drone = hwMap.get(Servo.class, "drone");
+        drone = hwMap.get(Servo.class, "drone");
 
         motors = Arrays.asList(leftFrontDrive, leftBackDrive, rightFrontDrive, rightBackDrive);
 
@@ -234,10 +237,10 @@ public class MecanumTrain extends MecanumDrive {
 
     public void runLift (int pos) {
         leftSlide.setTargetPosition((pos + liftL_start));
-        leftSlide.setVelocity(200);
+        leftSlide.setVelocity(400);
         leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightSlide.setTargetPosition(pos + liftR_start);
-        rightSlide.setVelocity(200);
+        rightSlide.setVelocity(400);
         rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
@@ -245,6 +248,8 @@ public class MecanumTrain extends MecanumDrive {
 
     public void closeClaw () { claw.setPosition(CLAW_CLOSED); }
     public void openClaw () { claw.setPosition(CLAW_OPEN); }
+    public void closeDrone() { drone.setPosition(DRONE_CLOSED); }
+    public void openDrone() { drone.setPosition(DRONE_OPEN); }
 
     public void trainStop() {
         setMotorPowers(0, 0, 0, 0);
