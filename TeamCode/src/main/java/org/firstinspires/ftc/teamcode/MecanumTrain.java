@@ -237,10 +237,10 @@ public class MecanumTrain extends MecanumDrive {
 
     public void runLift (int pos) {
         leftSlide.setTargetPosition((pos + liftL_start));
-        leftSlide.setVelocity(400);
+        leftSlide.setVelocity(600);
         leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightSlide.setTargetPosition(pos + liftR_start);
-        rightSlide.setVelocity(400);
+        rightSlide.setVelocity(800);
         rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
