@@ -39,6 +39,7 @@ public class TeleOpMain extends LinearOpMode{
         double intakePower = 0.0;
         int liftPos = 0;
         double servoPos = 0.3;
+        bot.target = 0;
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
