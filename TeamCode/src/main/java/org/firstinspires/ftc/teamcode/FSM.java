@@ -14,10 +14,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @Autonomous
 public class FSM {
 
-    // all the states for autonomous
-
+    // Creates new object "robot" which can refer to the robot and runs trajectories
     MecanumTrain robot = new MecanumTrain(hardwareMap, new ElapsedTime());
 
+    // Creates all the FSM States for Autonomous including all the
+    // intermediate actions such as turning, strafing, etc
+    // The names for the states should be self-explanatory
     public enum AutoStates {
         AUTO_START,
         AUTO_READ_SPIKE_MARK,
@@ -35,40 +37,49 @@ public class FSM {
         AUTO_OUTPUT_PIXELS;
     }
 
-    /* this is just the switch statement with all the cases
-     * so make sure to add this to the while loop in the main opmode
-     */
 
+    // loop where the FSM runs
     public void loop() {
+        // Creates an instance of the enum which allows the switch statement
+        // to be created
         AutoStates currentState = AutoStates.AUTO_START;
 
+
+        // Switch statement
+        // Basically where the entire FSM is
         switch (currentState) {
+            // Start Case
             case AUTO_START:
-                /*check for something such as the game timer or something
-                * Makes it so that you have a beginning state and it doesn't start
-                * immediately. It's just good practice
-                */
                 currentState = AutoStates.AUTO_READ_SPIKE_MARK;
 
                 break;
             case AUTO_READ_SPIKE_MARK:
-                String spikeMarkLocation; // The location of the spike mark is realtive to the robot
+                // Creates new string to store the location of the spike mark with game element
+                String spikeMarkLocation;
 
+
+                // If statement that allows it to pass through
+                // Basically, when the FSM runs it will have to go through all the states
+                // This is especially important in TeleOp so that you can have
+                // an escape key
                 if(spikeMarkLocation == null) {
-                    if() { //Add truth statement for which spike mark is detected
+                    if() {
 
+                        // Right spike detected
                         spikeMarkLocation = "right";
                         currentState = AutoStates.AUTO_DRIVE_TO_SPIKE;
                         break;
 
                     } else if () {
 
+                        // Middle Spike detected
                         spikeMarkLocation = "middle";
                         currentState = AutoStates.AUTO_DRIVE_TO_SPIKE;
                         break;
 
                     } else if () {
 
+                        // Left spike detected
                         spikeMarkLocation = "left";
                         currentState = AutoStates.AUTO_DRIVE_TO_SPIKE;
                         break;
@@ -80,11 +91,17 @@ public class FSM {
                 }
 
             case AUTO_DRIVE_TO_SPIKE:
+                // startPose of the robot to test for where the robot is
                 Pose2d startPose = new Pose2d(-35.0, 61.0, Math.toRadians(270));
+
+                // Again, just like the if above, it is so that it can go through all
+                // states in one swoop
                 if(robot.getPoseEstimate() == startPose) {
 
+                    // Right spikeMark
                     if(spikeMarkLocation.equals("right")) {
 
+                        // Traj to rightSpike
                         Trajectory trajToRightSpike = robot.trajectoryBuilder(new Pose2d(-35.0,61.0,Math.toRadians(270)))
                                 .lineToConstantHeading(new Vector2d(-46.0,38.0))
                                 .build();
@@ -92,6 +109,7 @@ public class FSM {
                         currentState = AutoStates.AUTO_OUTPUT_PURPLE;
                         break;
 
+                        // Middle spikeMark
                     } else if (spikeMarkLocation.equals("middle")) {
 
                         Trajectory trajToMiddleSpike = robot.trajectoryBuilder(new Pose2d(-35.0,61.0,Math.toRadians(270)))
@@ -101,6 +119,7 @@ public class FSM {
                         currentState = AutoStates.AUTO_OUTPUT_PURPLE;
                         break;
 
+                        // Left spike
                     } else if (spikeMarkLocation.equals("left")) {
 
                         Trajectory trajToMiddleSpike = robot.trajectoryBuilder(new Pose2d(-35.0,61.0,Math.toRadians(270)))
@@ -127,7 +146,7 @@ public class FSM {
 
             case AUTO_DRIVE_TO_STACK:
 
-                Pose2d stackPose = new Pose2d(-24.0, 35.0, Math.toRadians(270));
+                Pose2d stackPose = new Pose2d(-56.0, 35.0, Math.toRadians(270));
 
                 if(robot.getPoseEstimate() != stackPose) {
 
@@ -179,8 +198,9 @@ public class FSM {
 
                 if(robot.getPoseEstimate() != backdropPose) {
 
-                    Trajectory trajToBackdrop = robot.trajectoryBuilder(new Pose2d(-24.0,38.0,Math.toRadians(270)))
-                            .splineTo(new Vector2d(49.0,35.0), Math.toRadians(180))
+                    Trajectory trajToBackdrop = robot.trajectoryBuilder(new Pose2d(-56.0,35.0,Math.toRadians(180)))
+                            .turn(Math.toRadians(180.0)) // -------------- CHECK ----------------
+                            .splineToConstantHeading(new Vector2d(49.0,35.0), Math.toRadians(0.0))
                             .build();
 
                     currentState = AutoStates.AUTO_OUTPUT_YELLOW;
@@ -192,24 +212,52 @@ public class FSM {
                 }
 
             case AUTO_OUTPUT_YELLOW:
-                if() { // Check to see if correct qr code is read
-                    // Set motors to output yellow
+                if() { // If robot still has yellow pixel
+                    if(tagFoundLR == true) { // Check to see if correct qr code is read
+                        // ----TO DO------- Output yellow pixel on right
+                        currentState = AutoStates.AUTO_MOVE_TO_SIDE;
+                        break;
+
+                    } else if (tagFoundMR == true) {
+                        // ----TO DO------- Output yellow pixel on middle
+                        currentState = AutoStates.AUTO_MOVE_TO_SIDE;
+                        break;
+                    } else if (tagFoundRR == true) {
+                        // ----TO DO------- Output yellow pixel on right
+                        currentState = AutoStates.AUTO_MOVE_TO_SIDE;
+                        break;
+                    }
+                } else {
                     currentState = AutoStates.AUTO_MOVE_TO_SIDE;
+                    break;
                 }
+                
                 break;
             case AUTO_MOVE_TO_SIDE:
                 // Odometry move left or right depending on team
-                currentState = AutoStates.AUTO_OUTPUT_PIXEL;
+                Pose2d leftTagPose = new Pose2d(49.0, 41.0, Math.toRadians(0));
+                Pose2d rightTagPose = new Pose2d(49.0, 29.0, Math.toRadians(0));
 
-                break;
+                if(robot.getPoseEstimate() != leftTagPose || robot.getPoseEstimate() !=rightTagPose) {
+                    Trajectory trajToMid = robot.trajectoryBuilder(robot.getPoseEstimate())
+                            .splineTo(new Vector2d(49.0,35.0), Math.toRadians(180))
+                            .build();
+                } else {
+                    currentState = AutoStates.AUTO_OUTPUT_PIXEL;
+                    break;
+                }
+
             case AUTO_OUTPUT_PIXEL:
-                // set motors to output pixel
+                // -----TO DO--------- set motors to output pixel
                 currentState = AutoStates.AUTO_OUTPUT_YELLOW;
 
                 break;
             case AUTO_DRIVE_TO_STACK_FOR_CYCLE:
-                if() { // Check to see if two pixels have been output
-                    // Use odometry to drive to stack
+
+                if(robot.getPoseEstimate() != stackPose) {
+                    Trajectory trajToStackForCycle = robot.trajectoryBuilder(robot.getPoseEstimate())
+                            .splineTo(new Vector2d(-24.0, 35.0), Math.toRadians(270))
+                            .build();
                     currentState = AutoStates.AUTO_PICK_UP_TWO;
                 }
                 break;
@@ -220,9 +268,12 @@ public class FSM {
                 }
                 break;
             case AUTO_DRIVE_TO_BACKDROP_FOR_CYCLE:
-                if() { // Check to see if two pixels are there
-                    // Odometry to drive to backdrop
+                if(robot.getPoseEstimate() != backdropPose) {
+
                     currentState = AutoStates.AUTO_OUTPUT_PIXELS;
+                    Trajectory trajToBackdropForCycle = robot.trajectoryBuilder(robot.getPoseEstimate())
+                            .splineTo(new Vector2d(24,35), Math.toRadians(0))
+                            .build();
                 }
                 break;
             case AUTO_OUTPUT_PIXELS:
@@ -239,6 +290,9 @@ public class FSM {
          * entire thing to stop, and you can fix anything before starting the new cycle
          * ALSO, for the escape key, set the state to be the start state, making it restart
          * the entire cycle
+         * The implementation here that has the if() outside and then nested if statements allow
+         * it to continue to go through the entire state quickly, so setting it
+         * to the origional state will not be a problem
          */
     }
 
@@ -246,82 +300,3 @@ public class FSM {
 
 
 }
-/*
-@@ -1,12 +1,21 @@
-package org.firstinspires.ftc.teamcode;
-
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
-
-import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.trajectory.*;
-import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-
-
-@Autonomous
-public class FSM {
-
-    // all the states for autonomous
-
-
-
-    public enum AutoStates {
-        AUTO_START,
-        AUTO_READ_SPIKE_MARK,
-@ -28,6 +37,7 @@ public class FSM {
-     * so make sure to add this to the while loop in the main opmode
-
-
-
-    public void loop() {
-        AutoStates currentState = AutoStates.AUTO_START;
-
-        @ -40,15 +50,29 @@ public class FSM {
-            currentState = AutoStates.AUTO_READ_SPIKE_MARK;
-                break;
-            case AUTO_READ_SPIKE_MARK:
-                    if() { //Add truth statement for which spike mark is detected
-                currentState = AutoStates.AUTO_DRIVE_TO_SPIKE;
-                // Add variable storing the right spike mark location
-            }
-            // Check what the spike mark is and store it in a variable
-
-                break;
-            case AUTO_DRIVE_TO_SPIKE:
-                    // No need for truth statement in this case
-                    // Add odometry to drive to correct spike
-                    if(/* Marker #1  {
-                TrajectoryBuilder trajToSpikeOne = new TrajectoryBuilder(new Vector2d())
-                        .splineTo(new Vector2d(/* Location of the 2nd spike mark ), Math.toRadians(180))
-                        .build();
-                currentState = AutoStates.AUTO_DRIVE_TO_SPIKE;
-            } else if ( Marker #2 ) {
-                TrajectoryBuilder trajToSpikeTwo = new TrajectoryBuilder(new Vector2d(10.0,10.0))
-                        .lineToSplineHeading(new Vector2d(10.0,10.0))
-                        .build();
-
-            } else-if ( Marker #3 ) {
-
-                TrajectoryBuilder trajToSpikeThree = new TrajectoryBuilder(new Vector2d())
-                        .splineTo(new Vector2d(/* Location of the 3rd spike mark ), Math.toRadians(180))
-                        .build();
-
-            }
-
-            currentState = AutoStates.AUTO_OUTPUT_PURPLE;
-
-            @ -126,9 +150,12 @@ public class FSM {
-         * ALSO, for the escape key, set the state to be the start state, making it restart
-         * the entire cycle
-
-
-            }
-
-
-
-
-
-
-        }
- */
