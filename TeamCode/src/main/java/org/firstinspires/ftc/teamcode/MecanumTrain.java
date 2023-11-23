@@ -66,6 +66,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
+import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 
@@ -138,31 +139,33 @@ public class MecanumTrain extends MecanumDrive {
     public static double CLAW_OPEN = 0.2;
     public static double CLAW_CLOSED = 0;
 
-    public static double DRONE_OPEN = 0;
-    public static double DRONE_CLOSED = 0;
+    public static double DRONE_OPEN = .5;
+    public static double DRONE_CLOSED = 1;
+
+    public static int liftL_speed = 500;
+    public static int liftR_speed = 450;
 
     public Gamepad.RumbleEffect rumbleEffect;
 
     public MecanumTrain(HardwareMap hwMapX, ElapsedTime runtime) {
         //Roadrunner Initialization
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
+
+        hwMap = hwMapX; // saves reference to hwMap
+
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
                 new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.5);
-
-
-
-        hwMap = hwMapX;
 
         vSensor = hwMap.voltageSensor.iterator().next();
 
         // Initialize the hardware variables. Note that the strings used here
         // as parameters to 'get' must correspond to the names assigned during the robot
-        // configuration
-        // step (using the FTC Robot Controller app).
+        // configuration step (using the FTC Robot Controller app).
         leftFrontDrive = hwMap.get(DcMotorEx.class, "FLdrive");
         leftBackDrive = hwMap.get(DcMotorEx.class, "BLdrive");
         rightFrontDrive = hwMap.get(DcMotorEx.class, "FRdrive");
         rightBackDrive = hwMap.get(DcMotorEx.class, "BRdrive");
+
         leftSlide = hwMap.get(DcMotorEx.class, "Lslide");
         rightSlide = hwMap.get(DcMotorEx.class, "Rslide");
         spinTake = hwMap.get(DcMotorEx.class, "Spintake");
@@ -179,10 +182,11 @@ public class MecanumTrain extends MecanumDrive {
         camera = OpenCvCameraFactory.getInstance().createWebcam(hwMap.get(WebcamName.class, "camera"),
                 cameraMonitorViewId);
 
-        setMotorsMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        setMotorsMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         outMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        //outMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        setLocalizer(new StandardTrackingWheelLocalizer(hwMap, lastEncPositions, lastEncVels));
+
         leftBackDrive.setDirection(DcMotorSimple.Direction.REVERSE);
         leftSlide.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -218,10 +222,10 @@ public class MecanumTrain extends MecanumDrive {
     public double[] calculateMotorPowers(double axial, double lateral, double yaw) {
         double[] motorPowers = new double[4];
         double denominator = Math.max(Math.abs(axial) + Math.abs(lateral) + Math.abs(yaw), 1);
-        motorPowers[0] = (axial - lateral + yaw) / denominator;
-        motorPowers[1] = (axial + lateral + yaw) / denominator;
-        motorPowers[2] = (axial + lateral - yaw / denominator);
-        motorPowers[3] = (axial - lateral - yaw) / denominator;
+        motorPowers[0] = (axial - lateral + yaw) / (denominator * 1.2);
+        motorPowers[1] = (axial + lateral + yaw) / (denominator * 1.2);
+        motorPowers[2] = (axial + lateral - yaw) / (denominator * 1.2);
+        motorPowers[3] = (axial - lateral - yaw) / (denominator * 1.2);
         return motorPowers;
     }
 
@@ -237,10 +241,10 @@ public class MecanumTrain extends MecanumDrive {
 
     public void runLift (int pos) {
         leftSlide.setTargetPosition((pos + liftL_start));
-        leftSlide.setVelocity(600);
+        leftSlide.setVelocity(liftL_speed);
         leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightSlide.setTargetPosition(pos + liftR_start);
-        rightSlide.setVelocity(800);
+        rightSlide.setVelocity(liftR_speed);
         rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
@@ -248,6 +252,7 @@ public class MecanumTrain extends MecanumDrive {
 
     public void closeClaw () { claw.setPosition(CLAW_CLOSED); }
     public void openClaw () { claw.setPosition(CLAW_OPEN); }
+
     public void closeDrone() { drone.setPosition(DRONE_CLOSED); }
     public void openDrone() { drone.setPosition(DRONE_OPEN); }
 

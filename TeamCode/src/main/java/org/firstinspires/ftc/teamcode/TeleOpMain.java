@@ -17,18 +17,24 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 public class TeleOpMain extends LinearOpMode{
     private final ElapsedTime runtime = new ElapsedTime();
     MecanumTrain bot;
-    static final double SPEED_MULTIPLIER = 0.3;
+    static final double SPEED_MULTIPLIER = 0.45 ;
 
     @Override
     public void runOpMode() {
         //bot initialization
         bot = new MecanumTrain(hardwareMap, runtime);
 
+
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
+
+        bot.leftSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        bot.rightSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         bot.arm_start = bot.outMotor.getCurrentPosition();
         bot.liftL_start = bot.leftSlide.getCurrentPosition();
         bot.liftR_start = bot.rightSlide.getCurrentPosition();
+
+
 
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");
@@ -49,32 +55,33 @@ public class TeleOpMain extends LinearOpMode{
             double lateral = gamepad1.left_stick_x;
             double yaw = gamepad1.right_stick_x;
 
-            if (gamepad2.dpad_down) { intakePower = -0.80; }
-            if (gamepad2.dpad_up) { intakePower = 0.80; }
+            if (gamepad2.dpad_down) { intakePower = -0.70; }
+            if (gamepad2.dpad_up) { intakePower = 0.40; }
             if (gamepad2.dpad_left) { intakePower = 0; }
 
             if (gamepad2.triangle) {
                 liftPos += 20;
             }
             if (gamepad2.cross) {
-                if (liftPos >= 0) {
+//                if (liftPos >= 0) {
                     liftPos -= 20;
-                }
+//                }
             }
             if (gamepad2.square) {
                 liftPos = 0;
             }
 
             if(gamepad2.left_stick_button){
-                bot.target -= 8;
+                bot.target -= 6;
             }
 
             if (gamepad2.right_stick_button) {
-                bot.target += 8;
+                bot.target += 6;
             }
-
-            if (runtime.seconds() >= 90 && gamepad1.dpad_left) {
-                bot.openClaw();
+            if (gamepad1.left_bumper && gamepad1.dpad_left) {
+                bot.closeDrone();
+                sleep(3000);
+                bot.openDrone();
             }
 
 //            if (gamepad1.dpad_left) {
@@ -100,7 +107,7 @@ public class TeleOpMain extends LinearOpMode{
             // calculate motor powers
             double[] motorPowers = bot.calculateMotorPowers(axial, lateral, yaw);
 
-            if (gamepad1.left_stick_button || gamepad1.right_stick_button) {
+            if (gamepad1.right_bumper) {
                 bot.setMotorPowers(motorPowers[0] * SPEED_MULTIPLIER,
                                   motorPowers[1] * SPEED_MULTIPLIER,
                                   motorPowers[2] * SPEED_MULTIPLIER,
@@ -120,11 +127,15 @@ public class TeleOpMain extends LinearOpMode{
             bot.updateArmPID(telemetry, bot.outMotor.getCurrentPosition());
 
 
+            telemetry.addLine("ENCODER:");
+            telemetry.addData("leftPos", bot.leftFrontDrive.getCurrentPosition());
+            telemetry.addData("rightPos", bot.rightFrontDrive.getCurrentPosition());
+            telemetry.addData("frontPos", bot.spinTake.getCurrentPosition());
             //bot.runOuttake(outPower);
             telemetry.addData("pos: ", bot.outMotor.getCurrentPosition());
             telemetry.addData("target: ", bot.target);
 
-            telemetry.addData("Servo: ", bot.claw.getPosition());
+            telemetry.addData("Servo: ", bot.drone.getPosition());
             telemetry.addData("Left Slide Pos: ", bot.leftSlide.getCurrentPosition());
             telemetry.addData("Right Slide Pos: ", bot.rightSlide.getCurrentPosition());
 
