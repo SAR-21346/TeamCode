@@ -34,7 +34,7 @@ public class ColorDetecMatrix extends LinearOpMode {
 
         //...
 
-        ColorDetecPipeline.SkystoneLocation location = detector.getLocation();
+        ColorDetecPipeline.TeamElementLoc location = detector.getLocation();
         if (location == ColorDetecPipeline.TeamElementLoc.NONE) {
             telemetry.addLine("Element is Center");
         }
