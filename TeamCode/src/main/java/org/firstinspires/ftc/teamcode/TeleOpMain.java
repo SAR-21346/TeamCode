@@ -6,6 +6,7 @@ import org.firstinspires.ftc.teamcode.MecanumTrain;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -50,7 +51,7 @@ public class TeleOpMain extends LinearOpMode{
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             // get controller inputs
-            double gamepadLS_Y_adj = Math.abs(gamepad1.left_stick_y) < .15 ? 0 : gamepad1.left_stick_y;
+            double gamepadLS_Y_adj = Math.abs(gamepad1.left_stick_y) < .10 ? 0 : gamepad1.left_stick_y;
             double axial = -gamepadLS_Y_adj; // Note: pushing stick forward gives negative value
             double lateral = gamepad1.left_stick_x;
             double yaw = gamepad1.right_stick_x;
@@ -125,6 +126,9 @@ public class TeleOpMain extends LinearOpMode{
             bot.runIntake(intakePower);
             bot.runLift(liftPos);
             bot.updateArmPID(telemetry, bot.outMotor.getCurrentPosition());
+            bot.update();
+
+            Pose2d poseEstimate = bot.getPoseEstimate();
 
 
             telemetry.addLine("ENCODER:");
@@ -145,6 +149,8 @@ public class TeleOpMain extends LinearOpMode{
             telemetry.addData("Axial,Lateral,Yaw", "%4.2f, %4.2f, %4.2f", axial, lateral, yaw);
             telemetry.addData("Intake Power", "%4.2f", intakePower);
             telemetry.update();
+
+
         }
 
         // Stop all motion;
