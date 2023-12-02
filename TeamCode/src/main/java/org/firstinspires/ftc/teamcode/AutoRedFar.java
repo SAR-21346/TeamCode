@@ -10,6 +10,8 @@ public class AutoRedFar extends Hardware {
 
         // in milliseconds
         telemetry.addLine("Sleeping for a second");
+        //close claw
+        clawAuto.setPosition(0);
         sleep(1000);
         waitForStart();
 

@@ -25,8 +25,6 @@ public abstract class Hardware extends LinearOpMode {
     public DcMotorEx rightBackDrive;
     public DcMotorEx leftSlide;
     public DcMotorEx rightSlide;
-    public DcMotorEx spinTake;
-    public DcMotorEx outMotor;
 
     public Servo clawAuto;
     public Servo drone;
@@ -35,14 +33,18 @@ public abstract class Hardware extends LinearOpMode {
     public AprilTagDetectionPipeline aprilTagDetectionPipeline;
     public void initHardware() {
         // Initialize motors
-        leftFrontDrive = (DcMotorEx) hardwareMap.dcMotor.get("FLdrive");
-        rightFrontDrive = (DcMotorEx) hardwareMap.dcMotor.get("FRdrive");
-        leftBackDrive = (DcMotorEx) hardwareMap.dcMotor.get("BLdrive");
-        rightBackDrive = (DcMotorEx) hardwareMap.dcMotor.get("BRdrive");
+        leftFrontDrive = hardwareMap.get(DcMotorEx.class, "FLdrive");
+        rightFrontDrive = hardwareMap.get(DcMotorEx.class, "FRdrive");
+        leftBackDrive = hardwareMap.get(DcMotorEx.class, "BLdrive");
+        rightBackDrive = hardwareMap.get(DcMotorEx.class, "BRdrive");
+
+        leftSlide = hardwareMap.get(DcMotorEx.class, "Lslide");
+        rightSlide = hardwareMap.get(DcMotorEx.class, "Rslide");
+
         clawAuto = hardwareMap.get(Servo.class, "claw");
+        drone = hardwareMap.get(Servo.class, "drone");
 
-
-        // Initialize BHI260AP sensor
+        // Setting the motors for leftBackDrive to Reverse
         leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
         waitForStart();
     }

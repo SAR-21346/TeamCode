@@ -1,21 +1,25 @@
 package org.firstinspires.ftc.teamcode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(name = "Auto Blue Far", group = "LinearOpMode")
 //Declares as autonomous file, SDK thing
 public class AutoBlueFar extends Hardware {
+    ElapsedTime runtime = new ElapsedTime();
+    MecanumTrain bot;
     @Override
     public void runOpMode() throws InterruptedException {
+        bot = new MecanumTrain(hardwareMap, runtime);
+
         initHardware();
         stopMoving();
 
         // in milliseconds
         telemetry.addLine("Sleeping for a second");
+
+        //close claw
+        bot.closeClaw();
         sleep(1000);
         waitForStart();
-
-        //close claw and sleep for .5 seconds
-        clawAuto.setPosition(0);
-        sleep(1000);
 
         //Move to the side to go around the pole
         moveX(.3);
@@ -25,6 +29,6 @@ public class AutoBlueFar extends Hardware {
 
         //Go straight
         moveY(-.35);
-        sleep(3500);
+        sleep(3000);
     }
 }

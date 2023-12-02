@@ -10,12 +10,10 @@ public class AutoRedClose extends Hardware {
 
         // in milliseconds
         telemetry.addLine("Sleeping for a second");
+        //close claw
+        clawAuto.setPosition(0);
         sleep(1000);
         waitForStart();
-
-        //close claw and sleep for .5 seconds
-        clawAuto.setPosition(0);
-        sleep(500);
 
         //Move to the side to go around the pole
         moveX(.3 * -1);
@@ -23,8 +21,11 @@ public class AutoRedClose extends Hardware {
 
         telemetry.addLine("Moving Right");
 
+        clawAuto.setPosition(0);
+
         //Go straight
-        moveY(.5 * -1);
-        sleep(250);
+        moveY(.5);
+        sleep(750);
+        clawAuto.setPosition(0.2);
     }
 }
