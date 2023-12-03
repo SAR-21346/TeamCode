@@ -160,7 +160,7 @@ public class MecanumTrain extends MecanumDrive {
 
         // Initialize the hardware variables. Note that the strings used here
         // as parameters to 'get' must correspond to the names assigned during the robot
-        // configuration step (using the FTC Robot Controller app).
+        // configuration step (using the FTC Robot Controllefr app).
         leftFrontDrive = hwMap.get(DcMotorEx.class, "FLdrive");
         leftBackDrive = hwMap.get(DcMotorEx.class, "BLdrive");
         rightFrontDrive = hwMap.get(DcMotorEx.class, "FRdrive");
