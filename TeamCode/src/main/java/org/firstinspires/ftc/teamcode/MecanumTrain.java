@@ -135,6 +135,7 @@ public class MecanumTrain extends MecanumDrive {
     public double arm_start;
     public int liftL_start;
     public int liftR_start;
+    public Boolean isClosed = Boolean.FALSE;
 
     public static double CLAW_OPEN = 0.2;
     public static double CLAW_CLOSED = 0;

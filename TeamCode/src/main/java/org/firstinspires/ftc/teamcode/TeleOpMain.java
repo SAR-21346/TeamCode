@@ -95,13 +95,19 @@ public class TeleOpMain extends LinearOpMode{
 
 
 
-            if (gamepad2.left_bumper) {
-                bot.closeClaw();
-            }
-            if (gamepad2.right_bumper) {
+//            if (gamepad2.left_bumper) {
+//                bot.closeClaw();
+//            }
+//            if (gamepad2.right_bumper) {
+//                bot.openClaw();
+//            }
+            if (gamepad2.left_bumper && bot.isClosed) {
                 bot.openClaw();
+                bot.isClosed = Boolean.FALSE;
+            } else if (gamepad2.left_bumper && !bot.isClosed){
+                bot.closeClaw();
+                bot.isClosed = Boolean.TRUE;
             }
-
 
 
             // calculate motor powers
@@ -144,6 +150,7 @@ public class TeleOpMain extends LinearOpMode{
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", motorPowers[2], motorPowers[3]);
             telemetry.addData("Axial,Lateral,Yaw", "%4.2f, %4.2f, %4.2f", axial, lateral, yaw);
             telemetry.addData("Intake Power", "%4.2f", intakePower);
+            telemetry.addData("Claw Status", bot.isClosed.toString());
             telemetry.update();
         }
 
