@@ -108,7 +108,7 @@ public class TeleOpMain extends LinearOpMode{
                 bot.closeClaw();
                 bot.isClosed = Boolean.TRUE;
             }
-
+            sleep(150);
 
             // calculate motor powers
             double[] motorPowers = bot.calculateMotorPowers(axial, lateral, yaw);
