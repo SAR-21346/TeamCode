@@ -7,10 +7,8 @@ import org.firstinspires.ftc.teamcode.MecanumTrain;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -18,13 +16,13 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 public class TeleOpMain extends LinearOpMode{
     private final ElapsedTime runtime = new ElapsedTime();
     MecanumTrain bot;
+
     static final double SPEED_MULTIPLIER = 0.45 ;
 
     @Override
     public void runOpMode() {
         //bot initialization
         bot = new MecanumTrain(hardwareMap, runtime);
-
 
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
 
@@ -51,7 +49,8 @@ public class TeleOpMain extends LinearOpMode{
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             // get controller inputs
-            double gamepadLS_Y_adj = Math.abs(gamepad1.left_stick_y) < .10 ? 0 : gamepad1.left_stick_y;
+            double gamepadLS_Y_adj = Math.abs(gamepad1.left_stick_y) < .9 ? 0 : gamepad1.left_stick_y;
+
             double axial = -gamepadLS_Y_adj; // Note: pushing stick forward gives negative value
             double lateral = gamepad1.left_stick_x;
             double yaw = gamepad1.right_stick_x;
@@ -80,9 +79,9 @@ public class TeleOpMain extends LinearOpMode{
                 bot.target += 6;
             }
             if (gamepad1.left_bumper && gamepad1.dpad_left) {
-                bot.closeDrone();
-                sleep(3000);
                 bot.openDrone();
+                sleep(3000);
+                bot.closeDrone();
             }
 
 //            if (gamepad1.dpad_left) {
