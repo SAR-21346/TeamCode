@@ -72,28 +72,17 @@ public class TeleOpMain extends LinearOpMode{
             }
 
             if(gamepad2.left_stick_button){
-                bot.target -= 6;
+                bot.target -= 7;
             }
 
             if (gamepad2.right_stick_button) {
-                bot.target += 6;
+                bot.target += 7;
             }
             if (gamepad1.left_bumper && gamepad1.dpad_left) {
                 bot.openDrone();
                 sleep(3000);
                 bot.closeDrone();
             }
-
-//            if (gamepad1.dpad_left) {
-//                servoPos -= 0.01;
-//                bot.claw.setPosition(servoPos);
-//            }
-//            if (gamepad1.dpad_right) {
-//                servoPos += 0.01;
-//                bot.claw.setPosition(servoPos);
-//            }
-
-
 
             if (gamepad2.left_bumper) {
                 bot.closeClaw();
@@ -117,18 +106,11 @@ public class TeleOpMain extends LinearOpMode{
             }
 
 
-//            bot.runLift(bot.updateLiftPID());
-//            telemetry.addData("pos", bot.leftSlide.getCurrentPosition());
-
-
 
             bot.runIntake(intakePower);
             bot.runLift(liftPos);
-            bot.updateArmPID(telemetry, bot.outMotor.getCurrentPosition());
-            bot.update();
-
-            Pose2d poseEstimate = bot.getPoseEstimate();
-
+            bot.updateArmPID(bot.outMotor.getCurrentPosition());
+            bot.odometry.update();
 
             telemetry.addLine("ENCODER:");
             telemetry.addData("leftPos", bot.leftFrontDrive.getCurrentPosition());
