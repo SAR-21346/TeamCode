@@ -66,6 +66,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -77,26 +78,33 @@ import com.acmerobotics.roadrunner.drive.MecanumDrive;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
-public class MecanumTrain extends MecanumDrive {
-    // Public OpMode members.
+public class MecanumTrain{
+    // Drive Motors
     public DcMotorEx leftFrontDrive;
     public DcMotorEx leftBackDrive;
     public DcMotorEx rightFrontDrive;
     public DcMotorEx rightBackDrive;
+
+    // Auxiliary Motors
     public DcMotorEx leftSlide;
     public DcMotorEx rightSlide;
     public DcMotorEx spinTake;
     public DcMotorEx outMotor;
 
+    // Servos
     public Servo claw;
     public Servo drone;
 
+    // Odometry helper class
+    public SampleMecanumDrive odometry;
+
+    // Camera
     public OpenCvCamera camera;
     public AprilTagDetectionPipeline aprilTagDetectionPipeline;
 
+    // Hardware Map
     HardwareMap hwMap = null;
 
-    private VoltageSensor vSensor;
     // Motor Info
     static final double COUNTS_PER_REV = 537.6;
     static final double COUNTS_PER_INCH = (COUNTS_PER_REV * GEAR_RATIO) /
@@ -108,30 +116,9 @@ public class MecanumTrain extends MecanumDrive {
     public static double p = 0.02, i = 0, d = 0.0001, f = 0.12;
     public static double p_lift = 0, i_lift = 0, d_lift = 0, f_lift = 0;
 
-    // Roadrunner Constants
-    public static com.acmerobotics.roadrunner.control.PIDCoefficients TRANSLATIONAL_PID =
-            new com.acmerobotics.roadrunner.control.PIDCoefficients(0, 0, 0);
-    public static com.acmerobotics.roadrunner.control.PIDCoefficients HEADING_PID =
-            new com.acmerobotics.roadrunner.control.PIDCoefficients(0, 0, 0);
-
-    public static double LATERAL_MULTIPLIER = 1;
-
-    public static double VX_WEIGHT = 1;
-    public static double VY_WEIGHT = 1;
-    public static double OMEGA_WEIGHT = 1;
-
-    private TrajectorySequenceRunner trajectorySequenceRunner;
-
-    private static final TrajectoryVelocityConstraint VEL_CONSTRAINT = getVelocityConstraint(MAX_VEL, MAX_ANG_VEL, TRACK_WIDTH);
-    private static final TrajectoryAccelerationConstraint ACCEL_CONSTRAINT = getAccelerationConstraint(MAX_ACCEL);
-
-    private TrajectoryFollower follower;
-
-    private List<Integer> lastEncPositions = new ArrayList<>();
-    private List<Integer> lastEncVels = new ArrayList<>();
     private List<DcMotorEx> motors;
 
-
+    // Initial Motor Positions
     public double arm_start;
     public int liftL_start;
     public int liftR_start;
@@ -143,24 +130,16 @@ public class MecanumTrain extends MecanumDrive {
     public static double DRONE_CLOSED = 1;
 
     public static int liftL_speed = 500;
-    public static int liftR_speed = 450;
+    public static int liftR_speed = 500;
 
     public Gamepad.RumbleEffect rumbleEffect;
 
     public MecanumTrain(HardwareMap hwMapX, ElapsedTime runtime) {
-        //Roadrunner Initialization
-        super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
-
         hwMap = hwMapX; // saves reference to hwMap
 
-        follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
-                new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.5);
+        odometry = new SampleMecanumDrive(hwMap);
 
-        vSensor = hwMap.voltageSensor.iterator().next();
-
-        // Initialize the hardware variables. Note that the strings used here
-        // as parameters to 'get' must correspond to the names assigned during the robot
-        // configuration step (using the FTC Robot Controllefr app).
+        // Drive Motors
         leftFrontDrive = hwMap.get(DcMotorEx.class, "FLdrive");
         leftBackDrive = hwMap.get(DcMotorEx.class, "BLdrive");
         rightFrontDrive = hwMap.get(DcMotorEx.class, "FRdrive");
@@ -185,7 +164,6 @@ public class MecanumTrain extends MecanumDrive {
         setMotorsMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         outMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        setLocalizer(new StandardTrackingWheelLocalizer(hwMap, lastEncPositions, lastEncVels));
 
         leftBackDrive.setDirection(DcMotorSimple.Direction.REVERSE);
         leftSlide.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -195,15 +173,8 @@ public class MecanumTrain extends MecanumDrive {
         rightSlide.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         outMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
-        List<Integer> lastTrackingEncPositions = new ArrayList<>();
-        List<Integer> lastTrackingEncVels = new ArrayList<>();
-
-        trajectorySequenceRunner = new TrajectorySequenceRunner(
-                follower, HEADING_PID, vSensor,
-                lastEncPositions, lastEncVels, lastTrackingEncPositions, lastTrackingEncVels
-        );
-
         controllerArm = new PIDController(p, i, d);
+        controllerLift = new PIDController(p_lift, i_lift, d_lift);
 
         rumbleEffect = new Gamepad.RumbleEffect.Builder()
                 .addStep(0.5, 0.5, 500)
@@ -229,6 +200,11 @@ public class MecanumTrain extends MecanumDrive {
         return motorPowers;
     }
 
+    // setMotorPowers(v, v1, v2, v3)
+    // v - double (power for leftBackDrive)
+    // v1 - double (power for leftFrontDrive)
+    // v2 - double (power for rightBackDrive)
+    // v3 - double (power for rightFrontDrive)
     public void setMotorPowers(double v, double v1, double v2, double v3) {
         leftBackDrive.setPower(v);
         leftFrontDrive.setPower(v1);
@@ -237,17 +213,23 @@ public class MecanumTrain extends MecanumDrive {
 
     }
 
+    // runIntake(power)
+    // power - double (power for spinTake)
     public void runIntake(double power) { spinTake.setPower(power); }
 
+    // runLift(pos)
+    // pos - int (target position for leftSlide and rightSlide)
     public void runLift (int pos) {
-        leftSlide.setTargetPosition((pos + liftL_start));
-        leftSlide.setVelocity(liftL_speed);
-        leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightSlide.setTargetPosition(pos + liftR_start);
-        rightSlide.setVelocity(liftR_speed);
-        rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftSlide.setTargetPosition((pos + liftL_start)); // liftL_start is the initial position of the left slide
+        leftSlide.setVelocity(liftL_speed); // Was told to change speeds for the individual motors
+        leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION); // Allows motor to move via encoder
+        rightSlide.setTargetPosition(pos + liftR_start); // liftR_start is the initial position of the right slide
+        rightSlide.setVelocity(liftR_speed); // Was told to change speeds for the individual motors
+        rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION); // Allows motor to move via encoder
     }
 
+    // runOuttake(power)
+    // power - double (power for outMotor)
     public void runOuttake(double power) { outMotor.setPower(power); }
 
     public void closeClaw () { claw.setPosition(CLAW_CLOSED); }
@@ -264,17 +246,20 @@ public class MecanumTrain extends MecanumDrive {
         spinTake.setPower(0.0);
     }
 
-    public void updateArmPID(Telemetry telemetry, double armPos) {
+    // update()
+    // Updates the telemetry with the current encoder values
+    // Should be called in a loop
+    public void updateArmPID(double armPos) {
         controllerArm.setPID(p, i, d);
         double pid = controllerArm.calculate(armPos, target + arm_start);
-        telemetry.addData("pid", pid);
-
         double ff =  Math.cos(Math.toRadians((target + arm_start) / (COUNTS_PER_REV / (2 * Math.PI)))) * f;
         double power = pid + ff;
-
         outMotor.setPower(power);
     }
 
+    // updateLiftPID()
+    // returns double (power for leftSlide and rightSlide)
+    // Calculates the power for the lift motors using a PID controller
     public double updateLiftPID() {
         controllerLift.setPID(p_lift, i_lift, d_lift);
         int liftPos = leftSlide.getCurrentPosition();
@@ -284,118 +269,21 @@ public class MecanumTrain extends MecanumDrive {
         return power;
     }
 
-    @NonNull
-    @Override
-    public List<Double> getWheelPositions() {
-        lastEncPositions.clear();
-
-        List<Double> wheelPositions = new ArrayList<>();
-        for (DcMotorEx motor : motors) {
-            int position = motor.getCurrentPosition();
-            lastEncPositions.add(position);
-            wheelPositions.add(encoderTicksToInches(position));
-        }
-        return wheelPositions;
-    }
-
-    @Override
-    public List<Double> getWheelVelocities() {
-        lastEncVels.clear();
-
-        List<Double> wheelVelocities = new ArrayList<>();
-        for (DcMotorEx motor : motors) {
-            int vel = (int) motor.getVelocity();
-            lastEncVels.add(vel);
-            wheelVelocities.add(encoderTicksToInches(vel));
-        }
-        return wheelVelocities;
-    }
-
-    public TrajectoryBuilder trajectoryBuilder (Pose2d startPose) {
-        return new TrajectoryBuilder(startPose, VEL_CONSTRAINT, ACCEL_CONSTRAINT);
-    }
-
-    public TrajectoryBuilder trajectoryBuilder (Pose2d startPose, boolean reversed) {
-        return new TrajectoryBuilder(startPose, reversed, VEL_CONSTRAINT, ACCEL_CONSTRAINT);
-    }
-
-    public TrajectoryBuilder trajectoryBuilder (Pose2d startPose, double startHeading) {
-        return new TrajectoryBuilder(startPose, startHeading, VEL_CONSTRAINT, ACCEL_CONSTRAINT);
-    }
-
-    public TrajectorySequenceBuilder trajectorySequenceBuilder(Pose2d startPose) {
-        return new TrajectorySequenceBuilder(startPose, VEL_CONSTRAINT, ACCEL_CONSTRAINT,
-                                                MAX_ANG_VEL, MAX_ANG_ACCEL);
-    }
-
-    public static TrajectoryVelocityConstraint getVelocityConstraint(double maxVel, double maxAngularVel, double trackWidth) {
-        return new MinVelocityConstraint(Arrays.asList(
-                new AngularVelocityConstraint(maxAngularVel),
-                new MecanumVelocityConstraint(maxVel, trackWidth)
-        ));
-    }
-
-    public void turnAsync(double angle) {
-        trajectorySequenceRunner.followTrajectorySequenceAsync(
-                trajectorySequenceBuilder(getPoseEstimate())
-                        .turn(angle)
-                        .build()
-        );
-    }
-
-    public void turn(double angle) {
-        turnAsync(angle);
-        waitForIdle();
-    }
-
-    public void update() {
-        updatePoseEstimate();
-        DriveSignal signal = trajectorySequenceRunner.update(getPoseEstimate(), getPoseVelocity());
-        if (signal != null) setDriveSignal(signal);
-    }
-
-    public void waitForIdle() {
-        while (!Thread.currentThread().isInterrupted() && isBusy())
-            update();
-    }
-
-    public static TrajectoryAccelerationConstraint getAccelerationConstraint(double maxAccel) {
-        return new ProfileAccelerationConstraint(maxAccel);
-    }
-
-    public boolean isBusy() {
-        return trajectorySequenceRunner.isBusy();
-    }
-
-    public void followTrajectoryAsync(Trajectory trajectory) {
-        trajectorySequenceRunner.followTrajectorySequenceAsync(
-                trajectorySequenceBuilder(trajectory.start())
-                        .addTrajectory(trajectory)
-                        .build()
-        );
-    }
-
-    public void followTrajectory(Trajectory trajectory) {
-        followTrajectoryAsync(trajectory);
-        waitForIdle();
-    }
-
+    // setMotorsMode(mode)
+    // mode - DcMotor.RunMode (run mode for all motors)
+    // Iterates through all drive motors to change their run mode
     public void setMotorsMode(DcMotorEx.RunMode mode) {
         for (DcMotorEx motor : motors) {
             motor.setMode(mode);
         }
     }
 
+    // setZeroPowerBehavior(zpb)
+    // zpb - DcMotor.ZeroPowerBehavior (zero power behavior for all motors)
+    // Iterates through all drive motors to change their zero power behavior (BRAKE or FLOAT)
     public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior zpb) {
         for (DcMotorEx motor : motors) {
             motor.setZeroPowerBehavior(zpb);
         }
     }
-
-    public double getRawExternalHeading() { return 0; }
-
-    public int inchesToPosition (double inches) {
-        return (int) (inches * COUNTS_PER_INCH);
-    }
-
 }

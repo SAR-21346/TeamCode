@@ -49,26 +49,26 @@ public class DriveConstants {
     public static double TRACK_WIDTH = 18; // in
 
     /*
-     * These are the feedforward parameters used to model the drive motor behavior. If you are using
-     * the built-in velocity PID, *these values are fine as is*. However, if you do not have drive
-     * motor encoders or have elected not to use them for velocity control, these values should be
-     * empirically tuned.
-     */
-    public static double kV = 1.0 / rpmToVelocity(MAX_RPM);
-    public static double kA = 0;
-    public static double kStatic = 0;
-
-    /*
      * These values are used to generate the trajectories for you robot. To ensure proper operation,
      * the constraints should never exceed ~80% of the robot's actual capabilities. While Road
      * Runner is designed to enable faster autonomous motion, it is a good idea for testing to start
      * small and gradually increase them later after everything is working. All distance units are
      * inches.
      */
-    public static double MAX_VEL = 30;
-    public static double MAX_ACCEL = 30;
+    public static double MAX_VEL = 50;
+    public static double MAX_ACCEL = 50;
     public static double MAX_ANG_VEL = Math.toRadians(60);
     public static double MAX_ANG_ACCEL = Math.toRadians(60);
+
+    /*
+     * These are the feedforward parameters used to model the drive motor behavior. If you are using
+     * the built-in velocity PID, *these values are fine as is*. However, if you do not have drive
+     * motor encoders or have elected not to use them for velocity control, these values should be
+     * empirically tuned.
+     */
+    public static double kV = 1.0 / MAX_VEL; //1.0 / rpmToVelocity(MAX_RPM);
+    public static double kA = 0.010775;
+    public static double kStatic = 0;
 
     /*
      * Adjust the orientations here to match your robot. See the FTC SDK documentation for details.
