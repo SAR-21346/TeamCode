@@ -43,64 +43,88 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
-import org.openftc.easyopencv.OpenCvCamera;
-import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 
 
-public class MecanumTrain {
-    // Public OpMode members.
-    public DcMotor leftFrontDrive;
-    public DcMotor leftBackDrive;
-    public DcMotor rightFrontDrive;
-    public DcMotor rightBackDrive;
-    public DcMotor leftSlide;
-    public DcMotor rightSlide;
-    public DcMotor spinTake;
-    public DcMotor outMotor;
+@Config
+public class MecanumTrain{
+    // Drive Motors
+    public DcMotorEx leftFrontDrive;
+    public DcMotorEx leftBackDrive;
+    public DcMotorEx rightFrontDrive;
+    public DcMotorEx rightBackDrive;
+
+    // Auxiliary Motors
+    public DcMotorEx leftSlide;
+    public DcMotorEx rightSlide;
+    public DcMotorEx spinTake;
+    public DcMotorEx outMotor;
+
+    // Servos
+    public Servo claw;
+    public Servo drone;
+
+    // Odometry helper class
+    public SampleMecanumDrive odometry;
+
+    // Camera
     public OpenCvCamera camera;
     public AprilTagDetectionPipeline aprilTagDetectionPipeline;
 
-    // MotorController instances and threads
-    MotorController lfDriveController;
-    Thread lfDriveThread;
-    MotorController lbDriveController;
-    Thread lbDriveThread;
-    MotorController rfDriveController;
-    Thread rfDriveThread;
-    MotorController rbDriveController;
-    Thread rbDriveThread;
-
-    public MecanumTrain() {
-    }
-
+    // Hardware Map
     HardwareMap hwMap = null;
 
-    public void init(HardwareMap hwMapX) {
-        hwMap = hwMapX;
+    // Motor Info
+    static final double COUNTS_PER_REV = 537.6;
+    static final double COUNTS_PER_INCH = (COUNTS_PER_REV * GEAR_RATIO) /
+            (2 * WHEEL_RADIUS * Math.PI);
+    public int target = 0;
 
-        // Initialize the hardware variables. Note that the strings used here
-        // as parameters to 'get' must correspond to the names assigned during the robot
-        // configuration
-        // step (using the FTC Robot Controller app).
-        leftFrontDrive = hwMap.get(DcMotor.class, "FLdrive");
-        leftBackDrive = hwMap.get(DcMotor.class, "BLdrive");
-        rightFrontDrive = hwMap.get(DcMotor.class, "FRdrive");
-        rightBackDrive = hwMap.get(DcMotor.class, "BRdrive");
-        leftSlide = hardwareMap.get(DcMotor.class, "Lslide");
-        rightSlide = hardwareMap.get(DcMotor.class, "Rslide");
-        spinTake = hardwareMap.get(DcMotor.class, "Spintake");
-        outMotor = hardwareMap.get(DcMotor.class, "Outtake");
+    private PIDController controllerArm;
+    private PIDController controllerLift;
+    public static double p = 0.02, i = 0, d = 0.0001, f = 0.12;
+    public static double p_lift = 0, i_lift = 0, d_lift = 0, f_lift = 0;
 
-        // Create instances of the MotorController class to run the motor asynchronously
-        // in a thread
-        lfDriveController = new MotorController(leftFrontDrive, DcMotor.Direction.FORWARD);
-        lfDriveThread = new Thread(lfDriveController);
-        lbDriveController = new MotorController(leftBackDrive, DcMotor.Direction.REVERSE);
-        lbDriveThread = new Thread(lbDriveController);
-        rfDriveController = new MotorController(rightFrontDrive, DcMotor.Direction.FORWARD);
-        rfDriveThread = new Thread(rfDriveController);
-        rbDriveController = new MotorController(rightBackDrive, DcMotor.Direction.FORWARD);
-        rbDriveThread = new Thread(rbDriveController);
+    private List<DcMotorEx> motors;
+
+    // Initial Motor Positions
+    public double arm_start;
+    public int liftL_start;
+    public int liftR_start;
+
+    public static double CLAW_OPEN = 0.2;
+    public static double CLAW_CLOSED = 0;
+
+    public static double DRONE_OPEN = .5;
+    public static double DRONE_CLOSED = 1;
+
+    public static int liftL_speed = 500;
+    public static int liftR_speed = 500;
+
+    public Gamepad.RumbleEffect rumbleEffect;
+
+    public MecanumTrain(HardwareMap hwMapX, ElapsedTime runtime) {
+        hwMap = hwMapX; // saves reference to hwMap
+
+        odometry = new SampleMecanumDrive(hwMap);
+
+        // Drive Motors
+        leftFrontDrive = hwMap.get(DcMotorEx.class, "FLdrive");
+        leftBackDrive = hwMap.get(DcMotorEx.class, "BLdrive");
+        rightFrontDrive = hwMap.get(DcMotorEx.class, "FRdrive");
+        rightBackDrive = hwMap.get(DcMotorEx.class, "BRdrive");
+
+        leftSlide = hwMap.get(DcMotorEx.class, "Lslide");
+        rightSlide = hwMap.get(DcMotorEx.class, "Rslide");
+        spinTake = hwMap.get(DcMotorEx.class, "Spintake");
+        outMotor = hwMap.get(DcMotorEx.class, "Outtake");
+
+        claw = hwMap.get(Servo.class, "claw");
+        drone = hwMap.get(Servo.class, "drone");
+
+        motors = Arrays.asList(leftFrontDrive, leftBackDrive, rightFrontDrive, rightBackDrive);
 
         // Camera Initialization
         int cameraMonitorViewId = hwMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id",
@@ -108,15 +132,28 @@ public class MecanumTrain {
         camera = OpenCvCameraFactory.getInstance().createWebcam(hwMap.get(WebcamName.class, "camera"),
                 cameraMonitorViewId);
     }
+  
+        setMotorsMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        outMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
-    // trainStart()
-    // Starts the motor threads
-    public void trainStart() {
-        lfDriveThread.start();
-        lbDriveThread.start();
-        rfDriveThread.start();
-        rbDriveThread.start();
-    }
+
+        leftBackDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftSlide.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        leftSlide.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        rightSlide.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        outMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+
+        controllerArm = new PIDController(p, i, d);
+        controllerLift = new PIDController(p_lift, i_lift, d_lift);
+
+        rumbleEffect = new Gamepad.RumbleEffect.Builder()
+                .addStep(0.5, 0.5, 500)
+                .addStep(0.0,0.0, 300)
+                .addStep(1.0, 1.0, 500)
+                .addStep(0.0, 0.0, 1000)
+                .build();
 
     // calculateMotorPowers(axial, lateral, yaw)
     // axial - double
@@ -132,68 +169,72 @@ public class MecanumTrain {
         return motorPowers;
     }
 
-    //Create States for motors
-    private enum State {
-        READY,
-        NOT_READY
+    // setMotorPowers(v, v1, v2, v3)
+    // v - double (power for leftBackDrive)
+    // v1 - double (power for leftFrontDrive)
+    // v2 - double (power for rightBackDrive)
+    // v3 - double (power for rightFrontDrive)
+    public void setMotorPowers(double v, double v1, double v2, double v3) {
+        leftBackDrive.setPower(v);
+        leftFrontDrive.setPower(v1);
+        rightBackDrive.setPower(v2);
+        rightFrontDrive.setPower(v3);
+
     }
 
-    //Set the states of all motors to ready
-    private State lfMotorState = State.READY;
-    private State rfMotorState = State.READY;
-    private State rbMotorState = State.READY;
-    private State lbMotorState = State.READY;
-    private State lSlMotorState = State.READY;
-    private State rSlMotorState = State.READY;
-    private State inMotorState = State.READY;
-    private State outMotorState = State.READY;
+    // runIntake(power)
+    // power - double (power for spinTake)
+    public void runIntake(double power) { spinTake.setPower(power); }
 
-
-
-    // trainStop()
-    // Stops the motor threads
-    public void trainStop() {
-        lfDriveController.setPower(0);
-        lbDriveController.setPower(0);
-        rfDriveController.setPower(0);
-        rbDriveController.setPower(0);
-        lfDriveThread.interrupt();
-        rfDriveThread.interrupt();
-        rbDriveThread.interrupt();
-        lbDriveThread.interrupt();
+    // runLift(pos)
+    // pos - int (target position for leftSlide and rightSlide)
+    public void runLift (int pos) {
+        leftSlide.setTargetPosition((pos + liftL_start)); // liftL_start is the initial position of the left slide
+        leftSlide.setVelocity(liftL_speed); // Was told to change speeds for the individual motors
+        leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION); // Allows motor to move via encoder
+        rightSlide.setTargetPosition(pos + liftR_start); // liftR_start is the initial position of the right slide
+        rightSlide.setVelocity(liftR_speed); // Was told to change speeds for the individual motors
+        rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION); // Allows motor to move via encoder
     }
 
+    // runOuttake(power)
+    // power - double (power for outMotor)
+    public void runOuttake(double power) { outMotor.setPower(power); }
 
-    // MotorController
-    // A class that controls a motor asynchronously in a thread
-    private static class MotorController implements Runnable {
+    // update()
+    // Updates the telemetry with the current encoder values
+    // Should be called in a loop
+    public void updateArmPID(double armPos) {
+        controllerArm.setPID(p, i, d);
+        double pid = controllerArm.calculate(armPos, target + arm_start);
+        double ff =  Math.cos(Math.toRadians((target + arm_start) / (COUNTS_PER_REV / (2 * Math.PI)))) * f;
+        double power = pid + ff;
+        outMotor.setPower(power);
+    }
 
-        //motor definition
-        private final DcMotor motor;
+    // updateLiftPID()
+    // returns double (power for leftSlide and rightSlide)
+    // Calculates the power for the lift motors using a PID controller
+    public double updateLiftPID() {
+        controllerLift.setPID(p_lift, i_lift, d_lift);
+        int liftPos = leftSlide.getCurrentPosition();
+        double pid = controllerLift.calculate(liftPos, target);
 
-        // direction of movement for a motor
-        // (signifies which direction it moves with positive power)
-        private final DcMotorSimple.Direction direction;
-
-        //Initial Power set to Zero
-        private double power = 0;
-
-        public MotorController(DcMotor motor, DcMotorSimple.Direction direction) {
-            this.motor = motor;
-            this.direction = direction;
-        }
-
-        // setPower(power)
-        // power - double
-        public void setPower(double power) {
-            this.power = power;
-        }
-
-        public void run() {
-            motor.setDirection(direction);
-            while (!Thread.currentThread().isInterrupted()) {
-                motor.setPower(power);
-            }
-            motor.setPower(0);
+    // setMotorsMode(mode)
+    // mode - DcMotor.RunMode (run mode for all motors)
+    // Iterates through all drive motors to change their run mode
+    public void setMotorsMode(DcMotorEx.RunMode mode) {
+        for (DcMotorEx motor : motors) {
+            motor.setMode(mode);
         }
     }
+
+    // setZeroPowerBehavior(zpb)
+    // zpb - DcMotor.ZeroPowerBehavior (zero power behavior for all motors)
+    // Iterates through all drive motors to change their zero power behavior (BRAKE or FLOAT)
+    public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior zpb) {
+        for (DcMotorEx motor : motors) {
+            motor.setZeroPowerBehavior(zpb);
+        }
+    }
+}
