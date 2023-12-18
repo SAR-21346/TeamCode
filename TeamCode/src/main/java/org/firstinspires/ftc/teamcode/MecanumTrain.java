@@ -29,38 +29,16 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import androidx.annotation.NonNull;
 
 import java.lang.Math;
 import java.lang.Thread;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
-import com.arcrobotics.ftclib.controller.PIDController;
-import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.roadrunner.control.PIDFController;
-import com.acmerobotics.roadrunner.drive.DriveSignal;
-import com.acmerobotics.roadrunner.followers.HolonomicPIDVAFollower;
-import com.acmerobotics.roadrunner.followers.TrajectoryFollower;
-import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.trajectory.*;
-import com.acmerobotics.roadrunner.trajectory.constraints.AngularVelocityConstraint;
-import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstraint;
-import com.acmerobotics.roadrunner.trajectory.constraints.MinVelocityConstraint;
-import com.acmerobotics.roadrunner.trajectory.constraints.ProfileAccelerationConstraint;
-import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
-import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
-import com.qualcomm.hardware.lynx.commands.core.LynxReadVersionStringResponse;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.hardware.HardwareDevice;
+
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.VoltageSensor;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -68,14 +46,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
-import org.openftc.easyopencv.OpenCvCamera;
-import org.openftc.easyopencv.OpenCvCameraFactory;
 
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.*;
-
-import org.firstinspires.ftc.teamcode.trajectorysequence.*;
-import com.acmerobotics.roadrunner.drive.MecanumDrive;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
 public class MecanumTrain{
@@ -160,7 +131,8 @@ public class MecanumTrain{
                 hwMap.appContext.getPackageName());
         camera = OpenCvCameraFactory.getInstance().createWebcam(hwMap.get(WebcamName.class, "camera"),
                 cameraMonitorViewId);
-
+    }
+  
         setMotorsMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         outMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -183,8 +155,6 @@ public class MecanumTrain{
                 .addStep(0.0, 0.0, 1000)
                 .build();
 
-    }
-
     // calculateMotorPowers(axial, lateral, yaw)
     // axial - double
     // lateral - double
@@ -192,11 +162,10 @@ public class MecanumTrain{
     // returns double[]
     public double[] calculateMotorPowers(double axial, double lateral, double yaw) {
         double[] motorPowers = new double[4];
-        double denominator = Math.max(Math.abs(axial) + Math.abs(lateral) + Math.abs(yaw), 1);
-        motorPowers[0] = (axial - lateral + yaw) / (denominator * 1.2);
-        motorPowers[1] = (axial + lateral + yaw) / (denominator * 1.2);
-        motorPowers[2] = (axial + lateral - yaw) / (denominator * 1.2);
-        motorPowers[3] = (axial - lateral - yaw) / (denominator * 1.2);
+        motorPowers[0] = axial + lateral + yaw;
+        motorPowers[1] = axial - lateral - yaw;
+        motorPowers[2] = axial - lateral + yaw;
+        motorPowers[3] = axial + lateral - yaw;
         return motorPowers;
     }
 
@@ -232,20 +201,6 @@ public class MecanumTrain{
     // power - double (power for outMotor)
     public void runOuttake(double power) { outMotor.setPower(power); }
 
-    public void closeClaw () { claw.setPosition(CLAW_CLOSED); }
-    public void openClaw () { claw.setPosition(CLAW_OPEN); }
-
-    public void closeDrone() { drone.setPosition(DRONE_CLOSED); }
-    public void openDrone() { drone.setPosition(DRONE_OPEN); }
-
-    public void trainStop() {
-        setMotorPowers(0, 0, 0, 0);
-        leftSlide.setPower(0.0);
-        rightSlide.setPower(0.0);
-        outMotor.setPower(0.0);
-        spinTake.setPower(0.0);
-    }
-
     // update()
     // Updates the telemetry with the current encoder values
     // Should be called in a loop
@@ -264,10 +219,6 @@ public class MecanumTrain{
         controllerLift.setPID(p_lift, i_lift, d_lift);
         int liftPos = leftSlide.getCurrentPosition();
         double pid = controllerLift.calculate(liftPos, target);
-
-        double power = pid;
-        return power;
-    }
 
     // setMotorsMode(mode)
     // mode - DcMotor.RunMode (run mode for all motors)
