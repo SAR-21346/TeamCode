@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name = "TeleOpTesting")
+@TeleOp(name = "MotorVerification")
 public class TeleOpTesting extends LinearOpMode{
     private ElapsedTime runtime = new ElapsedTime();
     MecanumTrain bot;
@@ -19,7 +19,6 @@ public class TeleOpTesting extends LinearOpMode{
     public void runOpMode() {
         //bot initialization
         bot = new MecanumTrain(hardwareMap, runtime);
-
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
 
         // Wait for the game to start (driver presses PLAY)

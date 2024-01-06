@@ -49,7 +49,7 @@ public class TeleOpMain extends LinearOpMode{
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             // get controller inputs
-            double gamepadLS_Y_adj = Math.abs(gamepad1.left_stick_y) < .9 ? 0 : gamepad1.left_stick_y;
+            double gamepadLS_Y_adj = Math.abs(gamepad1.left_stick_y) < .10 ? 0 : gamepad1.left_stick_y;
 
             double axial = -gamepadLS_Y_adj; // Note: pushing stick forward gives negative value
             double lateral = gamepad1.left_stick_x;

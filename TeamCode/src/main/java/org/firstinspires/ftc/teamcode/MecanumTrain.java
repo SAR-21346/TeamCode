@@ -46,7 +46,23 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
+<<<<<<< Updated upstream
 
+=======
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import org.firstinspires.ftc.vision.tfod.TfodProcessor;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.*;
+
+import android.util.Size;
+
+import org.firstinspires.ftc.teamcode.trajectorysequence.*;
+import com.acmerobotics.roadrunner.drive.MecanumDrive;
+import com.qualcomm.robotcore.util.ElapsedTime;
+>>>>>>> Stashed changes
 
 @Config
 public class MecanumTrain{
@@ -70,8 +86,9 @@ public class MecanumTrain{
     public SampleMecanumDrive odometry;
 
     // Camera
-    public OpenCvCamera camera;
-    public AprilTagDetectionPipeline aprilTagDetectionPipeline;
+    public AprilTagProcessor aprilTagProcessor;
+    public TfodProcessor tfod;
+    public VisionPortal visionPortal;
 
     // Hardware Map
     HardwareMap hwMap = null;
@@ -94,12 +111,14 @@ public class MecanumTrain{
     public int liftL_start;
     public int liftR_start;
 
+    // Claw and Drone Position Constants
     public static double CLAW_OPEN = 0.2;
     public static double CLAW_CLOSED = 0;
 
     public static double DRONE_OPEN = .5;
     public static double DRONE_CLOSED = 1;
 
+    // Lift Speeds
     public static int liftL_speed = 500;
     public static int liftR_speed = 500;
 
@@ -108,6 +127,7 @@ public class MecanumTrain{
     public MecanumTrain(HardwareMap hwMapX, ElapsedTime runtime) {
         hwMap = hwMapX; // saves reference to hwMap
 
+        // Odometry
         odometry = new SampleMecanumDrive(hwMap);
 
         // Drive Motors
@@ -116,16 +136,20 @@ public class MecanumTrain{
         rightFrontDrive = hwMap.get(DcMotorEx.class, "FRdrive");
         rightBackDrive = hwMap.get(DcMotorEx.class, "BRdrive");
 
+        // Auxiliary Motors
         leftSlide = hwMap.get(DcMotorEx.class, "Lslide");
         rightSlide = hwMap.get(DcMotorEx.class, "Rslide");
         spinTake = hwMap.get(DcMotorEx.class, "Spintake");
         outMotor = hwMap.get(DcMotorEx.class, "Outtake");
 
+        // Servos
         claw = hwMap.get(Servo.class, "claw");
         drone = hwMap.get(Servo.class, "drone");
 
+        // Motor List
         motors = Arrays.asList(leftFrontDrive, leftBackDrive, rightFrontDrive, rightBackDrive);
 
+<<<<<<< Updated upstream
         // Camera Initialization
         int cameraMonitorViewId = hwMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id",
                 hwMap.appContext.getPackageName());
@@ -133,27 +157,43 @@ public class MecanumTrain{
                 cameraMonitorViewId);
     }
   
+=======
+//        // Camera Initialization
+//        int cameraMonitorViewId = hwMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id",
+//                hwMap.appContext.getPackageName());
+//        camera = OpenCvCameraFactory.getInstance().createWebcam(hwMap.get(WebcamName.class, "camera"),
+//                cameraMonitorViewId);
+
+        // Set Modes for Motors
+>>>>>>> Stashed changes
         setMotorsMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         outMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
-
+        // Set directions for Motors
         leftBackDrive.setDirection(DcMotorSimple.Direction.REVERSE);
         leftSlide.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        // Set ZeroPowerBehavior for Motors
         setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         leftSlide.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         rightSlide.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         outMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
+        // Instantiate PID Controllers
         controllerArm = new PIDController(p, i, d);
         controllerLift = new PIDController(p_lift, i_lift, d_lift);
 
+        // Gamepad Rumble Effect
         rumbleEffect = new Gamepad.RumbleEffect.Builder()
                 .addStep(0.5, 0.5, 500)
                 .addStep(0.0,0.0, 300)
                 .addStep(1.0, 1.0, 500)
                 .addStep(0.0, 0.0, 1000)
                 .build();
+<<<<<<< Updated upstream
+=======
+    }
+>>>>>>> Stashed changes
 
     // calculateMotorPowers(axial, lateral, yaw)
     // axial - double
@@ -179,7 +219,6 @@ public class MecanumTrain{
         leftFrontDrive.setPower(v1);
         rightBackDrive.setPower(v2);
         rightFrontDrive.setPower(v3);
-
     }
 
     // runIntake(power)
@@ -202,7 +241,7 @@ public class MecanumTrain{
     public void runOuttake(double power) { outMotor.setPower(power); }
 
     // update()
-    // Updates the telemetry with the current encoder values
+    // Updates the telemetry with the current encoder values for the arm
     // Should be called in a loop
     public void updateArmPID(double armPos) {
         controllerArm.setPID(p, i, d);
@@ -237,4 +276,36 @@ public class MecanumTrain{
             motor.setZeroPowerBehavior(zpb);
         }
     }
+
+    public void initTfodRed(HardwareMap hwMap) {
+        final String[] LABELS = {"RedProp1"};
+        tfod = new TfodProcessor.Builder()
+                .setModelFileName("/sdcard/FIRST/tflitemodels/RedProp1.tflite")
+                .setModelLabels(LABELS)
+                .build();
+        VisionPortal.Builder builder = new VisionPortal.Builder();
+        builder.setCamera(hwMap.get(WebcamName.class, "camera"));
+        builder.setCameraResolution(new Size(800, 448));
+        builder.addProcessor(tfod);
+        visionPortal = builder.build();
+        tfod.setMinResultConfidence(0.8f);
+    }
+
+    public void initTfodBlue(HardwareMap hwMap) {
+        tfod = new TfodProcessor.Builder()
+                .setModelFileName("/sdcard/FIRST/tflitemodels/BlueProp1.tflite")
+                .setModelLabels(new String[]{"BlueProp1"})
+                .build();
+        VisionPortal.Builder builder = new VisionPortal.Builder();
+        builder.setCamera(hwMap.get(WebcamName.class, "camera"));
+        builder.setCameraResolution(new Size(800, 448));
+        builder.addProcessor(tfod);
+        visionPortal = builder.build();
+        tfod.setMinResultConfidence(0.8f);
+    }
+
+    public void tfodRecRed() {
+
+    }
+
 }
