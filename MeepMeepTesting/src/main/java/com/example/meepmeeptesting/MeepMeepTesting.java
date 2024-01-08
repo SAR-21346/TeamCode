@@ -20,12 +20,32 @@ public class MeepMeepTesting {
                 .followTrajectorySequence(drive -> {
                             return drive.trajectorySequenceBuilder(new Pose2d(10.5, -59, Math.toRadians(180)))
                                     .lineTo(new Vector2d(12, -53))
-                                    .splineToLinearHeading(new Pose2d(23, -41, Math.toRadians(90)), Math.toRadians(0))
+                                    .lineTo(new Vector2d(14, -44))
+                                    .splineToSplineHeading(new Pose2d(4, -38.5, Math.toRadians(110)), Math.toRadians(180))
                                     .addDisplacementMarker(() -> {/**/})
-                                    .back(3)
+                                    .waitSeconds(0.5)
+                                    .back(2)
                                     .addDisplacementMarker(() -> {/**/})
+                                    .waitSeconds(0.5)
+                                    .lineTo(new Vector2d(14, -44))
+                                    //.setConstraints(bot.odometry.SHAKE_VEL_CONSTRAINT, bot.odometry.SHAKE_ACCEL_CONSTRAINT)
+                                    .forward(5)
                                     .back(5)
-                                    .lineToSplineHeading(new Pose2d(35, -34.5, Math.toRadians(90)))
+                                    .resetConstraints()
+                                    .addDisplacementMarker(() -> {
+//                                        bot.runLift(200);
+//                                        bot.target = 150;
+                                    })
+                                    .splineToSplineHeading(new Pose2d(48, -28, Math.toRadians(180)), Math.toRadians(0))
+                                    .addDisplacementMarker(() -> {/**/})
+                                    .waitSeconds(0.5)
+                                    .addDisplacementMarker(() -> {
+//                                        bot.closeClaw();
+//                                        bot.target = 0;
+//                                        bot.runLift(0);
+                                    })
+                                    .lineTo(new Vector2d(45, -15))
+                                    .splineToConstantHeading(new Vector2d(60, -12.5), Math.toRadians(0))
                                     .build();
                         }
                 );

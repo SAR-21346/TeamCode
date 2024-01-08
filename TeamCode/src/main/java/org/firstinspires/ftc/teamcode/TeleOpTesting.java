@@ -61,8 +61,5 @@ public class TeleOpTesting extends LinearOpMode{
 
             telemetry.addLine("complete");
         }
-
-        // Stop all motion;
-        bot.trainStop();
     }
 }

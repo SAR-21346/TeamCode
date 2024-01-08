@@ -32,12 +32,18 @@ package org.firstinspires.ftc.teamcode;
 
 import java.lang.Math;
 import java.lang.Thread;
+import java.util.Arrays;
+import java.util.List;
 
 
+import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.controller.PIDController;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -46,9 +52,6 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
-<<<<<<< Updated upstream
-
-=======
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.firstinspires.ftc.vision.tfod.TfodProcessor;
@@ -62,7 +65,6 @@ import android.util.Size;
 import org.firstinspires.ftc.teamcode.trajectorysequence.*;
 import com.acmerobotics.roadrunner.drive.MecanumDrive;
 import com.qualcomm.robotcore.util.ElapsedTime;
->>>>>>> Stashed changes
 
 @Config
 public class MecanumTrain{
@@ -149,23 +151,7 @@ public class MecanumTrain{
         // Motor List
         motors = Arrays.asList(leftFrontDrive, leftBackDrive, rightFrontDrive, rightBackDrive);
 
-<<<<<<< Updated upstream
-        // Camera Initialization
-        int cameraMonitorViewId = hwMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id",
-                hwMap.appContext.getPackageName());
-        camera = OpenCvCameraFactory.getInstance().createWebcam(hwMap.get(WebcamName.class, "camera"),
-                cameraMonitorViewId);
-    }
-  
-=======
-//        // Camera Initialization
-//        int cameraMonitorViewId = hwMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id",
-//                hwMap.appContext.getPackageName());
-//        camera = OpenCvCameraFactory.getInstance().createWebcam(hwMap.get(WebcamName.class, "camera"),
-//                cameraMonitorViewId);
-
         // Set Modes for Motors
->>>>>>> Stashed changes
         setMotorsMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         outMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -190,10 +176,7 @@ public class MecanumTrain{
                 .addStep(1.0, 1.0, 500)
                 .addStep(0.0, 0.0, 1000)
                 .build();
-<<<<<<< Updated upstream
-=======
-    }
->>>>>>> Stashed changes
+        }
 
     // calculateMotorPowers(axial, lateral, yaw)
     // axial - double
@@ -240,6 +223,11 @@ public class MecanumTrain{
     // power - double (power for outMotor)
     public void runOuttake(double power) { outMotor.setPower(power); }
 
+    public void openClaw() { claw.setPosition(CLAW_OPEN); }
+    public void closeClaw() { claw.setPosition(CLAW_CLOSED); }
+    public void openDrone() { drone.setPosition(DRONE_OPEN); }
+    public void closeDrone() { drone.setPosition(DRONE_CLOSED); }
+
     // update()
     // Updates the telemetry with the current encoder values for the arm
     // Should be called in a loop
@@ -250,14 +238,6 @@ public class MecanumTrain{
         double power = pid + ff;
         outMotor.setPower(power);
     }
-
-    // updateLiftPID()
-    // returns double (power for leftSlide and rightSlide)
-    // Calculates the power for the lift motors using a PID controller
-    public double updateLiftPID() {
-        controllerLift.setPID(p_lift, i_lift, d_lift);
-        int liftPos = leftSlide.getCurrentPosition();
-        double pid = controllerLift.calculate(liftPos, target);
 
     // setMotorsMode(mode)
     // mode - DcMotor.RunMode (run mode for all motors)

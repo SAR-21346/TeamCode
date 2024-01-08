@@ -71,13 +71,25 @@ public class TeleOpMain extends LinearOpMode{
                 liftPos = 0;
             }
 
-            if(gamepad2.left_stick_button){
-                bot.target -= 7;
+            if(gamepad2.left_trigger > 0){
+                float decreaseFlip = gamepad2.left_trigger;
+                if (bot.target >= 50 && bot.target <=150) {
+                    bot.target -= decreaseFlip*5;
+                } else if (bot.target <=50 && bot.target >= -20){
+                    bot.target -= decreaseFlip*3;
+                }
             }
 
-            if (gamepad2.right_stick_button) {
-                bot.target += 7;
+            if (gamepad2.right_trigger > 0) {
+                float increaseFlip = gamepad2.right_trigger;
+                if (bot.target <= 100 && bot.target >-30) {
+                    bot.target += increaseFlip*5;
+                }
+                if (bot.target >100 && bot.target <=130) {
+                    bot.target += increaseFlip*3;
+                }
             }
+
             if (gamepad1.left_bumper && gamepad1.dpad_left) {
                 bot.openDrone();
                 sleep(3000);
@@ -133,8 +145,5 @@ public class TeleOpMain extends LinearOpMode{
 
 
         }
-
-        // Stop all motion;
-        bot.trainStop();
     }
 }
