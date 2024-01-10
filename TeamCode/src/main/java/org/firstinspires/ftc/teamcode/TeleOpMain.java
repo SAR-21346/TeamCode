@@ -55,8 +55,8 @@ public class TeleOpMain extends LinearOpMode{
             double lateral = gamepad1.left_stick_x;
             double yaw = gamepad1.right_stick_x;
 
-            if (gamepad2.dpad_down) { intakePower = -0.70; }
-            if (gamepad2.dpad_up) { intakePower = 0.40; }
+            if (gamepad2.dpad_down) { intakePower = -1; }
+            if (gamepad2.dpad_up) { intakePower = 1; }
             if (gamepad2.dpad_left) { intakePower = 0; }
 
             if (gamepad2.triangle) {

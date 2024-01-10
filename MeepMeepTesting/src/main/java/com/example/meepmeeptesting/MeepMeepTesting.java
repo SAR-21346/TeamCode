@@ -19,32 +19,28 @@ public class MeepMeepTesting {
                 .setConstraints(30, 30, 5.02, 3.17, 18)
                 .followTrajectorySequence(drive -> {
                             return drive.trajectorySequenceBuilder(new Pose2d(10.5, -59, Math.toRadians(180)))
-                                    .lineTo(new Vector2d(12, -53))
-                                    .lineTo(new Vector2d(14, -44))
-                                    .splineToSplineHeading(new Pose2d(4, -38.5, Math.toRadians(110)), Math.toRadians(180))
-                                    .addDisplacementMarker(() -> {/**/})
+                                    .lineTo(new Vector2d(10.5, -53))
+                                    .lineTo(new Vector2d(14, -40))
+                                    .splineToConstantHeading(new Vector2d(3, -32), Math.toRadians(180))
                                     .waitSeconds(0.5)
-                                    .back(2)
-                                    .addDisplacementMarker(() -> {/**/})
+                                    .addTemporalMarker(() -> {/**/})
                                     .waitSeconds(0.5)
-                                    .lineTo(new Vector2d(14, -44))
-                                    //.setConstraints(bot.odometry.SHAKE_VEL_CONSTRAINT, bot.odometry.SHAKE_ACCEL_CONSTRAINT)
-                                    .forward(5)
                                     .back(5)
-                                    .resetConstraints()
-                                    .addDisplacementMarker(() -> {
-//                                        bot.runLift(200);
-//                                        bot.target = 150;
-                                    })
-                                    .splineToSplineHeading(new Pose2d(48, -28, Math.toRadians(180)), Math.toRadians(0))
-                                    .addDisplacementMarker(() -> {/**/})
-                                    .waitSeconds(0.5)
-                                    .addDisplacementMarker(() -> {
-//                                        bot.closeClaw();
-//                                        bot.target = 0;
-//                                        bot.runLift(0);
-                                    })
+                                    .addTemporalMarker(() -> {/**/})
+                                    .lineTo(new Vector2d(14, -44))
+                                    .addTemporalMarker(() -> {/**/})
+                                    .lineToConstantHeading(new Vector2d(52, -42))
+                                    .waitSeconds(1)
+                                    .addTemporalMarker(() -> {/**/})
+                                    .waitSeconds(1)
+                                    .addTemporalMarker(() -> {/**/})
+                                    .waitSeconds(2)
                                     .lineTo(new Vector2d(45, -15))
+                                    .addTemporalMarker(() -> {/**/})
+                                    .waitSeconds(0.8)
+                                    .addTemporalMarker(() -> {/**/})
+                                    .waitSeconds(0.8)
+                                    .addTemporalMarker(() -> {/**/})
                                     .splineToConstantHeading(new Vector2d(60, -12.5), Math.toRadians(0))
                                     .build();
                         }

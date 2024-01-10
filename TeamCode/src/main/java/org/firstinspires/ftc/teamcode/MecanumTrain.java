@@ -198,10 +198,10 @@ public class MecanumTrain{
     // v2 - double (power for rightBackDrive)
     // v3 - double (power for rightFrontDrive)
     public void setMotorPowers(double v, double v1, double v2, double v3) {
-        leftBackDrive.setPower(v);
-        leftFrontDrive.setPower(v1);
-        rightBackDrive.setPower(v2);
-        rightFrontDrive.setPower(v3);
+        leftBackDrive.setPower(v2);
+        leftFrontDrive.setPower(v);
+        rightBackDrive.setPower(v3);
+        rightFrontDrive.setPower(v1);
     }
 
     // runIntake(power)
@@ -268,7 +268,7 @@ public class MecanumTrain{
         builder.setCameraResolution(new Size(800, 448));
         builder.addProcessor(tfod);
         visionPortal = builder.build();
-        tfod.setMinResultConfidence(0.8f);
+        tfod.setMinResultConfidence(0.4f);
     }
 
     public void initTfodBlue(HardwareMap hwMap) {
@@ -281,7 +281,7 @@ public class MecanumTrain{
         builder.setCameraResolution(new Size(800, 448));
         builder.addProcessor(tfod);
         visionPortal = builder.build();
-        tfod.setMinResultConfidence(0.8f);
+        tfod.setMinResultConfidence(0.4f);
     }
 
     public void tfodRecRed() {

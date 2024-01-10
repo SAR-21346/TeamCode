@@ -21,7 +21,8 @@ public class AutoRF_WithCamera extends LinearOpMode {
     enum SPIKE_LOC  {
             LEFT,
             CENTER,
-            RIGHT
+            RIGHT,
+            IDLE
     }
     SPIKE_LOC spikeLoc = SPIKE_LOC.LEFT;
 
@@ -43,57 +44,58 @@ public class AutoRF_WithCamera extends LinearOpMode {
         TrajectorySequence driveToRSpike = bot.odometry.trajectorySequenceBuilder(findRedProp.end())
                 .splineToSplineHeading(new Pose2d(23, -46, Math.toRadians(90)), Math.toRadians(0))
                 .lineTo(new Vector2d(23, -38))
-                .addDisplacementMarker(() -> {bot.openClaw();})
-                .waitSeconds(.5)
-                .lineTo(new Vector2d(23, -40))
-                .addDisplacementMarker(() -> {bot.closeClaw();})
-                .waitSeconds(.5)
+                .addTemporalMarker(() -> bot.openClaw())
+                .waitSeconds(1)
+                .back(5)
+                .addTemporalMarker(() -> bot.closeClaw())
+                .waitSeconds(1)
                 .lineTo(new Vector2d(23, -46))
                 .lineTo(new Vector2d(25, -46))
-                .splineToSplineHeading(new Pose2d(48, -42, Math.toRadians(180)), Math.toRadians(0))
+                .splineToSplineHeading(new Pose2d(52, -42, Math.toRadians(180)), Math.toRadians(0))
                 .build();
 
         TrajectorySequence driveToCSpike = bot.odometry.trajectorySequenceBuilder(findRedProp.end())
                 .splineToSplineHeading(new Pose2d(20.5, -27.5, Math.toRadians(150)), Math.toRadians(150))
-                .addDisplacementMarker(() -> {bot.openClaw();})
-                .waitSeconds(.5)
-                .back(2)
-                .addDisplacementMarker(() -> {bot.closeClaw();})
-                .waitSeconds(.5)
-                .splineToSplineHeading(new Pose2d(48, -35, Math.toRadians(180)), Math.toRadians(0))
+                .addTemporalMarker(() -> bot.openClaw())
+                .waitSeconds(1)
+                .back(5)
+                .addTemporalMarker(() -> bot.closeClaw())
+                .waitSeconds(1)
+                .addTemporalMarker(6.5, () -> {bot.target = 120;})
+                .lineToSplineHeading(new Pose2d(52, -35, Math.toRadians(180)))
+                .addTemporalMarker(() -> bot.openClaw())
+                .waitSeconds(1)
+                .addTemporalMarker(() -> bot.closeClaw())
+                .waitSeconds(1)
                 .build();
 
         TrajectorySequence driveToLSpike = bot.odometry.trajectorySequenceBuilder(findRedProp.end())
+                .lineTo(new Vector2d(14, -40))
+                .splineToConstantHeading(new Vector2d(3, -29), Math.toRadians(180))
+                .waitSeconds(0.5)
+                .addTemporalMarker(() -> bot.openClaw())
+                .back(6)
+                .addTemporalMarker(() -> bot.closeClaw())
+                .waitSeconds(0.5)
                 .lineTo(new Vector2d(14, -44))
-                .splineToSplineHeading(new Pose2d(4, -38.5, Math.toRadians(110)), Math.toRadians(180))
-                .addDisplacementMarker(() -> {bot.openClaw();})
+                .addTemporalMarker(() -> {bot.target = 130;})
+                .lineToConstantHeading(new Vector2d(52, -42))
                 .waitSeconds(0.5)
-                .back(2)
-                .addDisplacementMarker(() -> {bot.closeClaw();})
+                .addTemporalMarker(() -> bot.openClaw())
                 .waitSeconds(0.5)
-                .lineTo(new Vector2d(14, -44))
-                .setConstraints(bot.odometry.SHAKE_VEL_CONSTRAINT, bot.odometry.SHAKE_ACCEL_CONSTRAINT)
-                .forward(5)
-                .back(5)
-                .resetConstraints()
-                .addDisplacementMarker(() -> {
-                    bot.runLift(200);
-                    bot.target = 150;
-                })
-                .splineToSplineHeading(new Pose2d(48, -28, Math.toRadians(180)), Math.toRadians(0))
-                .addDisplacementMarker(() -> {bot.openClaw();})
-                .waitSeconds(0.5)
-                .addDisplacementMarker(() -> {
-                    bot.closeClaw();
-                    bot.target = 0;
-                    bot.runLift(0);
-                })
-                .lineTo(new Vector2d(45, -15))
-                .splineToConstantHeading(new Vector2d(60, -12.5), Math.toRadians(0))
+                .addTemporalMarker(() -> bot.closeClaw())
+                .waitSeconds(1)
+                .lineTo(new Vector2d(38, -18))
+                .addTemporalMarker(() -> {bot.target = 80;})
+                .waitSeconds(0.8)
+                .addTemporalMarker(() -> {bot.target = 40;})
+                .waitSeconds(0.8)
+                .addTemporalMarker(() -> {bot.target = 0;})
+                .splineToConstantHeading(new Vector2d(60, -8), Math.toRadians(0))
                 .build();
-
+        
+        bot.closeClaw();
         waitForStart();
-
         double x = 0;
 
         while (opModeIsActive()) {
@@ -117,31 +119,33 @@ public class AutoRF_WithCamera extends LinearOpMode {
             }
 
 
-            while(runtime.seconds() > 6) {
-                switch (spikeLoc) {
-                    case RIGHT:
-                        telemetry.addLine("RIGHT SPIKE");
-                        if (!bot.odometry.isBusy()) {
-                            bot.odometry.followTrajectorySequenceAsync(driveToRSpike);
-                        }
+            switch (spikeLoc) {
+                case RIGHT:
+                    telemetry.addLine("RIGHT SPIKE");
+                    if (!bot.odometry.isBusy()) {
+                        bot.odometry.followTrajectorySequenceAsync(driveToRSpike);
+                        spikeLoc = SPIKE_LOC.IDLE;
                         break;
-                    case CENTER:
-                        telemetry.addLine("CENTER SPIKE");
-                        if (!bot.odometry.isBusy()) {
-                            bot.odometry.followTrajectorySequenceAsync(driveToCSpike);
-                        }
+                    }
+                case CENTER:
+                    telemetry.addLine("CENTER SPIKE");
+                    if (!bot.odometry.isBusy()) {
+                        bot.odometry.followTrajectorySequenceAsync(driveToCSpike);
+                        spikeLoc = SPIKE_LOC.IDLE;
                         break;
-                    case LEFT:
-                        telemetry.addLine("LEFT SPIKE");
-                        if (!bot.odometry.isBusy()) {
-                            bot.odometry.followTrajectorySequenceAsync(driveToLSpike);
-                        }
+                    }
+                case LEFT:
+                    telemetry.addLine("LEFT SPIKE");
+                    if (!bot.odometry.isBusy()) {
+                        bot.odometry.followTrajectorySequenceAsync(driveToLSpike);
+                        spikeLoc = SPIKE_LOC.IDLE;
                         break;
-                }
-                bot.odometry.update();
-                bot.updateArmPID(bot.outMotor.getCurrentPosition());
+                    }
+                case IDLE:
+                    break;
             }
-
+            bot.updateArmPID(bot.outMotor.getCurrentPosition());
+            bot.odometry.update();
             telemetry.update();
 
         }
