@@ -53,7 +53,7 @@ public class AutoRF_WithCamera extends LinearOpMode {
                 bot.visionPortal.resumeStreaming();
                 bot.visionPortal.setProcessorEnabled(bot.tfod, true); // Re-enable TFOD
                 bot.closeClaw();
-                bot.odometry.followTrajectory(trajLib.findRedProp);
+                bot.odometry.followTrajectory(trajLib.findRedFProp);
 
                 List<Recognition> currentRecognitions = bot.tfod.getRecognitions();
                 if (bot.tfod.getRecognitions() != null) {
@@ -61,7 +61,7 @@ public class AutoRF_WithCamera extends LinearOpMode {
                         x = (recognition.getLeft() + recognition.getRight()) / 2;
                         telemetry.addData("x", x);
                     }
-                    // TODO: Changed 1/13/2024 @ 2:43 PM
+                    // Changed 1/13/2024 @ 2:43 PM
                     if (x > 550) {
                         spikeLoc = SPIKE_LOC.RIGHT;
                         break;
@@ -74,29 +74,29 @@ public class AutoRF_WithCamera extends LinearOpMode {
                     }
                 }
             }
-            while(runtime.seconds() < 5 ) {
-                bot.visionPortal.stopStreaming();
-            }
+
+            bot.visionPortal.stopStreaming();
+            bot.visionPortal.setProcessorEnabled(bot.tfod, false); // Disable TFOD to save CPU
 
             switch (spikeLoc) {
                 case RIGHT:
                     telemetry.addLine("RIGHT SPIKE");
                     if (!bot.odometry.isBusy()) {
-                        bot.odometry.followTrajectorySequenceAsync(trajLib.driveToRSpike);
+                        bot.odometry.followTrajectorySequenceAsync(trajLib.RFdriveToRSpike);
                         spikeLoc = SPIKE_LOC.IDLE;
                         break;
                     }
                 case CENTER:
                     telemetry.addLine("CENTER SPIKE");
                     if (!bot.odometry.isBusy()) {
-                        bot.odometry.followTrajectorySequenceAsync(trajLib.driveToCSpike);
+                        bot.odometry.followTrajectorySequenceAsync(trajLib.RFdriveToCSpike);
                         spikeLoc = SPIKE_LOC.IDLE;
                         break;
                     }
                 default:
                     telemetry.addLine("LEFT SPIKE");
                     if (!bot.odometry.isBusy()) {
-                        bot.odometry.followTrajectorySequenceAsync(trajLib.driveToLSpike);
+                        bot.odometry.followTrajectorySequenceAsync(trajLib.RFdriveToLSpike);
                         spikeLoc = SPIKE_LOC.IDLE;
                         break;
                     }

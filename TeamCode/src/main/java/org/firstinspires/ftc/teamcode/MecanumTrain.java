@@ -52,6 +52,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
+import org.firstinspires.ftc.teamcode.opencv.BluePropPipeline;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.firstinspires.ftc.vision.tfod.TfodProcessor;
@@ -59,7 +60,7 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.*;
-
+import org.firstinspires.ftc.teamcode.opencv.BluePropPipeline;
 import android.util.Size;
 
 import org.firstinspires.ftc.teamcode.trajectorysequence.*;
@@ -88,9 +89,10 @@ public class MecanumTrain{
     public SampleMecanumDrive odometry;
 
     // Camera
-    public AprilTagProcessor aprilTagProcessor;
     public TfodProcessor tfod;
     public VisionPortal visionPortal;
+    public BluePropPipeline pipeline;
+
 
     // Hardware Map
     HardwareMap hwMap = null;
@@ -271,21 +273,16 @@ public class MecanumTrain{
         tfod.setMinResultConfidence(0.4f);
     }
 
-    public void initTfodBlue(HardwareMap hwMap) {
-        tfod = new TfodProcessor.Builder()
-                .setModelFileName("/sdcard/FIRST/tflitemodels/BlueProp1.tflite")
-                .setModelLabels(new String[]{"BlueProp1"})
+    public void initEocvBlue(HardwareMap hwMap) {
+        pipeline = new BluePropPipeline();
+        visionPortal = new VisionPortal.Builder()
+                .setCamera(hwMap.get(WebcamName.class, "camera"))
+                .setCameraResolution(new Size(960,544))
+                .addProcessor(pipeline)
+                .setStreamFormat(VisionPortal.StreamFormat.YUY2)
+                .enableLiveView(false)
+                .setAutoStopLiveView(true)
                 .build();
-        VisionPortal.Builder builder = new VisionPortal.Builder();
-        builder.setCamera(hwMap.get(WebcamName.class, "camera"));
-        builder.setCameraResolution(new Size(800, 448));
-        builder.addProcessor(tfod);
-        visionPortal = builder.build();
-        tfod.setMinResultConfidence(0.4f);
-    }
-
-    public void tfodRecRed() {
-
     }
 
 }
