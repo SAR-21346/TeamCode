@@ -12,6 +12,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.TrajectoryLibrary;
+import org.firstinspires.ftc.vision.VisionPortal;
 
 import java.util.List;
 
@@ -64,9 +65,15 @@ public class AutoRB_WithCamera extends LinearOpMode {
                     // Changed 1/13/2024 @ 2:43 PM
                     if (x > 550) {
                         spikeLoc = SPIKE_LOC.RIGHT;
+                        if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
+                            bot.visionPortal.close();
+                        }
                         break;
                     } else if (x < 550 && x > 200) {
                         spikeLoc = SPIKE_LOC.CENTER;
+                        if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
+                            bot.visionPortal.close();
+                        }
                         break;
                     } else {
                         spikeLoc = SPIKE_LOC.LEFT;
@@ -74,9 +81,9 @@ public class AutoRB_WithCamera extends LinearOpMode {
                     }
                 }
             }
-
-            bot.visionPortal.stopStreaming();
-            bot.visionPortal.setProcessorEnabled(bot.tfod, false); // Disable TFOD to save CPU
+            if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
+                bot.visionPortal.close();
+            }
 
             switch (spikeLoc) {
                 case RIGHT:

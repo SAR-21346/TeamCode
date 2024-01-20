@@ -12,6 +12,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.TrajectoryLibrary;
+import org.firstinspires.ftc.vision.VisionPortal;
 
 import java.util.List;
 
@@ -35,63 +36,137 @@ public class AutoBB_WithCamera extends LinearOpMode {
         Pose2d startPose = new Pose2d(-35, 59, Math.toRadians(0));
         bot.odometry.setPoseEstimate(startPose);
 
-        // Create TrajectoryLibrary to de-clutter OpMode
-        TrajectoryLibrary trajLib = new TrajectoryLibrary(bot, startPose);
+        
+        Trajectory findBlueBProp = bot.odometry.trajectoryBuilder(startPose)
+                .lineTo(new Vector2d(-35, 53))
+                .build();
 
-        bot.closeClaw();
+        // TODO: Blue-Back Drive Trajectories
+        TrajectorySequence BBdriveToLSpike = bot.odometry.trajectorySequenceBuilder(findBlueBProp.end())
+
+                .build();
+
+        TrajectorySequence BBdriveToCSpike = bot.odometry.trajectorySequenceBuilder(findBlueBProp.end())
+                .splineToSplineHeading(new Pose2d(-41, 24, Math.toRadians(315)), Math.toRadians(315))
+                .waitSeconds(0.5)
+                .addTemporalMarker(() -> bot.openClaw())
+                .back(6)
+                .addTemporalMarker(() -> bot.closeClaw())
+                .waitSeconds(0.5)
+                .strafeRight(3)
+                .splineToSplineHeading(new Pose2d(-47, 9.5, Math.toRadians(90)), Math.toRadians(0))
+                .splineToConstantHeading(new Vector2d(5, 13), Math.toRadians(0))
+                .UNSTABLE_addDisplacementMarkerOffset(24, () -> bot.target = 130)
+                .splineToSplineHeading(new Pose2d(52, 33, Math.toRadians(180)), Math.toRadians(0))
+                .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
+                .forward(6)
+                .back(6)
+                .resetAccelConstraint()
+                .waitSeconds(0.5)
+                .addTemporalMarker(() -> bot.openClaw())
+                .waitSeconds(0.5)
+                .addTemporalMarker(() -> bot.target = 80)
+                .addTemporalMarker(() -> bot.closeClaw())
+                .waitSeconds(1)
+                .lineTo(new Vector2d(36, 45))
+                .addTemporalMarker(() -> bot.target = 40)
+                .waitSeconds(0.4)
+                .addTemporalMarker(() -> bot.target = 0)
+                .splineToConstantHeading(new Vector2d(60, 60), Math.toRadians(0))
+                .build();
+
+        TrajectorySequence BBdriveToRSpike = bot.odometry.trajectorySequenceBuilder(findBlueBProp.end())
+                .lineToSplineHeading(new Pose2d(-38, 40, Math.toRadians(0)))
+                .splineToConstantHeading(new Vector2d(-28, 34), Math.toRadians(180))
+                .addTemporalMarker(() -> bot.openClaw())
+                .waitSeconds(0.5)
+                .back(5)
+                .waitSeconds(0.5)
+                .addTemporalMarker(() -> bot.closeClaw())
+                .waitSeconds(0.5)
+                .strafeRight(5)
+                .splineToConstantHeading(new Vector2d(-27, 11), Math.toRadians(0))
+                .UNSTABLE_addDisplacementMarkerOffset(48, () -> bot.target = 130)
+                .lineToConstantHeading(new Vector2d(10, 11))
+                .splineToSplineHeading(new Pose2d(52, 39, Math.toRadians(180)), Math.toRadians(0))
+                .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
+                .forward(6)
+                .back(6)
+                .resetAccelConstraint()
+                .waitSeconds(0.5)
+                .addTemporalMarker(() -> bot.openClaw())
+                .waitSeconds(0.5)
+                .addTemporalMarker(() -> bot.target = 80)
+                .addTemporalMarker(() -> bot.closeClaw())
+                .waitSeconds(1)
+                .lineTo(new Vector2d(36,45))
+                .addTemporalMarker(() -> bot.target = 40)
+                .waitSeconds(0.4)
+                .addTemporalMarker(() -> bot.target = 0)
+                .splineToConstantHeading(new Vector2d(60, 60), Math.toRadians(0))
+                .build();
+
+        bot.initEocvBlue(hardwareMap);
         SPIKE_LOC spikeLoc = SPIKE_LOC.IDLE;
         waitForStart();
+        bot.closeClaw();
+        runtime.reset();
         double x = 0;
 
-        while(opModeInInit()) {
-            bot.initEocvBlue(hardwareMap);
-            bot.visionPortal.stopStreaming();
-            bot.visionPortal.setProcessorEnabled(bot.pipeline, false); // Disable TFOD to save CPU
-        }
+        
         while (opModeIsActive()) {
-            while (runtime.seconds() < 4) {
-                bot.visionPortal.resumeStreaming();
-                bot.visionPortal.setProcessorEnabled(bot.pipeline, true); // Re-enable TFOD
+            while (runtime.seconds() < 4) {while (runtime.seconds() < 2) {
                 bot.closeClaw();
-                bot.odometry.followTrajectory(trajLib.findRedBProp);
-
-
-                    // Changed 1/13/2024 @ 2:43 PM
-                    if (x > 550) {
-                        spikeLoc = SPIKE_LOC.RIGHT;
-                        break;
-                    } else if (x < 550 && x > 200) {
-                        spikeLoc = SPIKE_LOC.CENTER;
-                        break;
-                    } else {
-                        spikeLoc = SPIKE_LOC.LEFT;
-                        break;
+                bot.odometry.followTrajectory(findBlueBProp);
+                if (bot.pipeline.isPropRight()){
+                    spikeLoc = SPIKE_LOC.RIGHT;
+                    if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
+                        bot.visionPortal.close();
                     }
+                    break;
+                } else if (bot.pipeline.isPropCenter()){
+                    spikeLoc = SPIKE_LOC.CENTER;
+                    if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
+                        bot.visionPortal.close();
+                    }
+                    break;
+                } else if (!(bot.pipeline.isPropCenter() && bot.pipeline.isPropRight())) {
+                    spikeLoc = SPIKE_LOC.LEFT;
+                }
+                telemetry.addData("x", bot.pipeline.centerX);
 
+                //Try this first
+                sleep(20);
             }
 
-            bot.visionPortal.stopStreaming();
-            bot.visionPortal.setProcessorEnabled(bot.tfod, false); // Disable TFOD to save CPU
+
+                if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.CAMERA_DEVICE_READY) {
+                    bot.visionPortal.close();
+                }
+            }
+
+//            bot.visionPortal.stopStreaming();
+//            bot.visionPortal.setProcessorEnabled(bot.tfod, false); // Disable TFOD to save CPU
 
             switch (spikeLoc) {
                 case RIGHT:
                     telemetry.addLine("RIGHT SPIKE");
                     if (!bot.odometry.isBusy()) {
-                        bot.odometry.followTrajectorySequenceAsync(trajLib.BBdriveToRSpike);
+                        bot.odometry.followTrajectorySequenceAsync(BBdriveToRSpike);
                         spikeLoc = SPIKE_LOC.IDLE;
                         break;
                     }
                 case CENTER:
                     telemetry.addLine("CENTER SPIKE");
                     if (!bot.odometry.isBusy()) {
-                        bot.odometry.followTrajectorySequenceAsync(trajLib.BBdriveToCSpike);
+                        bot.odometry.followTrajectorySequenceAsync(BBdriveToCSpike);
                         spikeLoc = SPIKE_LOC.IDLE;
                         break;
                     }
                 default:
                     telemetry.addLine("LEFT SPIKE");
                     if (!bot.odometry.isBusy()) {
-                        bot.odometry.followTrajectorySequenceAsync(trajLib.BBdriveToLSpike);
+                        bot.odometry.followTrajectorySequenceAsync(BBdriveToLSpike);
                         spikeLoc = SPIKE_LOC.IDLE;
                         break;
                     }

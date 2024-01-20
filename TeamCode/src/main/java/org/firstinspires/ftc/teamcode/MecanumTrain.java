@@ -64,6 +64,8 @@ import org.firstinspires.ftc.teamcode.opencv.BluePropPipeline;
 import android.util.Size;
 
 import org.firstinspires.ftc.teamcode.trajectorysequence.*;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+
 import com.acmerobotics.roadrunner.drive.MecanumDrive;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -145,6 +147,9 @@ public class MecanumTrain{
         rightSlide = hwMap.get(DcMotorEx.class, "Rslide");
         spinTake = hwMap.get(DcMotorEx.class, "Spintake");
         outMotor = hwMap.get(DcMotorEx.class, "Outtake");
+
+
+
 
         // Servos
         claw = hwMap.get(Servo.class, "claw");
@@ -275,14 +280,12 @@ public class MecanumTrain{
 
     public void initEocvBlue(HardwareMap hwMap) {
         pipeline = new BluePropPipeline();
-        visionPortal = new VisionPortal.Builder()
-                .setCamera(hwMap.get(WebcamName.class, "camera"))
-                .setCameraResolution(new Size(960,544))
-                .addProcessor(pipeline)
-                .setStreamFormat(VisionPortal.StreamFormat.YUY2)
-                .enableLiveView(false)
-                .setAutoStopLiveView(true)
-                .build();
+        VisionPortal.Builder builder = new VisionPortal.Builder();
+        builder.setCamera(hwMap.get(WebcamName.class, "camera"));
+        builder.setCameraResolution(new Size(800, 448));
+        builder.addProcessor(pipeline);
+        visionPortal = builder.build();
     }
+
 
 }
