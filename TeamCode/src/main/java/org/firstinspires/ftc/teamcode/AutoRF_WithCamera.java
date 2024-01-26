@@ -34,7 +34,7 @@ public class AutoRF_WithCamera extends LinearOpMode {
         ElapsedTime runtime = new ElapsedTime();
         bot = new MecanumTrain(hardwareMap, runtime);
 
-        Pose2d startPose = new Pose2d(9.5, -59, Math.toRadians(180));
+        Pose2d startPose = new Pose2d(10.5, -59, Math.toRadians(180));
         bot.odometry.setPoseEstimate(startPose);
 
         Trajectory findRedFProp = bot.odometry.trajectoryBuilder(startPose)
@@ -51,11 +51,11 @@ public class AutoRF_WithCamera extends LinearOpMode {
                 .addTemporalMarker(() -> bot.closeClaw())
                 .waitSeconds(0.5)
                 .lineTo(new Vector2d(28, -39))
-                .UNSTABLE_addDisplacementMarkerOffset(6, () -> bot.target = 130)
+                .UNSTABLE_addDisplacementMarkerOffset(8, () -> bot.target = 130)
                 .splineToSplineHeading(new Pose2d(52, -39, Math.toRadians(180)), Math.toRadians(0))
                 .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
-                .forward(6)
-                .back(6)
+                .forward(4)
+                .back(4)
                 .resetAccelConstraint()
                 .waitSeconds(0.5)
                 .addTemporalMarker(() -> bot.openClaw())
@@ -67,7 +67,7 @@ public class AutoRF_WithCamera extends LinearOpMode {
                 .addTemporalMarker(() -> {bot.target = 40;})
                 .waitSeconds(0.4)
                 .addTemporalMarker(() -> {bot.target = 0;})
-                .lineTo(new Vector2d(60, -5))
+                .lineTo(new Vector2d(58, -5))
                 .build();
 
         TrajectorySequence RFdriveToCSpike = bot.odometry.trajectorySequenceBuilder(findRedFProp.end())
@@ -78,7 +78,7 @@ public class AutoRF_WithCamera extends LinearOpMode {
                 .back(5)
                 .addTemporalMarker(() -> bot.closeClaw())
                 .waitSeconds(0.5)
-                .UNSTABLE_addDisplacementMarkerOffset(5, () -> {bot.target = 130;})
+                .UNSTABLE_addDisplacementMarkerOffset(8, () -> {bot.target = 130;})
                 .lineToSplineHeading(new Pose2d(52, -29, Math.toRadians(180)))
                 .setAccelConstraint(SampleMecanumDrive.SHAKE_ACCEL_CONSTRAINT)
                 .forward(6)
@@ -133,7 +133,7 @@ public class AutoRF_WithCamera extends LinearOpMode {
 
         if (opModeIsActive()) {
             while (opModeIsActive()) {
-                while (runtime.seconds() < 4) {
+                while (runtime.seconds() < 3) {
                     bot.closeClaw();
                     bot.odometry.followTrajectory(findRedFProp);
 

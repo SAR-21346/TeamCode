@@ -66,8 +66,8 @@ public class BluePropPipeline implements VisionProcessor {
         hsvFrame = new Mat();
         Imgproc.cvtColor(frame, hsvFrame, Imgproc.COLOR_RGB2HSV);
 
-        lowerBlue = new Scalar(106, 100, 80);
-        upperBlue = new Scalar(110, 255, 255);
+        lowerBlue = new Scalar(105, 50, 80);
+        upperBlue = new Scalar(112, 255, 255);
 
         Mat blueMask = new Mat();
         Core.inRange(hsvFrame, lowerBlue, upperBlue, blueMask);

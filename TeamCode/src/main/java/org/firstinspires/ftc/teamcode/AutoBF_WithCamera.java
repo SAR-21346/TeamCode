@@ -53,7 +53,7 @@ public class AutoBF_WithCamera extends LinearOpMode {
                 .splineToSplineHeading(new Pose2d(23, 38, Math.toRadians(270)), Math.toRadians(0))
                 .waitSeconds(0.5)
                 .addTemporalMarker(() -> bot.openClaw())
-                .back(5)
+                .back(3)
                 .waitSeconds(0.5)
                 .addTemporalMarker(() -> bot.closeClaw())
                 .waitSeconds(0.5)
@@ -61,8 +61,8 @@ public class AutoBF_WithCamera extends LinearOpMode {
                 .UNSTABLE_addDisplacementMarkerOffset(6, () -> {bot.target = 130;})
                 .splineToSplineHeading(new Pose2d(52, 35, Math.toRadians(180)), Math.toRadians(0))
                 .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
-                .forward(6)
-                .back(6)
+                .forward(4)
+                .back(4)
                 .resetAccelConstraint()
                 .waitSeconds(0.5)
                 .addTemporalMarker(() -> bot.openClaw())
@@ -90,8 +90,8 @@ public class AutoBF_WithCamera extends LinearOpMode {
                 })
                 .lineToSplineHeading(new Pose2d(52, 31, Math.toRadians(180)))
                 .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
-                .forward(6)
-                .back(6)
+                .forward(4)
+                .back(4)
                 .resetAccelConstraint()
                 .waitSeconds(0.5)
                 .addTemporalMarker(() -> bot.openClaw())
@@ -156,9 +156,10 @@ public class AutoBF_WithCamera extends LinearOpMode {
 
         if (opModeIsActive()) {
             while (opModeIsActive()) {
-                while (runtime.seconds() < 2) {
+                while (runtime.seconds() < 3) {
                     bot.closeClaw();
                     bot.odometry.followTrajectory(findBlueFProp);
+
                     if (bot.pipeline.isPropRight()){
                         spikeLoc = SPIKE_LOC.RIGHT;
                         if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
