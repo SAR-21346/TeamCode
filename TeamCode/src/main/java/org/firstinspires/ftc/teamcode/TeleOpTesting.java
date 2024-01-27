@@ -5,11 +5,13 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name = "MotorVerification")
+@Disabled
 public class TeleOpTesting extends LinearOpMode{
     private ElapsedTime runtime = new ElapsedTime();
     MecanumTrain bot;

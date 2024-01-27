@@ -15,7 +15,7 @@ import org.opencv.imgproc.Imgproc;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BluePropPipeline implements VisionProcessor {
+public class RedPropPipeline implements VisionProcessor {
     Mat hsvFrame;
 
     Scalar lowerBlue;
@@ -66,8 +66,8 @@ public class BluePropPipeline implements VisionProcessor {
         hsvFrame = new Mat();
         Imgproc.cvtColor(frame, hsvFrame, Imgproc.COLOR_RGB2HSV);
 
-        lowerBlue = new Scalar(105, 50, 80);
-        upperBlue = new Scalar(112, 255, 255);
+        lowerBlue = new Scalar(0, 70, 80);
+        upperBlue = new Scalar(5, 255, 255);
 
         Mat blueMask = new Mat();
         Core.inRange(hsvFrame, lowerBlue, upperBlue, blueMask);
@@ -109,11 +109,11 @@ public class BluePropPipeline implements VisionProcessor {
 
     }
 
-    public boolean isPropRight() {
-        return centerX > 650 && centerX < 800 && width > 150;
-    }
     public boolean isPropCenter() {
-        return centerX > 0 && centerX < 480 && width > 200;
+        return centerX > 330 && centerX < 800;
+    }
+    public boolean isPropLeft() {
+        return centerX > 0 && centerX < 280;
     }
 
 }

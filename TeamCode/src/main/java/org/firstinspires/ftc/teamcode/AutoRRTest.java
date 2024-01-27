@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
@@ -9,6 +10,7 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 
 
 @Autonomous(name = "AutoRRTest")
+@Disabled
 public class AutoRRTest extends LinearOpMode {
     MecanumTrain bot;
     ElapsedTime runtime;

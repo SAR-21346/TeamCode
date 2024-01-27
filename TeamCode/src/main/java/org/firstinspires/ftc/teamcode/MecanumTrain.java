@@ -31,7 +31,6 @@ package org.firstinspires.ftc.teamcode;
 
 
 import java.lang.Math;
-import java.lang.Thread;
 import java.util.Arrays;
 import java.util.List;
 
@@ -46,28 +45,17 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
-import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
-import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.opencv.BluePropPipeline;
+import org.firstinspires.ftc.teamcode.opencv.RedPropPipeline;
 import org.firstinspires.ftc.vision.VisionPortal;
-import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.firstinspires.ftc.vision.tfod.TfodProcessor;
-import org.openftc.easyopencv.OpenCvCamera;
-import org.openftc.easyopencv.OpenCvCameraFactory;
 
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.*;
-import org.firstinspires.ftc.teamcode.opencv.BluePropPipeline;
+
 import android.util.Size;
-
-import org.firstinspires.ftc.teamcode.trajectorysequence.*;
-import org.openftc.easyopencv.OpenCvCameraRotation;
-
-import com.acmerobotics.roadrunner.drive.MecanumDrive;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
 public class MecanumTrain{
@@ -94,8 +82,7 @@ public class MecanumTrain{
     public TfodProcessor tfod;
     public VisionPortal visionPortal;
     public BluePropPipeline pipeline;
-
-
+    public RedPropPipeline pipelineRed;
     // Hardware Map
     HardwareMap hwMap = null;
 
@@ -121,8 +108,8 @@ public class MecanumTrain{
     public static double CLAW_OPEN = 0.2;
     public static double CLAW_CLOSED = 0;
 
-    public static double DRONE_OPEN = .5;
-    public static double DRONE_CLOSED = 1;
+    public static double DRONE_OPEN = 0;
+    public static double DRONE_CLOSED = .5;
 
     // Lift Speeds
     public static int liftL_speed = 500;
@@ -232,8 +219,8 @@ public class MecanumTrain{
 
     public void openClaw() { claw.setPosition(CLAW_OPEN); }
     public void closeClaw() { claw.setPosition(CLAW_CLOSED); }
-    public void openDrone() { drone.setPosition(DRONE_OPEN); }
-    public void closeDrone() { drone.setPosition(DRONE_CLOSED); }
+    public void openDrone() { drone.setPosition(DRONE_CLOSED); }
+    public void closeDrone() { drone.setPosition(DRONE_OPEN); }
 
     // update()
     // Updates the telemetry with the current encoder values for the arm
@@ -276,6 +263,15 @@ public class MecanumTrain{
         builder.addProcessor(tfod);
         visionPortal = builder.build();
         tfod.setMinResultConfidence(0.4f);
+    }
+
+    public void initEocvRed(HardwareMap hwMap) {
+        pipelineRed = new RedPropPipeline();
+        VisionPortal.Builder builder = new VisionPortal.Builder();
+        builder.setCamera(hwMap.get(WebcamName.class, "camera"));
+        builder.setCameraResolution(new Size(800, 448));
+        builder.addProcessor(pipelineRed);
+        visionPortal = builder.build();
     }
 
     public void initEocvBlue(HardwareMap hwMap) {

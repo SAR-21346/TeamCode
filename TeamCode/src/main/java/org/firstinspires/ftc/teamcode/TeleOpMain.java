@@ -55,9 +55,9 @@ public class TeleOpMain extends LinearOpMode{
             double lateral = gamepad1.left_stick_x;
             double yaw = gamepad1.right_stick_x;
 
-            if (gamepad2.dpad_down) { intakePower = .4; }
-            if (gamepad2.dpad_up) { intakePower = -.4; }
-            if (gamepad2.dpad_left) { intakePower = 0; }
+//            if (gamepad2.dpad_down) { intakePower = .4; }
+//            if (gamepad2.dpad_up) { intakePower = -.4; }
+//            if (gamepad2.dpad_left) { intakePower = 0; }
 
             if (gamepad2.triangle) {
                 liftPos += 20;
@@ -98,9 +98,11 @@ public class TeleOpMain extends LinearOpMode{
 
             if (gamepad2.left_bumper) {
                 bot.closeClaw();
+                bot.runIntake(0);
             }
             if (gamepad2.right_bumper) {
                 bot.openClaw();
+                bot.runIntake(.4);
             }
 
 

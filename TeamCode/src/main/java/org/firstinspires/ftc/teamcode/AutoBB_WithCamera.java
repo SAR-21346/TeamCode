@@ -9,12 +9,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
-import org.firstinspires.ftc.teamcode.TrajectoryLibrary;
 import org.firstinspires.ftc.vision.VisionPortal;
-
-import java.util.List;
 
 @Autonomous(name = "Autonomous BlueBack With Camera")
 public class AutoBB_WithCamera extends LinearOpMode {
