@@ -39,7 +39,32 @@ public class AutoBB_WithCamera extends LinearOpMode {
 
         // TODO: Blue-Back Drive Trajectories
         TrajectorySequence BBdriveToLSpike = bot.odometry.trajectorySequenceBuilder(findBlueBProp.end())
-
+                .splineToSplineHeading(new Pose2d(-46, 35, Math.toRadians(270)), Math.toRadians(270))
+                .waitSeconds(0.5)
+                .addTemporalMarker(() -> bot.openClaw())
+                .back(6)
+                .addTemporalMarker(() -> bot.closeClaw())
+                .waitSeconds(0.5)
+                .strafeRight(3)
+                .splineToSplineHeading(new Pose2d(-47, 9.5, Math.toRadians(90)), Math.toRadians(0))
+                .splineToConstantHeading(new Vector2d(5, 13), Math.toRadians(0))
+                .UNSTABLE_addDisplacementMarkerOffset(24, () -> bot.target = 130)
+                .splineToSplineHeading(new Pose2d(52, 33, Math.toRadians(180)), Math.toRadians(0))
+                .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
+                .forward(6)
+                .back(6)
+                .resetAccelConstraint()
+                .waitSeconds(0.5)
+                .addTemporalMarker(() -> bot.openClaw())
+                .waitSeconds(0.5)
+                .addTemporalMarker(() -> bot.target = 80)
+                .addTemporalMarker(() -> bot.closeClaw())
+                .waitSeconds(1)
+                .lineTo(new Vector2d(36, 45))
+                .addTemporalMarker(() -> bot.target = 40)
+                .waitSeconds(0.4)
+                .addTemporalMarker(() -> bot.target = 0)
+                .splineToConstantHeading(new Vector2d(60, 60), Math.toRadians(0))
                 .build();
 
         TrajectorySequence BBdriveToCSpike = bot.odometry.trajectorySequenceBuilder(findBlueBProp.end())
@@ -109,69 +134,70 @@ public class AutoBB_WithCamera extends LinearOpMode {
         runtime.reset();
         double x = 0;
 
-        
-        while (opModeIsActive()) {
-            while (runtime.seconds() < 4) {while (runtime.seconds() < 2) {
-                bot.closeClaw();
-                bot.odometry.followTrajectory(findBlueBProp);
-                if (bot.pipeline.isPropRight()){
-                    spikeLoc = SPIKE_LOC.RIGHT;
-                    if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
-                        bot.visionPortal.close();
-                    }
-                    break;
-                } else if (bot.pipeline.isPropCenter()){
-                    spikeLoc = SPIKE_LOC.CENTER;
-                    if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
-                        bot.visionPortal.close();
-                    }
-                    break;
-                } else if (!(bot.pipeline.isPropCenter() && bot.pipeline.isPropRight())) {
-                    spikeLoc = SPIKE_LOC.LEFT;
-                }
-                telemetry.addData("x", bot.pipeline.centerX);
+        if (opModeIsActive()) {
+            while (opModeIsActive()) {
+                while (runtime.seconds() < 3) {
+                    bot.closeClaw();
+                    bot.odometry.followTrajectory(findBlueBProp);
 
-                //Try this first
-                sleep(20);
-            }
+                    if (bot.pipeline.isPropRight()){
+                        spikeLoc = SPIKE_LOC.RIGHT;
+                        if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
+                            bot.visionPortal.close();
+                        }
+                        break;
+                    } else if (bot.pipeline.isPropCenter()){
+                        spikeLoc = SPIKE_LOC.CENTER;
+                        if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
+                            bot.visionPortal.close();
+                        }
+                        break;
+                    } else {
+                        spikeLoc = SPIKE_LOC.LEFT;
+                        if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
+                            bot.visionPortal.close();
+                        }
+                    }
+                    telemetry.addData("x", bot.pipeline.centerX);
+                    sleep(20);
+                }
 
 
                 if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.CAMERA_DEVICE_READY) {
                     bot.visionPortal.close();
                 }
-            }
 
-//            bot.visionPortal.stopStreaming();
-//            bot.visionPortal.setProcessorEnabled(bot.tfod, false); // Disable TFOD to save CPU
 
-            switch (spikeLoc) {
-                case RIGHT:
-                    telemetry.addLine("RIGHT SPIKE");
-                    if (!bot.odometry.isBusy()) {
-                        bot.odometry.followTrajectorySequenceAsync(BBdriveToRSpike);
-                        spikeLoc = SPIKE_LOC.IDLE;
+                switch (spikeLoc) {
+                    case RIGHT:
+                        telemetry.addLine("RIGHT SPIKE");
+                        if (!bot.odometry.isBusy()) {
+                            bot.odometry.followTrajectorySequenceAsync(BBdriveToRSpike);
+                            spikeLoc = SPIKE_LOC.IDLE;
+                            break;
+                        }
+                    case CENTER:
+                        telemetry.addLine("CENTER SPIKE");
+                        if (!bot.odometry.isBusy()) {
+                            bot.odometry.followTrajectorySequenceAsync(BBdriveToCSpike);
+                            spikeLoc = SPIKE_LOC.IDLE;
+                            break;
+                        }
+                    case LEFT:
+                        telemetry.addLine("LEFT SPIKE");
+                        if (!bot.odometry.isBusy()) {
+                            bot.odometry.followTrajectorySequenceAsync(BBdriveToLSpike);
+                            spikeLoc = SPIKE_LOC.IDLE;
+                            break;
+                        }
+                    case IDLE:
                         break;
-                    }
-                case CENTER:
-                    telemetry.addLine("CENTER SPIKE");
-                    if (!bot.odometry.isBusy()) {
-                        bot.odometry.followTrajectorySequenceAsync(BBdriveToCSpike);
-                        spikeLoc = SPIKE_LOC.IDLE;
-                        break;
-                    }
-                default:
-                    telemetry.addLine("LEFT SPIKE");
-                    if (!bot.odometry.isBusy()) {
-                        bot.odometry.followTrajectorySequenceAsync(BBdriveToLSpike);
-                        spikeLoc = SPIKE_LOC.IDLE;
-                        break;
-                    }
-                case IDLE:
-                    break;
+                }
+
+                bot.updateArmPID(bot.outMotor.getCurrentPosition());
+                bot.odometry.update();
+                telemetry.update();
             }
-            bot.updateArmPID(bot.outMotor.getCurrentPosition());
-            bot.odometry.update();
-            telemetry.update();
         }
     }
 }

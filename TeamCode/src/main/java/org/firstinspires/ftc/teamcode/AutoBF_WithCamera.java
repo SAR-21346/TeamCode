@@ -24,7 +24,6 @@ import java.util.List;
 @Autonomous(name = "Autonomous BlueFront With Camera")
 public class AutoBF_WithCamera extends LinearOpMode {
     MecanumTrain bot;
-
     enum SPIKE_LOC {
         LEFT,
         CENTER,
@@ -40,9 +39,6 @@ public class AutoBF_WithCamera extends LinearOpMode {
 
         Pose2d startPose = new Pose2d(10.5, 60, Math.toRadians(0));
         bot.odometry.setPoseEstimate(startPose);
-
-        // Create TrajectoryLibrary to de-clutter OpMode
-        //TrajectoryLibrary trajLib = new TrajectoryLibrary(bot, startPose);
 
         Trajectory findBlueFProp = bot.odometry.trajectoryBuilder(startPose)
                 .lineTo(new Vector2d(12, 53))
@@ -183,8 +179,6 @@ public class AutoBF_WithCamera extends LinearOpMode {
                         }
                     }
                     telemetry.addData("x", bot.pipeline.centerX);
-
-                    //Try this first
                     sleep(20);
                 }
 

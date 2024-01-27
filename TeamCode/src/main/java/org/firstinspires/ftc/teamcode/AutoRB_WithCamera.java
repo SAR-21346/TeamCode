@@ -152,14 +152,14 @@ public class AutoRB_WithCamera extends LinearOpMode {
 
         bot.initEocvRed(hardwareMap);
         SPIKE_LOC spikeLoc = SPIKE_LOC.IDLE;
+        waitForStart();
         bot.closeClaw();
         runtime.reset();
         double x = 0;
-        waitForStart();
 
         if (opModeIsActive()) {
             while (opModeIsActive()) {
-                while (runtime.seconds() < 3) {
+                while (runtime.seconds() < 2) {
                     bot.closeClaw();
                     bot.odometry.followTrajectory(findRedBProp);
 
@@ -181,13 +181,11 @@ public class AutoRB_WithCamera extends LinearOpMode {
                             bot.visionPortal.close();
                         }
                     }
-                    telemetry.addData("x", bot.pipeline.centerX);
-
-                    //Try this first
+                    telemetry.addData("x", bot.pipelineRed.centerX);
                     sleep(20);
                 }
 
-                if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
+                if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.CAMERA_DEVICE_READY) {
                     bot.visionPortal.close();
                 }
 
@@ -216,10 +214,10 @@ public class AutoRB_WithCamera extends LinearOpMode {
                     case IDLE:
                         break;
                 }
+
                 bot.updateArmPID(bot.outMotor.getCurrentPosition());
                 bot.odometry.update();
                 telemetry.update();
-
             }
         }
     }

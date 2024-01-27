@@ -25,12 +25,12 @@ public class AutoRF_WithCamera extends LinearOpMode {
     }
 
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         ElapsedTime runtime = new ElapsedTime();
         bot = new MecanumTrain(hardwareMap, runtime);
 
-        Pose2d startPose = new Pose2d(10.5, -59, Math.toRadians(180));
+        Pose2d startPose = new Pose2d(10.5, -60, Math.toRadians(180));
         bot.odometry.setPoseEstimate(startPose);
 
         Trajectory findRedFProp = bot.odometry.trajectoryBuilder(startPose)
@@ -83,11 +83,11 @@ public class AutoRF_WithCamera extends LinearOpMode {
                 .UNSTABLE_addDisplacementMarkerOffset(8, () -> {
                     bot.target = 130;
                 })
-                .lineToSplineHeading(new Pose2d(52, -29, Math.toRadians(180)))
-                .setAccelConstraint(SampleMecanumDrive.SHAKE_ACCEL_CONSTRAINT)
+                .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
                 .forward(6)
                 .back(6)
                 .resetAccelConstraint()
+                .lineToSplineHeading(new Pose2d(52, -29, Math.toRadians(180)))
                 .waitSeconds(0.5)
                 .addTemporalMarker(() -> bot.openClaw())
                 .waitSeconds(0.8)
@@ -177,41 +177,41 @@ public class AutoRF_WithCamera extends LinearOpMode {
                     telemetry.addData("x", bot.pipelineRed.centerX);
                     sleep(20);
                 }
-            }
 
-            if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
-                bot.visionPortal.close();
-            }
+                if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.CAMERA_DEVICE_READY) {
+                    bot.visionPortal.close();
+                }
 
-            switch (spikeLoc) {
-                case RIGHT:
-                    telemetry.addLine("RIGHT SPIKE");
-                    if (!bot.odometry.isBusy()) {
-                        bot.odometry.followTrajectorySequenceAsync(RFdriveToRSpike);
-                        spikeLoc = SPIKE_LOC.IDLE;
+                switch (spikeLoc) {
+                    case RIGHT:
+                        telemetry.addLine("RIGHT SPIKE");
+                        if (!bot.odometry.isBusy()) {
+                            bot.odometry.followTrajectorySequenceAsync(RFdriveToRSpike);
+                            spikeLoc = SPIKE_LOC.IDLE;
+                            break;
+                        }
+                    case CENTER:
+                        telemetry.addLine("CENTER SPIKE");
+                        if (!bot.odometry.isBusy()) {
+                            bot.odometry.followTrajectorySequenceAsync(RFdriveToCSpike);
+                            spikeLoc = SPIKE_LOC.IDLE;
+                            break;
+                        }
+                    case LEFT:
+                        telemetry.addLine("LEFT SPIKE");
+                        if (!bot.odometry.isBusy()) {
+                            bot.odometry.followTrajectorySequenceAsync(RFdriveToLSpike);
+                            spikeLoc = SPIKE_LOC.IDLE;
+                            break;
+                        }
+                    case IDLE:
                         break;
-                    }
-                case CENTER:
-                    telemetry.addLine("CENTER SPIKE");
-                    if (!bot.odometry.isBusy()) {
-                        bot.odometry.followTrajectorySequenceAsync(RFdriveToCSpike);
-                        spikeLoc = SPIKE_LOC.IDLE;
-                        break;
-                    }
-                case LEFT:
-                    telemetry.addLine("LEFT SPIKE");
-                    if (!bot.odometry.isBusy()) {
-                        bot.odometry.followTrajectorySequenceAsync(RFdriveToLSpike);
-                        spikeLoc = SPIKE_LOC.IDLE;
-                        break;
-                    }
-                case IDLE:
-                    break;
-            }
+                }
 
-            bot.updateArmPID(bot.outMotor.getCurrentPosition());
-            bot.odometry.update();
-            telemetry.update();
+                bot.updateArmPID(bot.outMotor.getCurrentPosition());
+                bot.odometry.update();
+                telemetry.update();
+            }
         }
     }
 }
