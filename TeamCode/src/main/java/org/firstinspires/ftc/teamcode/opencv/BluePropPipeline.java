@@ -18,8 +18,8 @@ import java.util.List;
 public class BluePropPipeline implements VisionProcessor {
     Mat hsvFrame;
 
-    Scalar lowerBlue;
-    Scalar upperBlue;
+    public Scalar lowerBlue = new Scalar(103.8, 112.8, 59.5);
+    public Scalar upperBlue = new Scalar(111.3, 255, 254.5);
 
     double width = 0;
     public double centerX = 0;
@@ -66,9 +66,6 @@ public class BluePropPipeline implements VisionProcessor {
         hsvFrame = new Mat();
         Imgproc.cvtColor(frame, hsvFrame, Imgproc.COLOR_RGB2HSV);
 
-        lowerBlue = new Scalar(105, 50, 80);
-        upperBlue = new Scalar(112, 255, 255);
-
         Mat blueMask = new Mat();
         Core.inRange(hsvFrame, lowerBlue, upperBlue, blueMask);
 
@@ -110,7 +107,7 @@ public class BluePropPipeline implements VisionProcessor {
     }
 
     public boolean isPropRight() {
-        return centerX > 650 && centerX < 800 && width > 150;
+        return centerX > 650 && centerX < 800 && width > 130;
     }
     public boolean isPropCenter() {
         return centerX > 0 && centerX < 480 && width > 200;

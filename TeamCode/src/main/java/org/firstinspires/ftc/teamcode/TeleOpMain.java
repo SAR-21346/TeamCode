@@ -20,7 +20,7 @@ public class TeleOpMain extends LinearOpMode{
     static final double SPEED_MULTIPLIER = 0.45 ;
 
     @Override
-    public void runOpMode() {
+    public void runOpMode() throws InterruptedException {
         //bot initialization
         bot = new MecanumTrain(hardwareMap, runtime);
 
@@ -33,18 +33,16 @@ public class TeleOpMain extends LinearOpMode{
         bot.liftL_start = bot.leftSlide.getCurrentPosition();
         bot.liftR_start = bot.rightSlide.getCurrentPosition();
 
-
+        double intakePower = 0.0;
+        int liftPos = 0;
+        double servoPos = 0.3;
+        bot.target = 0;
 
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");
         telemetry.update();
         waitForStart();
         runtime.reset();
-
-        double intakePower = 0.0;
-        int liftPos = 0;
-        double servoPos = 0.3;
-        bot.target = 0;
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
@@ -60,12 +58,12 @@ public class TeleOpMain extends LinearOpMode{
 //            if (gamepad2.dpad_left) { intakePower = 0; }
 
             if (gamepad2.triangle) {
+                sleep(50);
                 liftPos += 20;
             }
             if (gamepad2.cross) {
-//                if (liftPos >= 0) {
-                    liftPos -= 20;
-//                }
+                sleep(50);
+                liftPos -= 20;
             }
             if (gamepad2.square) {
                 liftPos = 0;
@@ -92,17 +90,17 @@ public class TeleOpMain extends LinearOpMode{
 
             if (gamepad1.left_bumper && gamepad1.dpad_right) {
                 bot.openDrone();
-                sleep(3000);
+                sleep(1000);
                 bot.closeDrone();
             }
 
             if (gamepad2.left_bumper) {
                 bot.closeClaw();
-                bot.runIntake(0);
+                intakePower = 0;
             }
             if (gamepad2.right_bumper) {
                 bot.openClaw();
-                bot.runIntake(.4);
+                intakePower = -0.4;
             }
 
 
@@ -124,20 +122,19 @@ public class TeleOpMain extends LinearOpMode{
             bot.runIntake(intakePower);
             bot.runLift(liftPos);
             bot.updateArmPID(bot.outMotor.getCurrentPosition());
-            bot.odometry.update();
 
             telemetry.addLine("ENCODER:");
             telemetry.addData("leftPos", bot.leftFrontDrive.getCurrentPosition());
             telemetry.addData("rightPos", bot.rightFrontDrive.getCurrentPosition());
             telemetry.addData("frontPos", bot.spinTake.getCurrentPosition());
             //bot.runOuttake(outPower);
-            telemetry.addData("pos: ", bot.outMotor.getCurrentPosition());
+            telemetry.addData("ArmPos: ", bot.outMotor.getCurrentPosition());
             telemetry.addData("target: ", bot.target);
-
+            telemetry.addLine();
             telemetry.addData("Servo: ", bot.drone.getPosition());
             telemetry.addData("Left Slide Pos: ", bot.leftSlide.getCurrentPosition());
             telemetry.addData("Right Slide Pos: ", bot.rightSlide.getCurrentPosition());
-
+            telemetry.addLine();
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", motorPowers[0], motorPowers[2]);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", motorPowers[2], motorPowers[3]);

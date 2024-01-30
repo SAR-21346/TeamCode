@@ -90,12 +90,11 @@ public class MecanumTrain{
     static final double COUNTS_PER_REV = 537.6;
     static final double COUNTS_PER_INCH = (COUNTS_PER_REV * GEAR_RATIO) /
             (2 * WHEEL_RADIUS * Math.PI);
-    public int target = 0;
+    public static int target = 0;
 
     private PIDController controllerArm;
     private PIDController controllerLift;
     public static double p = 0.02, i = 0, d = 0.0001, f = 0.12;
-    public static double p_lift = 0, i_lift = 0, d_lift = 0, f_lift = 0;
 
     private List<DcMotorEx> motors;
 
@@ -109,11 +108,11 @@ public class MecanumTrain{
     public static double CLAW_CLOSED = 0;
 
     public static double DRONE_OPEN = 0;
-    public static double DRONE_CLOSED = .5;
+    public static double DRONE_CLOSED = .7;
 
     // Lift Speeds
-    public static int liftL_speed = 500;
-    public static int liftR_speed = 500;
+    public static int liftL_speed = 250;
+    public static int liftR_speed = 250;
 
     public Gamepad.RumbleEffect rumbleEffect;
 
@@ -159,9 +158,11 @@ public class MecanumTrain{
         rightSlide.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         outMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
+        leftSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
         // Instantiate PID Controllers
         controllerArm = new PIDController(p, i, d);
-        controllerLift = new PIDController(p_lift, i_lift, d_lift);
 
         // Gamepad Rumble Effect
         rumbleEffect = new Gamepad.RumbleEffect.Builder()
@@ -213,14 +214,10 @@ public class MecanumTrain{
         rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION); // Allows motor to move via encoder
     }
 
-    // runOuttake(power)
-    // power - double (power for outMotor)
-    public void runOuttake(double power) { outMotor.setPower(power); }
-
     public void openClaw() { claw.setPosition(CLAW_OPEN); }
     public void closeClaw() { claw.setPosition(CLAW_CLOSED); }
-    public void openDrone() { drone.setPosition(DRONE_CLOSED); }
-    public void closeDrone() { drone.setPosition(DRONE_OPEN); }
+    public void openDrone() { drone.setPosition(DRONE_OPEN); }
+    public void closeDrone() { drone.setPosition(DRONE_CLOSED); }
 
     // update()
     // Updates the telemetry with the current encoder values for the arm

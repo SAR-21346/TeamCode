@@ -32,18 +32,17 @@ public class AutoBF_WithCamera extends LinearOpMode {
     }
 
     @Override
-    public void runOpMode(){
+    public void runOpMode() throws InterruptedException{
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         ElapsedTime runtime = new ElapsedTime();
         bot = new MecanumTrain(hardwareMap, runtime);
 
-        Pose2d startPose = new Pose2d(10.5, 60, Math.toRadians(0));
+        Pose2d startPose = new Pose2d(10.5, 59, Math.toRadians(0));
         bot.odometry.setPoseEstimate(startPose);
 
         Trajectory findBlueFProp = bot.odometry.trajectoryBuilder(startPose)
                 .lineTo(new Vector2d(12, 53))
                 .build();
-
 
         TrajectorySequence BFdriveToLSpike = bot.odometry.trajectorySequenceBuilder(findBlueFProp.end())
                 .splineToSplineHeading(new Pose2d(23, 38, Math.toRadians(270)), Math.toRadians(0))
@@ -54,7 +53,7 @@ public class AutoBF_WithCamera extends LinearOpMode {
                 .addTemporalMarker(() -> bot.closeClaw())
                 .waitSeconds(0.5)
                 .back(9)
-                .UNSTABLE_addDisplacementMarkerOffset(6, () -> {bot.target = 130;})
+                .UNSTABLE_addDisplacementMarkerOffset(6, () -> {bot.target = 110;})
                 .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
                 .forward(4)
                 .back(4)
@@ -82,15 +81,15 @@ public class AutoBF_WithCamera extends LinearOpMode {
                 .back(4)
                 .addTemporalMarker(() -> bot.closeClaw())
                 .waitSeconds(0.5)
-                .UNSTABLE_addDisplacementMarkerOffset(10, () -> {
-                    bot.target = 130;
-                })
                 .back(6)
                 .strafeLeft(3)
                 .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
                 .forward(4)
                 .back(4)
                 .resetAccelConstraint()
+                .UNSTABLE_addDisplacementMarkerOffset(10, () -> {
+                    bot.target = 110;
+                })
                 .lineToSplineHeading(new Pose2d(53, 31, Math.toRadians(180)))
                 .waitSeconds(0.5)
                 .addTemporalMarker(() -> bot.openClaw())
@@ -119,14 +118,14 @@ public class AutoBF_WithCamera extends LinearOpMode {
                 .back(5)
                 .addTemporalMarker(() -> bot.closeClaw())
                 .waitSeconds(0.5)
-                .UNSTABLE_addDisplacementMarkerOffset(12, () -> {
-                    bot.target = 130;
-                })
                 .back(8)
                 .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
                 .forward(6)
                 .back(6)
                 .resetAccelConstraint()
+                .UNSTABLE_addDisplacementMarkerOffset(12, () -> {
+                    bot.target = 110;
+                })
                 .lineToConstantHeading(new Vector2d(53, 27))
                 .waitSeconds(.5)
                 .addTemporalMarker(() -> bot.openClaw())
@@ -157,6 +156,7 @@ public class AutoBF_WithCamera extends LinearOpMode {
         if (opModeIsActive()) {
             while (opModeIsActive()) {
                 while (runtime.seconds() < 3) {
+                    bot.target = 0;
                     bot.closeClaw();
                     bot.odometry.followTrajectory(findBlueFProp);
 

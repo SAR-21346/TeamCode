@@ -7,6 +7,7 @@ import org.firstinspires.ftc.vision.VisionProcessor;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
@@ -20,6 +21,20 @@ public class RedPropPipeline implements VisionProcessor {
 
     Scalar lowerBlue;
     Scalar upperBlue;
+
+    Mat highMat = new Mat();
+    Mat lowMat = new Mat();
+
+    public Scalar lowHSVRedLower = new Scalar(0, 141.7, 59.5);  //Beginning of Color Wheel
+    public Scalar lowHSVRedUpper = new Scalar(0.6, 255, 255);
+
+    public Scalar redHSVRedLower = new Scalar(175.3, 100, 100); //Wraps around Color Wheel
+    public Scalar highHSVRedUpper = new Scalar(179, 255, 202.6);
+
+    Rect leftRect = new Rect(
+            new Point(0, 0),
+            new Point(150, 448)
+    );
 
     double width = 0;
     public double centerX = 0;
@@ -54,9 +69,15 @@ public class RedPropPipeline implements VisionProcessor {
             centerY = boundingRect.y + (boundingRect.height / 2);
 
             String centerLabel = "Center: (" + (int) centerX + ", " + (int) centerY + ")";
-            Imgproc.putText(frame, centerLabel, new org.opencv.core.Point(10, 100), Imgproc.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 255, 0), 2);
+            Imgproc.putText(frame, centerLabel, new Point(10, 100), Imgproc.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 255, 0), 2);
             Imgproc.circle(frame, new org.opencv.core.Point(centerX, centerY), 5, new Scalar(0, 255, 0), 2);
 
+            double leftBox = Core.sumElems(blueMask.submat(leftRect)).val[0];
+            double averagedLeftBox = leftBox / leftRect.area() / 255;
+
+            if (averagedLeftBox > 0.5) {
+                Imgproc.putText(frame, "Prop Left", new Point(10, 150), Imgproc.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 255, 0), 2);
+            }
 
         }
         return null;
@@ -66,11 +87,17 @@ public class RedPropPipeline implements VisionProcessor {
         hsvFrame = new Mat();
         Imgproc.cvtColor(frame, hsvFrame, Imgproc.COLOR_RGB2HSV);
 
-        lowerBlue = new Scalar(0, 70, 80);
-        upperBlue = new Scalar(5, 255, 255);
-
         Mat blueMask = new Mat();
-        Core.inRange(hsvFrame, lowerBlue, upperBlue, blueMask);
+
+        Core.inRange(hsvFrame, lowHSVRedLower, lowHSVRedUpper, lowMat);
+        Core.inRange(hsvFrame, redHSVRedLower, highHSVRedUpper, highMat);
+
+        hsvFrame.release();
+
+        Core.bitwise_or(lowMat, highMat, blueMask);
+
+        lowMat.release();
+        highMat.release();
 
         Mat kernel = new Mat();
         Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
@@ -110,10 +137,10 @@ public class RedPropPipeline implements VisionProcessor {
     }
 
     public boolean isPropCenter() {
-        return centerX > 330 && centerX < 800;
+        return centerX > 0 && centerX < 560;
     }
-    public boolean isPropLeft() {
-        return centerX > 0 && centerX < 280;
+    public boolean isPropRight() {
+        return centerX > 580 && centerX < 800;
     }
 
 }

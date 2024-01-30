@@ -163,8 +163,8 @@ public class AutoRB_WithCamera extends LinearOpMode {
                     bot.closeClaw();
                     bot.odometry.followTrajectory(findRedBProp);
 
-                    if (bot.pipelineRed.isPropLeft()) {
-                        spikeLoc = SPIKE_LOC.LEFT;
+                    if (bot.pipelineRed.isPropRight()) {
+                        spikeLoc = SPIKE_LOC.RIGHT;
                         if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
                             bot.visionPortal.close();
                         }
@@ -176,7 +176,7 @@ public class AutoRB_WithCamera extends LinearOpMode {
                         }
                         break;
                     } else {
-                        spikeLoc = SPIKE_LOC.RIGHT;
+                        spikeLoc = SPIKE_LOC.LEFT;
                         if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
                             bot.visionPortal.close();
                         }
