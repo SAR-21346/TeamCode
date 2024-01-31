@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.autonomous;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -8,12 +8,14 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.MecanumTrain;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.vision.VisionPortal;
 
-@Autonomous(name = "Autonomous RedBack With Camera")
-public class AutoRB_WithCamera extends LinearOpMode {
+@Autonomous(name = "Autonomous RedBack Full")
+public class AutoRB_Full extends LinearOpMode {
     MecanumTrain bot;
 
     enum SPIKE_LOC {
@@ -36,7 +38,8 @@ public class AutoRB_WithCamera extends LinearOpMode {
                 .lineTo(new Vector2d(-35, -53))
                 .build();
 
-        TrajectorySequence RBdriveToLSpike = bot.odometry.trajectorySequenceBuilder(findRedBProp.end())
+        TrajectorySequence RBdriveToLSpike = bot.odometry.trajectorySequenceBuilder(startPose)
+                .lineTo(new Vector2d(-35, -53))
                 .lineToSplineHeading(new Pose2d(-46.5, -35, Math.toRadians(90)))
                 .waitSeconds(0.5)
                 .addTemporalMarker(() -> bot.openClaw())
@@ -47,7 +50,7 @@ public class AutoRB_WithCamera extends LinearOpMode {
                 .splineToConstantHeading(new Vector2d(-34, -35), Math.toRadians(90))
                 .splineToConstantHeading(new Vector2d(-34, -20), Math.toRadians(90))
                 .splineToConstantHeading(new Vector2d(5, -13), Math.toRadians(0))
-                .UNSTABLE_addDisplacementMarkerOffset(24, () -> {
+                .UNSTABLE_addDisplacementMarkerOffset(12, () -> {
                     bot.target = 130;
                 })
                 .splineToSplineHeading(new Pose2d(52, -24, Math.toRadians(180)), Math.toRadians(0))
@@ -74,7 +77,8 @@ public class AutoRB_WithCamera extends LinearOpMode {
                 .splineToConstantHeading(new Vector2d(60, -60), Math.toRadians(0))
                 .build();
 
-        TrajectorySequence RBdriveToCSpike = bot.odometry.trajectorySequenceBuilder(findRedBProp.end())
+        TrajectorySequence RBdriveToCSpike = bot.odometry.trajectorySequenceBuilder(startPose)
+                .lineTo(new Vector2d(-35, -53))
                 .splineToSplineHeading(new Pose2d(-41, -24, Math.toRadians(45)), Math.toRadians(45))
                 .waitSeconds(0.5)
                 .addTemporalMarker(() -> bot.openClaw())
@@ -111,7 +115,8 @@ public class AutoRB_WithCamera extends LinearOpMode {
                 .splineToConstantHeading(new Vector2d(60, -60), Math.toRadians(0))
                 .build();
 
-        TrajectorySequence RBdriveToRSpike = bot.odometry.trajectorySequenceBuilder(findRedBProp.end())
+        TrajectorySequence RBdriveToRSpike = bot.odometry.trajectorySequenceBuilder(startPose)
+                .lineTo(new Vector2d(-35, -53))
                 .lineToSplineHeading(new Pose2d(-38, -40, Math.toRadians(0)))
                 .splineToConstantHeading(new Vector2d(-28, -34), Math.toRadians(0))
                 .addTemporalMarker(() -> bot.openClaw())
@@ -122,7 +127,7 @@ public class AutoRB_WithCamera extends LinearOpMode {
                 .waitSeconds(0.5)
                 .strafeLeft(5)
                 .splineToConstantHeading(new Vector2d(-34, -11), Math.toRadians(0))
-                .UNSTABLE_addDisplacementMarkerOffset(48, () -> {
+                .UNSTABLE_addDisplacementMarkerOffset(12, () -> {
                     bot.target = 130;
                 })
                 .lineToConstantHeading(new Vector2d(10, -11))
@@ -159,9 +164,9 @@ public class AutoRB_WithCamera extends LinearOpMode {
 
         if (opModeIsActive()) {
             while (opModeIsActive()) {
-                while (runtime.seconds() < 2) {
+                while (runtime.seconds() < 1) {
                     bot.closeClaw();
-                    bot.odometry.followTrajectory(findRedBProp);
+//                    bot.odometry.followTrajectory(findRedBProp);
 
                     if (bot.pipelineRed.isPropRight()) {
                         spikeLoc = SPIKE_LOC.RIGHT;
@@ -175,7 +180,7 @@ public class AutoRB_WithCamera extends LinearOpMode {
                             bot.visionPortal.close();
                         }
                         break;
-                    } else {
+                    } else if (bot.pipelineRed.isPropLeft()){
                         spikeLoc = SPIKE_LOC.LEFT;
                         if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
                             bot.visionPortal.close();

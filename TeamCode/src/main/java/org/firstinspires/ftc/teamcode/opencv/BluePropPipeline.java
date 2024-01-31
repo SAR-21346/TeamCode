@@ -7,6 +7,7 @@ import org.firstinspires.ftc.vision.VisionProcessor;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
@@ -50,14 +51,15 @@ public class BluePropPipeline implements VisionProcessor {
 
             //Calculate center
             Rect boundingRect = Imgproc.boundingRect(largestContour);
-            centerX = boundingRect.x + (boundingRect.width / 2);
-            centerY = boundingRect.y + (boundingRect.height / 2);
+            centerX = boundingRect.x + (boundingRect.width / 2.0);
+            centerY = boundingRect.y + (boundingRect.height / 2.0);
 
             String centerLabel = "Center: (" + (int) centerX + ", " + (int) centerY + ")";
-            Imgproc.putText(frame, centerLabel, new org.opencv.core.Point(10, 100), Imgproc.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 255, 0), 2);
+            Imgproc.putText(frame, centerLabel, new org.opencv.core.Point(10, 100),
+                    Imgproc.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 255, 0), 2);
             Imgproc.circle(frame, new org.opencv.core.Point(centerX, centerY), 5, new Scalar(0, 255, 0), 2);
-
-
+            Imgproc.rectangle(frame, new Point(boundingRect.x, boundingRect.y), new Point(boundingRect.x + boundingRect.width,
+                    boundingRect.y + boundingRect.height), new Scalar(0, 255, 0), 2);
         }
         return null;
     }
@@ -110,7 +112,7 @@ public class BluePropPipeline implements VisionProcessor {
         return centerX > 650 && centerX < 800 && width > 130;
     }
     public boolean isPropCenter() {
-        return centerX > 0 && centerX < 480 && width > 200;
+        return centerX > 240 && centerX < 480 && width > 200;
     }
 
 }

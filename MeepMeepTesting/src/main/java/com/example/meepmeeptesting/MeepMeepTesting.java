@@ -11,40 +11,25 @@ import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
 public class MeepMeepTesting {
     public static void main(String[] args) {
         MeepMeep meepMeep = new MeepMeep(800);
-        ColorScheme ColorSchemeRedDark = new ColorSchemeRedDark();
         RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(50, 50, 5.02, 3.17, 18)
-                .setColorScheme(ColorSchemeRedDark)
+                .setColorScheme(new ColorSchemeBlueDark())
                 .followTrajectorySequence(drive -> {
-                            return drive.trajectorySequenceBuilder(new Pose2d(10.5, 60, Math.toRadians(0)))
-                                    .lineTo(new Vector2d(12, 53))
-                                    .splineToSplineHeading(new Pose2d(23, 38, Math.toRadians(270)), Math.toRadians(135))
+                            return drive.trajectorySequenceBuilder(new Pose2d(-35, 59, Math.toRadians(0)))
+                                    .lineTo(new Vector2d(-40, 50))
+                                    .splineToSplineHeading(new Pose2d(-41, 24, Math.toRadians(315)), Math.toRadians(315))
                                     .waitSeconds(0.5)
                                     .addTemporalMarker(() -> {/**/})
-                                    .back(3)
-                                    .waitSeconds(0.5)
+                                    .back(6)
                                     .addTemporalMarker(() -> {/**/})
                                     .waitSeconds(0.5)
-                                    .back(9)
-                                    .UNSTABLE_addDisplacementMarkerOffset(6, () -> {/**/})
+                                    .back(4)
                                     //.setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
                                     .forward(4)
                                     .back(4)
                                     .resetAccelConstraint()
-                                    .lineTo(new Vector2d(25, 43))
-                                    .splineToSplineHeading(new Pose2d(53, 35, Math.toRadians(180)), Math.toRadians(0))
-                                    .waitSeconds(0.5)
-                                    .addTemporalMarker(() -> {/**/})
-                                    .waitSeconds(0.5)
-                                    .addTemporalMarker(() -> {/**/})
-                                    .addTemporalMarker(() -> {/**/})
-                                    .waitSeconds(0.5)
-                                    .lineTo(new Vector2d(45, 15))
-                                    .addTemporalMarker(() -> {/**/})
-                                    .waitSeconds(0.3)
-                                    .addTemporalMarker(() -> {/**/})
-                                    .lineTo(new Vector2d(60, 10))
+                                    .splineToSplineHeading(new Pose2d(-40, 59, Math.toRadians(0)), Math.toRadians(0))
                                     .build();
                         }
                 );

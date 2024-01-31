@@ -19,22 +19,14 @@ import java.util.List;
 public class RedPropPipeline implements VisionProcessor {
     Mat hsvFrame;
 
-    Scalar lowerBlue;
-    Scalar upperBlue;
-
     Mat highMat = new Mat();
     Mat lowMat = new Mat();
 
     public Scalar lowHSVRedLower = new Scalar(0, 141.7, 59.5);  //Beginning of Color Wheel
-    public Scalar lowHSVRedUpper = new Scalar(0.6, 255, 255);
+    public Scalar lowHSVRedUpper = new Scalar(5, 255, 255);
 
     public Scalar redHSVRedLower = new Scalar(175.3, 100, 100); //Wraps around Color Wheel
     public Scalar highHSVRedUpper = new Scalar(179, 255, 202.6);
-
-    Rect leftRect = new Rect(
-            new Point(0, 0),
-            new Point(150, 448)
-    );
 
     double width = 0;
     public double centerX = 0;
@@ -72,13 +64,7 @@ public class RedPropPipeline implements VisionProcessor {
             Imgproc.putText(frame, centerLabel, new Point(10, 100), Imgproc.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 255, 0), 2);
             Imgproc.circle(frame, new org.opencv.core.Point(centerX, centerY), 5, new Scalar(0, 255, 0), 2);
 
-            double leftBox = Core.sumElems(blueMask.submat(leftRect)).val[0];
-            double averagedLeftBox = leftBox / leftRect.area() / 255;
-
-            if (averagedLeftBox > 0.5) {
-                Imgproc.putText(frame, "Prop Left", new Point(10, 150), Imgproc.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 255, 0), 2);
-            }
-
+            Imgproc.rectangle(frame, new Point(boundingRect.x, boundingRect.y), new Point(boundingRect.x + boundingRect.width, boundingRect.y + boundingRect.height), new Scalar(0, 255, 0), 2);
         }
         return null;
     }
@@ -137,10 +123,11 @@ public class RedPropPipeline implements VisionProcessor {
     }
 
     public boolean isPropCenter() {
-        return centerX > 0 && centerX < 560;
+        return centerX > 250 && centerX < 560;
     }
     public boolean isPropRight() {
         return centerX > 580 && centerX < 800;
     }
+    public boolean isPropLeft() { return centerX > 0 && centerX < 250;}
 
 }

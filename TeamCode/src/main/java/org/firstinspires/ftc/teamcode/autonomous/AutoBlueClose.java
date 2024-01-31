@@ -1,6 +1,9 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.autonomous;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.teamcode.Hardware;
+import org.firstinspires.ftc.teamcode.MecanumTrain;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(name = "Auto Blue Close", group = "LinearOpMode")
 //Declares as autonomous file, SDK thing

@@ -30,32 +30,30 @@
 package org.firstinspires.ftc.teamcode;
 
 
-import java.lang.Math;
-import java.util.Arrays;
-import java.util.List;
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.GEAR_RATIO;
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.WHEEL_RADIUS;
 
+import android.util.Size;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
-import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.opencv.BluePropPipeline;
 import org.firstinspires.ftc.teamcode.opencv.RedPropPipeline;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.*;
-
-import android.util.Size;
+import java.util.Arrays;
+import java.util.List;
 
 @Config
 public class MecanumTrain{

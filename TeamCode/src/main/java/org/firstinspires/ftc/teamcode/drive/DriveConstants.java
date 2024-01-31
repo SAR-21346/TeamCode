@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.drive;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 /*
@@ -56,7 +55,7 @@ public class DriveConstants {
      * inches.
      */
     public static double MAX_VEL = 50;
-    public static double MAX_ACCEL = 60;
+    public static double MAX_ACCEL = 50;
     public static double MAX_ANG_VEL = 5.039896118768396;
     public static double MAX_ANG_ACCEL = Math.toRadians(60);
 

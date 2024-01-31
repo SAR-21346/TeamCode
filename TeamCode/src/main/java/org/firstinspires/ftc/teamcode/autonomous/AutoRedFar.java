@@ -1,4 +1,6 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.autonomous;
+
+import org.firstinspires.ftc.teamcode.Hardware;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(name = "Auto Red Far", group = "LinearOpMode")
 //Declares as autonomous file, SDK thing
