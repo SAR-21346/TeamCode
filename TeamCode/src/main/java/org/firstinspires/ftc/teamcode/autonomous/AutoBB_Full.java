@@ -34,7 +34,6 @@ public class AutoBB_Full extends LinearOpMode {
         Pose2d startPose = new Pose2d(-35, 59, Math.toRadians(0));
         bot.odometry.setPoseEstimate(startPose);
 
-        
         Trajectory findBlueBProp = bot.odometry.trajectoryBuilder(startPose)
                 .lineTo(new Vector2d(-35, 53))
                 .build();

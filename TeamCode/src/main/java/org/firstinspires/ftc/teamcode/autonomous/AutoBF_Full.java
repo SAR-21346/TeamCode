@@ -33,8 +33,9 @@ public class AutoBF_Full extends LinearOpMode {
         Pose2d startPose = new Pose2d(10.5, 59, Math.toRadians(0));
         bot.odometry.setPoseEstimate(startPose);
 
-        Trajectory findBlueFProp = bot.odometry.trajectoryBuilder(startPose)
-                .lineTo(new Vector2d(12, 53))
+        TrajectorySequence findBlueFProp = bot.odometry.trajectorySequenceBuilder(startPose)
+                .addTemporalMarker(() -> bot.closeClaw())
+                .lineTo(new Vector2d(15, 53))
                 .build();
 
         TrajectorySequence BFdriveToLSpike = bot.odometry.trajectorySequenceBuilder(findBlueFProp.end())
@@ -46,11 +47,11 @@ public class AutoBF_Full extends LinearOpMode {
                 .addTemporalMarker(() -> bot.closeClaw())
                 .waitSeconds(0.5)
                 .back(9)
-                .UNSTABLE_addDisplacementMarkerOffset(6, () -> {bot.target = 110;})
-                .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
-                .forward(4)
-                .back(4)
-                .resetAccelConstraint()
+                .UNSTABLE_addDisplacementMarkerOffset(6, () -> {bot.target = 130;})
+//                .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
+//                .forward(4)
+//                .back(4)
+//                .resetAccelConstraint()
                 .lineTo(new Vector2d(25, 43))
                 .splineToSplineHeading(new Pose2d(53, 35, Math.toRadians(180)), Math.toRadians(0))
                 .waitSeconds(0.5)
@@ -63,7 +64,7 @@ public class AutoBF_Full extends LinearOpMode {
                 .addTemporalMarker(() -> {bot.target = 40;})
                 .waitSeconds(0.3)
                 .addTemporalMarker(() -> {bot.target = 0;})
-                .lineTo(new Vector2d(60, 10))
+                .lineTo(new Vector2d(60, 5))
                 .build();
 
         TrajectorySequence BFdriveToCSpike = bot.odometry.trajectorySequenceBuilder(findBlueFProp.end())
@@ -76,12 +77,12 @@ public class AutoBF_Full extends LinearOpMode {
                 .waitSeconds(0.5)
                 .back(6)
                 .strafeLeft(3)
-                .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
-                .forward(4)
-                .back(4)
-                .resetAccelConstraint()
+//                .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
+//                .forward(4)
+//                .back(4)
+//                .resetAccelConstraint()
                 .UNSTABLE_addDisplacementMarkerOffset(10, () -> {
-                    bot.target = 110;
+                    bot.target = 130;
                 })
                 .lineToSplineHeading(new Pose2d(53, 31, Math.toRadians(180)))
                 .waitSeconds(0.5)
@@ -100,7 +101,7 @@ public class AutoBF_Full extends LinearOpMode {
                 .addTemporalMarker(() -> {
                     bot.target = 0;
                 })
-                .lineTo(new Vector2d(60, 8))
+                .lineTo(new Vector2d(60, 5))
                 .build();
 
         TrajectorySequence BFdriveToRSpike = bot.odometry.trajectorySequenceBuilder(findBlueFProp.end())
@@ -112,12 +113,12 @@ public class AutoBF_Full extends LinearOpMode {
                 .addTemporalMarker(() -> bot.closeClaw())
                 .waitSeconds(0.5)
                 .back(8)
-                .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
-                .forward(6)
-                .back(6)
-                .resetAccelConstraint()
+//                .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
+//                .forward(6)
+//                .back(6)
+//                .resetAccelConstraint()
                 .UNSTABLE_addDisplacementMarkerOffset(12, () -> {
-                    bot.target = 110;
+                    bot.target = 130;
                 })
                 .lineToConstantHeading(new Vector2d(53, 27))
                 .waitSeconds(.5)
@@ -129,14 +130,19 @@ public class AutoBF_Full extends LinearOpMode {
                 .addTemporalMarker(() -> bot.closeClaw())
                 .waitSeconds(1)
                 .lineTo(new Vector2d(42, 13))
+                .waitSeconds(1)
+                .addTemporalMarker(() -> bot.openClaw())
+                .waitSeconds(1)
                 .addTemporalMarker(() -> {
-                    bot.target = 40;
+                    bot.target = 80;
                 })
-                .waitSeconds(.4)
-                .addTemporalMarker(() -> {
-                    bot.target = 0;
-                })
-                .lineTo(new Vector2d(60, 8))
+                .addTemporalMarker(() -> bot.closeClaw())
+                .waitSeconds(1)
+                .setVelConstraint(bot.odometry.SLOW_VEL_CONSTRAINT)
+                .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40)
+                .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0)
+                .lineTo(new Vector2d(34, 18))
+                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0))
                 .build();
 
         bot.initEocvBlue(hardwareMap);
@@ -148,33 +154,33 @@ public class AutoBF_Full extends LinearOpMode {
 
         if (opModeIsActive()) {
             while (opModeIsActive()) {
-                while (runtime.seconds() < 3) {
-                    bot.target = 0;
+                while (runtime.seconds() < 2) {
                     bot.closeClaw();
-                    //bot.odometry.followTrajectory(findBlueFProp);
+                    bot.odometry.followTrajectorySequence(findBlueFProp);
 
-                    if (bot.pipeline.isPropRight()){
+                    if (bot.pipeline.isPropRight()) {
                         spikeLoc = SPIKE_LOC.RIGHT;
+                        telemetry.addData("x", bot.pipelineRed.centerX);
                         if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
                             bot.visionPortal.close();
                         }
                         break;
-                    } else if (bot.pipeline.isPropCenter()){
+                    } else if (bot.pipeline.isPropCenter()) {
                         spikeLoc = SPIKE_LOC.CENTER;
+                        telemetry.addData("x", bot.pipelineRed.centerX);
                         if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
                             bot.visionPortal.close();
                         }
                         break;
                     } else {
                         spikeLoc = SPIKE_LOC.LEFT;
+                        telemetry.addData("x", bot.pipelineRed.centerX);
                         if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
                             bot.visionPortal.close();
                         }
                     }
-                    telemetry.addData("x", bot.pipeline.centerX);
                     sleep(20);
                 }
-
 
                 if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.CAMERA_DEVICE_READY) {
                     bot.visionPortal.close();

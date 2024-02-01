@@ -123,11 +123,11 @@ public class RedPropPipeline implements VisionProcessor {
     }
 
     public boolean isPropCenter() {
-        return centerX > 250 && centerX < 560;
+        return centerX > 200 && centerX < 560;
     }
     public boolean isPropRight() {
-        return centerX > 580 && centerX < 800;
+        return centerX > 580 && centerX < 800 && width > 150;
     }
-    public boolean isPropLeft() { return centerX > 0 && centerX < 250;}
+    public boolean isPropLeft() { return centerX > 0 && centerX < 200;}
 
 }
