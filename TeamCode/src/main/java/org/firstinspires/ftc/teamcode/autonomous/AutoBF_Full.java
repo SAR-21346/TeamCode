@@ -30,115 +30,101 @@ public class AutoBF_Full extends LinearOpMode {
         ElapsedTime runtime = new ElapsedTime();
         bot = new MecanumTrain(hardwareMap, runtime);
 
-        Pose2d startPose = new Pose2d(10.5, 59, Math.toRadians(0));
+        Pose2d startPose = new Pose2d(10.5, 57, Math.toRadians(0));
         bot.odometry.setPoseEstimate(startPose);
 
         TrajectorySequence findBlueFProp = bot.odometry.trajectorySequenceBuilder(startPose)
                 .addTemporalMarker(() -> bot.closeClaw())
-                .lineTo(new Vector2d(15, 53))
+                .lineTo(new Vector2d(18, 53))
                 .build();
 
         TrajectorySequence BFdriveToLSpike = bot.odometry.trajectorySequenceBuilder(findBlueFProp.end())
-                .splineToSplineHeading(new Pose2d(23, 38, Math.toRadians(270)), Math.toRadians(0))
+                .addTemporalMarker(() -> bot.closeClaw())
+                .addTemporalMarker(() -> bot.target = 0)
+                .setVelConstraint(bot.odometry.SLOW_VEL_CONSTRAINT)
+                .splineToConstantHeading(new Vector2d(23, 48), Math.toRadians(270))
+                .splineToSplineHeading(new Pose2d(23, 35, Math.toRadians(270)), Math.toRadians(270))
                 .waitSeconds(0.5)
                 .addTemporalMarker(() -> bot.openClaw())
-                .back(3)
-                .waitSeconds(0.5)
+                .back(4)
                 .addTemporalMarker(() -> bot.closeClaw())
                 .waitSeconds(0.5)
-                .back(9)
-                .UNSTABLE_addDisplacementMarkerOffset(6, () -> {bot.target = 130;})
-//                .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
-//                .forward(4)
-//                .back(4)
-//                .resetAccelConstraint()
-                .lineTo(new Vector2d(25, 43))
-                .splineToSplineHeading(new Pose2d(53, 35, Math.toRadians(180)), Math.toRadians(0))
+                .back(8)
                 .waitSeconds(0.5)
+                .UNSTABLE_addDisplacementMarkerOffset(4, () -> {bot.target = 138;})
+                .back(6)
+                .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
+                .forward(4)
+                .back(4)
+                .resetAccelConstraint()
+                .lineTo(new Vector2d(33, 43))
+                .splineToSplineHeading(new Pose2d(52, 37, Math.toRadians(180)), Math.toRadians(0))
                 .addTemporalMarker(() -> bot.openClaw())
                 .waitSeconds(0.5)
                 .addTemporalMarker(() -> {bot.target = 80;})
                 .addTemporalMarker(() -> bot.closeClaw())
-                .waitSeconds(0.5)
-                .lineTo(new Vector2d(45, 15))
-                .addTemporalMarker(() -> {bot.target = 40;})
-                .waitSeconds(0.3)
-                .addTemporalMarker(() -> {bot.target = 0;})
-                .lineTo(new Vector2d(60, 5))
+                .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40)
+                .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0)
+                .lineTo(new Vector2d(38, 18))
+                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0))
                 .build();
 
         TrajectorySequence BFdriveToCSpike = bot.odometry.trajectorySequenceBuilder(findBlueFProp.end())
-                .lineTo(new Vector2d(14, 40))
-                .splineToSplineHeading(new Pose2d(18, 24, Math.toRadians(230)), Math.toRadians(270))
+                .addTemporalMarker(() -> bot.target = 0)
+                .addTemporalMarker(() -> bot.closeClaw())
+                .setVelConstraint(bot.odometry.SLOW_VEL_CONSTRAINT)
+                .splineToSplineHeading(new Pose2d(19, 23, Math.toRadians(230)), Math.toRadians(230))
                 .waitSeconds(0.5)
                 .addTemporalMarker(() -> bot.openClaw())
                 .back(4)
                 .addTemporalMarker(() -> bot.closeClaw())
                 .waitSeconds(0.5)
                 .back(6)
-                .strafeLeft(3)
-//                .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
-//                .forward(4)
-//                .back(4)
-//                .resetAccelConstraint()
-                .UNSTABLE_addDisplacementMarkerOffset(10, () -> {
-                    bot.target = 130;
-                })
-                .lineToSplineHeading(new Pose2d(53, 31, Math.toRadians(180)))
+                .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
+                .forward(4)
+                .back(4)
+                .resetAccelConstraint()
+                .UNSTABLE_addDisplacementMarkerOffset(6, () -> {bot.target = 138;})
+                .lineToSplineHeading(new Pose2d(52, 29, Math.toRadians(180)))
                 .waitSeconds(0.5)
                 .addTemporalMarker(() -> bot.openClaw())
                 .waitSeconds(0.5)
-                .addTemporalMarker(() -> {
-                    bot.target = 80;
-                })
+                .addTemporalMarker(() -> {bot.target = 80;})
                 .addTemporalMarker(() -> bot.closeClaw())
                 .waitSeconds(0.5)
+                .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40)
+                .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0)
                 .lineTo(new Vector2d(42, 10))
-                .addTemporalMarker(() -> {
-                    bot.target = 40;
-                })
-                .waitSeconds(0.2)
-                .addTemporalMarker(() -> {
-                    bot.target = 0;
-                })
-                .lineTo(new Vector2d(60, 5))
+                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0))
                 .build();
 
         TrajectorySequence BFdriveToRSpike = bot.odometry.trajectorySequenceBuilder(findBlueFProp.end())
-                .lineToSplineHeading(new Pose2d(15, 45, Math.toRadians(180)))
-                .splineToConstantHeading(new Vector2d(4, 29), Math.toRadians(180))
+                .addTemporalMarker(() -> bot.closeClaw())
+                .addTemporalMarker(() -> bot.target = 0)
+                .setVelConstraint(bot.odometry.SLOW_VEL_CONSTRAINT)
+                .lineTo(new Vector2d(18, 45))
+                .turn(Math.toRadians(180))
+                .splineToConstantHeading(new Vector2d(4, 30), Math.toRadians(180))
                 .waitSeconds(.5)
                 .addTemporalMarker(() -> bot.openClaw())
                 .back(5)
                 .addTemporalMarker(() -> bot.closeClaw())
-                .waitSeconds(0.5)
+                .waitSeconds(.5)
                 .back(8)
-//                .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
-//                .forward(6)
-//                .back(6)
-//                .resetAccelConstraint()
-                .UNSTABLE_addDisplacementMarkerOffset(12, () -> {
+                .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
+                .forward(6)
+                .back(6)
+                .resetAccelConstraint()
+                .UNSTABLE_addDisplacementMarkerOffset(6, () -> {
                     bot.target = 130;
                 })
-                .lineToConstantHeading(new Vector2d(53, 27))
+                .lineToConstantHeading(new Vector2d(52, 24))
                 .waitSeconds(.5)
                 .addTemporalMarker(() -> bot.openClaw())
-                .waitSeconds(.8)
-                .addTemporalMarker(() -> {
-                    bot.target = 80;
-                })
+                .waitSeconds(.5)
+                .addTemporalMarker(() -> {bot.target = 80;})
                 .addTemporalMarker(() -> bot.closeClaw())
-                .waitSeconds(1)
-                .lineTo(new Vector2d(42, 13))
-                .waitSeconds(1)
-                .addTemporalMarker(() -> bot.openClaw())
-                .waitSeconds(1)
-                .addTemporalMarker(() -> {
-                    bot.target = 80;
-                })
-                .addTemporalMarker(() -> bot.closeClaw())
-                .waitSeconds(1)
-                .setVelConstraint(bot.odometry.SLOW_VEL_CONSTRAINT)
+                .waitSeconds(.5)
                 .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40)
                 .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0)
                 .lineTo(new Vector2d(34, 18))
@@ -155,26 +141,27 @@ public class AutoBF_Full extends LinearOpMode {
         if (opModeIsActive()) {
             while (opModeIsActive()) {
                 while (runtime.seconds() < 2) {
+                    bot.target = 0;
                     bot.closeClaw();
                     bot.odometry.followTrajectorySequence(findBlueFProp);
 
-                    if (bot.pipeline.isPropRight()) {
-                        spikeLoc = SPIKE_LOC.RIGHT;
-                        telemetry.addData("x", bot.pipelineRed.centerX);
+                    if (bot.pipeline.isPropLeft()) {
+                        spikeLoc = SPIKE_LOC.LEFT;
+                        telemetry.addData("x", bot.pipeline.centerX);
                         if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
                             bot.visionPortal.close();
                         }
                         break;
                     } else if (bot.pipeline.isPropCenter()) {
                         spikeLoc = SPIKE_LOC.CENTER;
-                        telemetry.addData("x", bot.pipelineRed.centerX);
+                        telemetry.addData("x", bot.pipeline.centerX);
                         if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
                             bot.visionPortal.close();
                         }
                         break;
                     } else {
-                        spikeLoc = SPIKE_LOC.LEFT;
-                        telemetry.addData("x", bot.pipelineRed.centerX);
+                        spikeLoc = SPIKE_LOC.RIGHT;
+                        telemetry.addData("x", bot.pipeline.centerX);
                         if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
                             bot.visionPortal.close();
                         }

@@ -11,42 +11,34 @@ import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
 public class MeepMeepTesting {
     public static void main(String[] args) {
         MeepMeep meepMeep = new MeepMeep(800);
+        Pose2d redFrontStart = new Pose2d(12, -59, Math.toRadians(180));
+        Pose2d blueFrontStart = new Pose2d(12, 59, Math.toRadians(0));
+        Pose2d redBackStart = new Pose2d(-35, -59, Math.toRadians(180));
+        Pose2d blueBackStart = new Pose2d(-35, 59, Math.toRadians(0));
         RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
-                .setConstraints(50, 50, 5.02, 3.17, 18)
+                .setConstraints(20, 50, 5.02, 3.17, 18)
                 .setColorScheme(new ColorSchemeBlueDark())
                 .followTrajectorySequence(drive -> {
-                            return drive.trajectorySequenceBuilder(new Pose2d(12, -59, Math.toRadians(180)))
-                                    .lineTo(new Vector2d(12, -53))
-//                                    .addTemporalMarker(() -> bot.target = 0)
-//                                    .setVelConstraint(bot.odometry.SLOW_VEL_CONSTRAINT)
-                                    .splineToConstantHeading(new Vector2d(5, -30), Math.toRadians(180))
+                            return drive.trajectorySequenceBuilder(redBackStart)
+                                    .lineTo(new Vector2d(-40, -53))
+                                    .addTemporalMarker(() -> {/**/})
+                                    .addTemporalMarker(() -> {/**/})
+                                    .lineTo(new Vector2d(-40, -55))
+                                    .waitSeconds(1)
+                                    .lineToSplineHeading(new Pose2d(-39, -37, Math.toRadians(0)))
+                                    .splineToConstantHeading(new Vector2d(-28, -34), Math.toRadians(180))
+                                    .addTemporalMarker(() -> {/**/})
                                     .waitSeconds(0.5)
-//                                    .addTemporalMarker(() -> bot.openClaw())
-                                    .back(6)
-//                                    .addTemporalMarker(() -> bot.closeClaw())
+                                    .back(5)
+                                    .addTemporalMarker(() -> {/**/})
                                     .waitSeconds(0.5)
-                                    .resetVelConstraint()
+                                    .back(8)
 //                .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
-//                .forward(5)
-//                .back(5)
+//                .forward(4)
+//                .back(4)
 //                .resetAccelConstraint()
-//                                    .UNSTABLE_addDisplacementMarkerOffset(6, () -> bot.target = 138)
-                                    .lineToConstantHeading(new Vector2d(52, -24))
-                                    .waitSeconds(1)
-//                                    .addTemporalMarker(() -> bot.openClaw())
-                                    .waitSeconds(1)
-//                                    .addTemporalMarker(() -> {
-//                                        bot.target = 80;
-//                                    })
-//                                    .addTemporalMarker(() -> bot.closeClaw())
-                                    .waitSeconds(1)
-//                                    .setVelConstraint(bot.odometry.SLOW_VEL_CONSTRAINT)
-//                                    .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40)
-//                                    .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0)
-                                    .lineTo(new Vector2d(34, -18))
-                                    .splineToConstantHeading(new Vector2d(60, -5), Math.toRadians(0))
-                                    .build();
+                                    .lineTo(new Vector2d(-40, -59)).build();
                         }
                 );
 

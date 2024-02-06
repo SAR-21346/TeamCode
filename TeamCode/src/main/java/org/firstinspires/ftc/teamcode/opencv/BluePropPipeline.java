@@ -55,7 +55,7 @@ public class BluePropPipeline implements VisionProcessor {
             centerY = boundingRect.y + (boundingRect.height / 2.0);
 
             String centerLabel = "Center: (" + (int) centerX + ", " + (int) centerY + ")";
-            Imgproc.putText(frame, centerLabel, new org.opencv.core.Point(10, 100),
+            Imgproc.putText(frame, centerLabel, new Point(10, 100),
                     Imgproc.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 255, 0), 2);
             Imgproc.circle(frame, new org.opencv.core.Point(centerX, centerY), 5, new Scalar(0, 255, 0), 2);
             Imgproc.rectangle(frame, new Point(boundingRect.x, boundingRect.y), new Point(boundingRect.x + boundingRect.width,
@@ -108,11 +108,13 @@ public class BluePropPipeline implements VisionProcessor {
 
     }
 
-    public boolean isPropRight() {
-        return centerX > 650 && centerX < 800 && width > 130;
+    public boolean isPropLeft() {
+        return centerX > 0 && centerX < 250 && width > 130;
     }
     public boolean isPropCenter() {
-        return centerX > 240 && centerX < 480 && width > 200;
+        return centerX > 310 && centerX < 600 && width > 130;
     }
+    public boolean isPropCenterBack() { return centerX > 200 && centerX < 550 && width > 130; }
+    public boolean isPropRight() {return centerX > 630 && centerX < 800 && width > 130;}
 
 }

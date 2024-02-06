@@ -180,7 +180,7 @@ public class AutoRB_Full extends LinearOpMode {
                             bot.visionPortal.close();
                         }
                         break;
-                    } else if (bot.pipelineRed.isPropLeft()){
+                    } else {
                         spikeLoc = SPIKE_LOC.LEFT;
                         if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
                             bot.visionPortal.close();
