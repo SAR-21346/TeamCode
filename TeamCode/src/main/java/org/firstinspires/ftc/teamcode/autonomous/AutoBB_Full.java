@@ -31,12 +31,12 @@ public class AutoBB_Full extends LinearOpMode {
         ElapsedTime runtime = new ElapsedTime();
         bot = new MecanumTrain(hardwareMap, runtime);
 
-        Pose2d startPose = new Pose2d(-35, 59, Math.toRadians(0));
+        Pose2d startPose = new Pose2d(-34, 59, Math.toRadians(0));
         bot.odometry.setPoseEstimate(startPose);
 
         TrajectorySequence findBlueBProp = bot.odometry.trajectorySequenceBuilder(startPose)
                 .addTemporalMarker(() -> bot.closeClaw())
-                .lineTo(new Vector2d(-35, 53))
+                .lineTo(new Vector2d(-40, 53))
                 .build();
 
         // TODO: Blue-Back Drive Trajectories
@@ -44,98 +44,108 @@ public class AutoBB_Full extends LinearOpMode {
                 .addTemporalMarker(() -> bot.closeClaw())
                 .addTemporalMarker(() -> bot.target = 0)
                 .setVelConstraint(bot.odometry.SLOW_VEL_CONSTRAINT)
-                .splineToSplineHeading(new Pose2d(-46, 35, Math.toRadians(270)), Math.toRadians(270))
-                .waitSeconds(0.5)
+                .lineTo(new Vector2d(-40, 55))
+                .waitSeconds(1)
+                .lineToSplineHeading(new Pose2d(-39, 37, Math.toRadians(0)))
+                .splineToConstantHeading(new Vector2d(-28, 32 ), Math.toRadians(0))
                 .addTemporalMarker(() -> bot.openClaw())
-                .back(6)
+                .waitSeconds(0.5)
+                .back(5)
                 .addTemporalMarker(() -> bot.closeClaw())
                 .waitSeconds(0.5)
-                .strafeRight(3)
-                .splineToSplineHeading(new Pose2d(-47, 9.5, Math.toRadians(90)), Math.toRadians(0))
-                .splineToConstantHeading(new Vector2d(5, 13), Math.toRadians(0))
-                .UNSTABLE_addDisplacementMarkerOffset(24, () -> bot.target = 130)
-                .splineToSplineHeading(new Pose2d(52, 33, Math.toRadians(180)), Math.toRadians(0))
-//                .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
-//                .forward(6)
-//                .back(6)
-//                .resetAccelConstraint()
+                .back(8)
+                .lineTo(new Vector2d(-40, 55))
+                .UNSTABLE_addDisplacementMarkerOffset(81, () -> bot.target = 135)
+                .lineTo(new Vector2d(14, 55))
+                .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
+                .forward(4)
+                .back(6)
+                .forward(6)
+                .back(2)
+                .resetAccelConstraint()
+                .splineToSplineHeading(new Pose2d(52, 39, Math.toRadians(180)), Math.toRadians(0))
                 .waitSeconds(0.5)
                 .addTemporalMarker(() -> bot.openClaw())
                 .waitSeconds(0.5)
                 .addTemporalMarker(() -> bot.target = 80)
                 .addTemporalMarker(() -> bot.closeClaw())
                 .waitSeconds(1)
+                .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40)
+                .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0)
                 .lineTo(new Vector2d(36, 45))
-                .addTemporalMarker(() -> bot.target = 40)
-                .waitSeconds(0.4)
-                .addTemporalMarker(() -> bot.target = 0)
                 .splineToConstantHeading(new Vector2d(60, 60), Math.toRadians(0))
                 .build();
 
         TrajectorySequence BBdriveToCSpike = bot.odometry.trajectorySequenceBuilder(findBlueBProp.end())
+                .addTemporalMarker(() -> bot.closeClaw())
+                .addTemporalMarker(() -> bot.target = 0)
+                .setVelConstraint(bot.odometry.SLOW_VEL_CONSTRAINT)
+                .lineTo(new Vector2d(-40, 50))
+                .waitSeconds(1)
                 .splineToSplineHeading(new Pose2d(-41, 24, Math.toRadians(315)), Math.toRadians(315))
+                .waitSeconds(0.5)
+                .addTemporalMarker(() -> bot.openClaw())
+                .back(4)
+                .addTemporalMarker(() -> bot.closeClaw())
+                .waitSeconds(0.5)
+                .back(4)
+                .splineToSplineHeading(new Pose2d(-40, 55, Math.toRadians(0)), Math.toRadians(0))
+                .lineTo(new Vector2d(-14, 55))
+                .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
+                .forward(6)
+                .back(6)
+                .resetAccelConstraint()
+                .UNSTABLE_addDisplacementMarkerOffset(53, () -> bot.target = 138)
+                .splineToSplineHeading(new Pose2d(52, 29, Math.toRadians(180)), Math.toRadians(0))
+                .waitSeconds(0.5)
+                .addTemporalMarker(() -> bot.openClaw())
+                .waitSeconds(0.5)
+                .addTemporalMarker(() -> bot.target = 80)
+                .addTemporalMarker(() -> bot.closeClaw())
+                .waitSeconds(1)
+                .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40)
+                .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0)
+                .lineTo(new Vector2d(36, 45))
+                .splineToConstantHeading(new Vector2d(60, 60), Math.toRadians(0))
+                .build();
+
+        TrajectorySequence BBdriveToRSpike = bot.odometry.trajectorySequenceBuilder(findBlueBProp.end())
+                .addTemporalMarker(() -> bot.closeClaw())
+                .addTemporalMarker(() -> bot.target = 0)
+                .setVelConstraint(bot.odometry.SLOW_VEL_CONSTRAINT)
+                .waitSeconds(0.5)
+                .back(4)
+                .splineToSplineHeading(new Pose2d(-48, 33, Math.toRadians(270)), Math.toRadians(270))
                 .waitSeconds(0.5)
                 .addTemporalMarker(() -> bot.openClaw())
                 .back(6)
                 .addTemporalMarker(() -> bot.closeClaw())
                 .waitSeconds(0.5)
-                .strafeRight(3)
-                .splineToSplineHeading(new Pose2d(-47, 9.5, Math.toRadians(90)), Math.toRadians(0))
-                .splineToConstantHeading(new Vector2d(5, 13), Math.toRadians(0))
-                .UNSTABLE_addDisplacementMarkerOffset(24, () -> bot.target = 130)
-                .splineToSplineHeading(new Pose2d(52, 33, Math.toRadians(180)), Math.toRadians(0))
-//                .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
-//                .forward(6)
-//                .back(6)
-//                .resetAccelConstraint()
+                .back(4)
+                .lineTo(new Vector2d(-40, 55))
+                .UNSTABLE_addDisplacementMarkerOffset(48, () -> bot.target = 138)
+                .lineTo(new Vector2d(14, -55))
+                .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
+                .forward(6)
+                .back(6)
+                .resetAccelConstraint()
+                .splineToSplineHeading(new Pose2d(52, 24, Math.toRadians(180)), Math.toRadians(0))
                 .waitSeconds(0.5)
                 .addTemporalMarker(() -> bot.openClaw())
                 .waitSeconds(0.5)
                 .addTemporalMarker(() -> bot.target = 80)
                 .addTemporalMarker(() -> bot.closeClaw())
                 .waitSeconds(1)
-                .lineTo(new Vector2d(36, 45))
-                .addTemporalMarker(() -> bot.target = 40)
-                .waitSeconds(0.4)
-                .addTemporalMarker(() -> bot.target = 0)
-                .splineToConstantHeading(new Vector2d(60, 60), Math.toRadians(0))
-                .build();
-
-        TrajectorySequence BBdriveToRSpike = bot.odometry.trajectorySequenceBuilder(findBlueBProp.end())
-                .lineToSplineHeading(new Pose2d(-38, 40, Math.toRadians(0)))
-                .splineToConstantHeading(new Vector2d(-28, 34), Math.toRadians(180))
-                .addTemporalMarker(() -> bot.openClaw())
-                .waitSeconds(0.5)
-                .back(5)
-                .waitSeconds(0.5)
-                .addTemporalMarker(() -> bot.closeClaw())
-                .waitSeconds(0.5)
-                .strafeRight(5)
-                .splineToConstantHeading(new Vector2d(-27, 11), Math.toRadians(0))
-                .UNSTABLE_addDisplacementMarkerOffset(48, () -> bot.target = 130)
-                .lineToConstantHeading(new Vector2d(10, 11))
-                .splineToSplineHeading(new Pose2d(52, 39, Math.toRadians(180)), Math.toRadians(0))
-//                .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
-//                .forward(6)
-//                .back(6)
-//                .resetAccelConstraint()
-                .waitSeconds(0.5)
-                .addTemporalMarker(() -> bot.openClaw())
-                .waitSeconds(0.5)
-                .addTemporalMarker(() -> bot.target = 80)
-                .addTemporalMarker(() -> bot.closeClaw())
-                .waitSeconds(1)
+                .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40)
+                .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0)
                 .lineTo(new Vector2d(36,45))
-                .addTemporalMarker(() -> bot.target = 40)
-                .waitSeconds(0.4)
-                .addTemporalMarker(() -> bot.target = 0)
                 .splineToConstantHeading(new Vector2d(60, 60), Math.toRadians(0))
                 .build();
 
         bot.initEocvBlue(hardwareMap);
         SPIKE_LOC spikeLoc = SPIKE_LOC.IDLE;
-        waitForStart();
         bot.closeClaw();
+        waitForStart();
         runtime.reset();
         double x = 0;
 
@@ -145,20 +155,20 @@ public class AutoBB_Full extends LinearOpMode {
                     bot.closeClaw();
                     bot.odometry.followTrajectorySequence(findBlueBProp);
 
-                    if (bot.pipeline.isPropLeft()){
-                        spikeLoc = SPIKE_LOC.LEFT;
+                    if (bot.pipeline.isPropRight()){
+                        spikeLoc = SPIKE_LOC.RIGHT;
                         if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
                             bot.visionPortal.close();
                         }
                         break;
-                    } else if (bot.pipeline.isPropCenter()){
+                    } else if (bot.pipeline.isPropCenterBack()){
                         spikeLoc = SPIKE_LOC.CENTER;
                         if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
                             bot.visionPortal.close();
                         }
                         break;
                     } else {
-                        spikeLoc = SPIKE_LOC.RIGHT;
+                        spikeLoc = SPIKE_LOC.LEFT;
                         if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
                             bot.visionPortal.close();
                         }

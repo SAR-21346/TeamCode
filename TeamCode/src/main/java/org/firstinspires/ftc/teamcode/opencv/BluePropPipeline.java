@@ -114,7 +114,7 @@ public class BluePropPipeline implements VisionProcessor {
     public boolean isPropCenter() {
         return centerX > 310 && centerX < 600 && width > 130;
     }
-    public boolean isPropCenterBack() { return centerX > 200 && centerX < 550 && width > 130; }
-    public boolean isPropRight() {return centerX > 630 && centerX < 800 && width > 130;}
+    public boolean isPropCenterBack() { return centerX > 200 && centerX < 540 && width > 130; }
+    public boolean isPropRight() {return centerX > 580 && centerX < 800 && width > 150;}
 
 }

@@ -97,7 +97,7 @@ public class AutoBB_PurpleOnly extends LinearOpMode {
 //                .forward(4)
 //                .back(4)
 //                .resetAccelConstraint()
-                .lineTo(new Vector2d(-40, 59))
+                .lineTo(new Vector2d(-40, 55))
                 .build();
 
         bot.initEocvBlue(hardwareMap);

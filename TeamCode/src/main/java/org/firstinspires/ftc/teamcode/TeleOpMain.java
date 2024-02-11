@@ -98,7 +98,7 @@ public class TeleOpMain extends LinearOpMode{
             }
             if (gamepad2.right_bumper) {
                 bot.openClaw();
-                intakePower = -0.4;
+                intakePower = 0.4;
             }
 
 
