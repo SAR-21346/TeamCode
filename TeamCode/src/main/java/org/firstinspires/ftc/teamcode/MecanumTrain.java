@@ -102,15 +102,15 @@ public class MecanumTrain{
     public int liftR_start;
 
     // Claw and Drone Position Constants
-    public static double CLAW_OPEN = 0.2;
+    public static double CLAW_OPEN = 0.20;
     public static double CLAW_CLOSED = 0;
 
     public static double DRONE_OPEN = 0;
     public static double DRONE_CLOSED = .7;
 
     // Lift Speeds
-    public static int liftL_speed = 250;
-    public static int liftR_speed = 250;
+    public static int liftL_speed = 450;
+    public static int liftR_speed = 450;
 
     public Gamepad.RumbleEffect rumbleEffect;
 
@@ -178,10 +178,11 @@ public class MecanumTrain{
     // returns double[]
     public double[] calculateMotorPowers(double axial, double lateral, double yaw) {
         double[] motorPowers = new double[4];
-        motorPowers[0] = axial + lateral + yaw;
-        motorPowers[1] = axial - lateral - yaw;
-        motorPowers[2] = axial - lateral + yaw;
-        motorPowers[3] = axial + lateral - yaw;
+        double multiplier = .55;
+        motorPowers[0] = (axial + lateral + yaw) * multiplier;
+        motorPowers[1] = (axial - lateral - yaw) * multiplier;
+        motorPowers[2] = (axial - lateral + yaw) * multiplier;
+        motorPowers[3] = (axial + lateral - yaw) * multiplier;
         return motorPowers;
     }
 

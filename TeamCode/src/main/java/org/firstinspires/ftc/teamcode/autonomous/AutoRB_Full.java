@@ -35,29 +35,32 @@ public class AutoRB_Full extends LinearOpMode {
         bot.odometry.setPoseEstimate(startPose);
 
         Trajectory findRedBProp = bot.odometry.trajectoryBuilder(startPose)
-                .lineTo(new Vector2d(-35, -53))
+                .lineTo(new Vector2d(-44, -53))
                 .build();
 
         TrajectorySequence RBdriveToLSpike = bot.odometry.trajectorySequenceBuilder(startPose)
-                .lineTo(new Vector2d(-35, -53))
-                .lineToSplineHeading(new Pose2d(-46.5, -35, Math.toRadians(90)))
+                .addTemporalMarker(() -> bot.closeClaw())
+                .addTemporalMarker(() -> bot.target = 0)
+                .setVelConstraint(bot.odometry.SLOW_VEL_CONSTRAINT)
+                .lineTo(new Vector2d(-40, -55))
+                .waitSeconds(0.5)
+                .lineToSplineHeading(new Pose2d(-47, -35, Math.toRadians(90)))
                 .waitSeconds(0.5)
                 .addTemporalMarker(() -> bot.openClaw())
-                .back(6)
+                .waitSeconds(0.5)
+                .back(5)
                 .addTemporalMarker(() -> bot.closeClaw())
                 .waitSeconds(0.5)
-                .strafeRight(3)
-                .splineToConstantHeading(new Vector2d(-34, -35), Math.toRadians(90))
-                .splineToConstantHeading(new Vector2d(-34, -20), Math.toRadians(90))
-                .splineToConstantHeading(new Vector2d(5, -13), Math.toRadians(0))
-                .UNSTABLE_addDisplacementMarkerOffset(12, () -> {
-                    bot.target = 130;
-                })
-                .splineToSplineHeading(new Pose2d(52, -24, Math.toRadians(180)), Math.toRadians(0))
+                .back(8)
+                .lineTo(new Vector2d(-40, -55))
+                .UNSTABLE_addDisplacementMarkerOffset(81, () -> bot.target = 140)
+                .lineTo(new Vector2d(14, -55))
                 .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
                 .forward(6)
-                .back(6)
+                .waitSeconds(0.5)
+                //.back(6)
                 .resetAccelConstraint()
+                .splineToSplineHeading(new Pose2d(52, -24, Math.toRadians(180)), Math.toRadians(0))
                 .waitSeconds(0.5)
                 .addTemporalMarker(() -> bot.openClaw())
                 .waitSeconds(0.5)
@@ -66,37 +69,36 @@ public class AutoRB_Full extends LinearOpMode {
                 })
                 .addTemporalMarker(() -> bot.closeClaw())
                 .waitSeconds(1)
+                .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40)
+                .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0)
                 .lineTo(new Vector2d(36, -45))
-                .addTemporalMarker(() -> {
-                    bot.target = 40;
-                })
-                .waitSeconds(0.4)
-                .addTemporalMarker(() -> {
-                    bot.target = 0;
-                })
                 .splineToConstantHeading(new Vector2d(60, -60), Math.toRadians(0))
                 .build();
 
         TrajectorySequence RBdriveToCSpike = bot.odometry.trajectorySequenceBuilder(startPose)
-                .lineTo(new Vector2d(-35, -53))
+                .addTemporalMarker(() -> bot.closeClaw())
+                .addTemporalMarker(() -> bot.target = 0)
+                .setVelConstraint(bot.odometry.SLOW_VEL_CONSTRAINT)
+                .lineTo(new Vector2d(-40, -55))
+                .waitSeconds(0.5)
                 .splineToSplineHeading(new Pose2d(-41, -24, Math.toRadians(45)), Math.toRadians(45))
                 .waitSeconds(0.5)
                 .addTemporalMarker(() -> bot.openClaw())
-                .back(6)
+                .waitSeconds(0.5)
+                .back(5)
                 .addTemporalMarker(() -> bot.closeClaw())
                 .waitSeconds(0.5)
-                .strafeLeft(3)
-                .splineToSplineHeading(new Pose2d(-47, -9.5, Math.toRadians(90)), Math.toRadians(0))
-                .splineToConstantHeading(new Vector2d(5, -13), Math.toRadians(0))
-                .UNSTABLE_addDisplacementMarkerOffset(24, () -> {
-                    bot.target = 130;
-                })
-                .splineToSplineHeading(new Pose2d(52, -33, Math.toRadians(180)), Math.toRadians(0))
+                .back(8)
+                .lineTo(new Vector2d(-40, -55))
+                .turn(Math.toRadians(-45))
+                .UNSTABLE_addDisplacementMarkerOffset(81, () -> bot.target = 140)
+                .lineTo(new Vector2d(14, -55))
+                .waitSeconds(0.5)
                 .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
                 .forward(6)
-                .back(6)
-                .resetAccelConstraint()
                 .waitSeconds(0.5)
+                .resetAccelConstraint()
+                .splineToSplineHeading(new Pose2d(52, -28, Math.toRadians(180)), Math.toRadians(0))
                 .addTemporalMarker(() -> bot.openClaw())
                 .waitSeconds(0.5)
                 .addTemporalMarker(() -> {
@@ -104,38 +106,35 @@ public class AutoRB_Full extends LinearOpMode {
                 })
                 .addTemporalMarker(() -> bot.closeClaw())
                 .waitSeconds(1)
+                .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40)
+                .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0)
                 .lineTo(new Vector2d(36, -45))
-                .addTemporalMarker(() -> {
-                    bot.target = 40;
-                })
-                .waitSeconds(0.4)
-                .addTemporalMarker(() -> {
-                    bot.target = 0;
-                })
                 .splineToConstantHeading(new Vector2d(60, -60), Math.toRadians(0))
                 .build();
 
         TrajectorySequence RBdriveToRSpike = bot.odometry.trajectorySequenceBuilder(startPose)
-                .lineTo(new Vector2d(-35, -53))
-                .lineToSplineHeading(new Pose2d(-38, -40, Math.toRadians(0)))
+                .addTemporalMarker(() -> bot.closeClaw())
+                .addTemporalMarker(() -> bot.target = 0)
+                .setVelConstraint(bot.odometry.SLOW_VEL_CONSTRAINT)
+                .lineTo(new Vector2d(-40, -55))
+                .waitSeconds(0.5)
+                .lineToSplineHeading(new Pose2d(-43, -40, Math.toRadians(0)))
                 .splineToConstantHeading(new Vector2d(-28, -34), Math.toRadians(0))
                 .addTemporalMarker(() -> bot.openClaw())
                 .waitSeconds(0.5)
                 .back(5)
-                .waitSeconds(0.5)
                 .addTemporalMarker(() -> bot.closeClaw())
                 .waitSeconds(0.5)
-                .strafeLeft(5)
-                .splineToConstantHeading(new Vector2d(-34, -11), Math.toRadians(0))
-                .UNSTABLE_addDisplacementMarkerOffset(12, () -> {
-                    bot.target = 130;
-                })
-                .lineToConstantHeading(new Vector2d(10, -11))
-                .splineToSplineHeading(new Pose2d(52, -39, Math.toRadians(180)), Math.toRadians(0))
+                .back(8)
+                .lineTo(new Vector2d(-40, -55))
+                .UNSTABLE_addDisplacementMarkerOffset(81, () -> bot.target = 140)
+                .lineTo(new Vector2d(14, -55))
+                .waitSeconds(0.5)
                 .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
-                .forward(6)
-                .back(6)
-                .resetAccelConstraint()
+                .forward(5)
+                .waitSeconds(0.5)
+                .resetConstraints()
+                .splineToSplineHeading(new Pose2d(52, -33, Math.toRadians(180)), Math.toRadians(0))
                 .waitSeconds(0.5)
                 .addTemporalMarker(() -> bot.openClaw())
                 .waitSeconds(0.5)
@@ -145,13 +144,8 @@ public class AutoRB_Full extends LinearOpMode {
                 .addTemporalMarker(() -> bot.closeClaw())
                 .waitSeconds(1)
                 .lineTo(new Vector2d(36, -45))
-                .addTemporalMarker(() -> {
-                    bot.target = 40;
-                })
-                .waitSeconds(0.4)
-                .addTemporalMarker(() -> {
-                    bot.target = 0;
-                })
+                .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40)
+                .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0)
                 .splineToConstantHeading(new Vector2d(60, -60), Math.toRadians(0))
                 .build();
 
@@ -166,22 +160,22 @@ public class AutoRB_Full extends LinearOpMode {
             while (opModeIsActive()) {
                 while (runtime.seconds() < 1) {
                     bot.closeClaw();
-//                    bot.odometry.followTrajectory(findRedBProp);
+                    bot.odometry.followTrajectory(findRedBProp);
 
-                    if (bot.pipelineRed.isPropRight()) {
-                        spikeLoc = SPIKE_LOC.RIGHT;
+                    if (bot.pipelineRed.isPropLeft()) {
+                        spikeLoc = SPIKE_LOC.LEFT;
                         if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
                             bot.visionPortal.close();
                         }
                         break;
-                    } else if (bot.pipelineRed.isPropCenter()) {
+                    } else if (bot.pipelineRed.isPropCenterBack()) {
                         spikeLoc = SPIKE_LOC.CENTER;
                         if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
                             bot.visionPortal.close();
                         }
                         break;
                     } else {
-                        spikeLoc = SPIKE_LOC.LEFT;
+                        spikeLoc = SPIKE_LOC.RIGHT;
                         if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
                             bot.visionPortal.close();
                         }

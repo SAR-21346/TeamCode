@@ -15,7 +15,7 @@ public class TeleOpMain extends LinearOpMode{
     private final ElapsedTime runtime = new ElapsedTime();
     MecanumTrain bot;
 
-    static final double SPEED_MULTIPLIER = 0.45 ;
+    static final double SPEED_MULTIPLIER = 0.50 ;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -57,11 +57,11 @@ public class TeleOpMain extends LinearOpMode{
 
             if (gamepad2.triangle) {
                 sleep(50);
-                liftPos += 20;
+                liftPos += 30;
             }
             if (gamepad2.cross) {
                 sleep(50);
-                liftPos -= 20;
+                liftPos -= 30;
             }
             if (gamepad2.square) {
                 liftPos = 0;
@@ -69,7 +69,7 @@ public class TeleOpMain extends LinearOpMode{
 
             if(gamepad2.left_trigger > 0){
                 float decreaseFlip = gamepad2.left_trigger;
-                if (bot.target >= 50 && bot.target <=150) {
+                if (bot.target >= 50 && bot.target <=165) {
                     bot.target -= decreaseFlip*5;
                 } else if (bot.target <=50 && bot.target >= -20){
                     bot.target -= decreaseFlip*3;
@@ -81,15 +81,15 @@ public class TeleOpMain extends LinearOpMode{
                 if (bot.target <= 100 && bot.target >-30) {
                     bot.target += increaseFlip*5;
                 }
-                if (bot.target >100 && bot.target <=130) {
+                if (bot.target >100 && bot.target <=145) {
                     bot.target += increaseFlip*3;
                 }
             }
 
             if (gamepad1.left_bumper && gamepad1.dpad_right) {
-                bot.openDrone();
-                sleep(1000);
                 bot.closeDrone();
+                sleep(1000);
+                bot.openDrone();
             }
 
             if (gamepad2.left_bumper) {
@@ -98,7 +98,7 @@ public class TeleOpMain extends LinearOpMode{
             }
             if (gamepad2.right_bumper) {
                 bot.openClaw();
-                intakePower = 0.4;
+                intakePower = 0.3;
             }
 
 
