@@ -4,7 +4,6 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -174,9 +173,6 @@ public class AutoBB_Full extends LinearOpMode {
                         break;
                     } else {
                         spikeLoc = SPIKE_LOC.LEFT;
-                        if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
-                            bot.visionPortal.close();
-                        }
                     }
                     telemetry.addData("x", bot.pipeline.centerX);
                     sleep(20);

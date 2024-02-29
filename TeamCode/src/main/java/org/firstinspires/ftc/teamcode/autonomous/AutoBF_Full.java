@@ -4,7 +4,6 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -65,8 +64,10 @@ public class AutoBF_Full extends LinearOpMode {
                 .addTemporalMarker(() -> bot.closeClaw())
                 .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40)
                 .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0)
-                .lineTo(new Vector2d(38, 18))
-                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0))
+                .lineTo(new Vector2d(36, 45))
+                .splineToConstantHeading(new Vector2d(60, 60), Math.toRadians(0))
+//                .lineTo(new Vector2d(38, 18))
+//                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0))
                 .build();
 
         TrajectorySequence BFdriveToCSpike = bot.odometry.trajectorySequenceBuilder(findBlueFProp.end())
@@ -94,8 +95,10 @@ public class AutoBF_Full extends LinearOpMode {
                 .waitSeconds(0.5)
                 .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40)
                 .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0)
-                .lineTo(new Vector2d(42, 10))
-                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0))
+                .lineTo(new Vector2d(36, 45))
+                .splineToConstantHeading(new Vector2d(60, 60), Math.toRadians(0))
+//                .lineTo(new Vector2d(42, 10))
+//                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0))
                 .build();
 
         TrajectorySequence BFdriveToRSpike = bot.odometry.trajectorySequenceBuilder(findBlueFProp.end())
@@ -127,8 +130,10 @@ public class AutoBF_Full extends LinearOpMode {
                 .waitSeconds(.5)
                 .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40)
                 .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0)
-                .lineTo(new Vector2d(34, 18))
-                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0))
+                .lineTo(new Vector2d(36, 45))
+                .splineToConstantHeading(new Vector2d(60, 60), Math.toRadians(0))
+//                .lineTo(new Vector2d(34, 18))
+//                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0))
                 .build();
 
         bot.initEocvBlue(hardwareMap);
@@ -162,9 +167,6 @@ public class AutoBF_Full extends LinearOpMode {
                     } else {
                         spikeLoc = SPIKE_LOC.RIGHT;
                         telemetry.addData("x", bot.pipeline.centerX);
-                        if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
-                            bot.visionPortal.close();
-                        }
                     }
                     sleep(20);
                 }

@@ -176,9 +176,6 @@ public class AutoRB_Full extends LinearOpMode {
                         break;
                     } else {
                         spikeLoc = SPIKE_LOC.RIGHT;
-                        if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
-                            bot.visionPortal.close();
-                        }
                     }
                     telemetry.addData("x", bot.pipelineRed.centerX);
                     sleep(20);

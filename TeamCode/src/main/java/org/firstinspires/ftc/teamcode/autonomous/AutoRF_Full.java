@@ -4,7 +4,6 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -69,6 +68,56 @@ public class AutoRF_Full extends LinearOpMode {
                 .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0)
                 .lineTo(new Vector2d(38, -18))
                 .splineToConstantHeading(new Vector2d(60, -5), Math.toRadians(0))
+                .build();
+
+        TrajectorySequence RFdriveToRSpike_2White = bot.odometry.trajectorySequenceBuilder(findRedFProp.end())
+                .addTemporalMarker(() -> bot.closeClaw())
+                .addTemporalMarker(() -> bot.target = 0)
+                .lineTo(new Vector2d(15, -53))
+                .waitSeconds(0.25)
+                .lineTo(new Vector2d(25, -48))
+                .splineToConstantHeading(new Vector2d(29.5, -33), Math.toRadians(90))
+                .addTemporalMarker(() -> bot.openClaw())
+                .waitSeconds(0.5)
+                .back(4)
+                .addTemporalMarker(() -> bot.closeClaw())
+                .waitSeconds(0.5)
+                .back(8)
+                .setConstraints(bot.odometry.SHAKE_VEL_CONSTRAINT, bot.odometry.SHAKE_ACCEL_CONSTRAINT)
+                .forward(4)
+                .back(6)
+                .waitSeconds(0.5)
+                .resetConstraints()
+                .UNSTABLE_addDisplacementMarkerOffset(4, () -> bot.target = 140)
+                .lineTo(new Vector2d(44, -36))
+                .splineToConstantHeading(new Vector2d(52, -37), Math.toRadians(0))
+                .addTemporalMarker(() -> bot.openClaw())
+                .waitSeconds(0.3)
+                .addTemporalMarker(() -> bot.target = 80)
+                .addTemporalMarker(() -> bot.closeClaw())
+                .waitSeconds(0.4)
+                .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40)
+                .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0)
+                .lineTo(new Vector2d(35, -12))
+                .lineTo(new Vector2d(-59, -11))
+                .addTemporalMarker(() -> bot.runIntake(0.3))
+                .addTemporalMarker(() -> bot.openClaw())
+                .waitSeconds(0.5)
+                .addTemporalMarker(() -> bot.runIntake(0))
+                .addTemporalMarker(() -> bot.closeClaw())
+                .lineTo(new Vector2d(35, -12))
+                .addTemporalMarker(() -> bot.target = 140)
+                .addTemporalMarker(() -> {/**/})
+                .splineToConstantHeading(new Vector2d(52, -29), Math.toRadians(0))
+                .addTemporalMarker(() -> bot.openClaw())
+                .waitSeconds(0.3)
+                .addTemporalMarker(() -> bot.target = 80)
+                .addTemporalMarker(() -> bot.closeClaw())
+                .waitSeconds(0.4)
+                .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 80)
+                .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 40)
+                .forward(5)
+                .splineToConstantHeading(new Vector2d(60, -60), Math.toRadians(0))
                 .build();
 
         TrajectorySequence RFdriveToCSpike = bot.odometry.trajectorySequenceBuilder(findRedFProp.end())
@@ -163,11 +212,12 @@ public class AutoRF_Full extends LinearOpMode {
                     } else {
                         spikeLoc = SPIKE_LOC.LEFT;
                         telemetry.addData("x", bot.pipelineRed.centerX);
-                        if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
-                            bot.visionPortal.close();
-                        }
                     }
                     sleep(20);
+                }
+
+                if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
+                    bot.visionPortal.close();
                 }
 
                 if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.CAMERA_DEVICE_READY) {
