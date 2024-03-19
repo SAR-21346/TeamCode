@@ -18,49 +18,52 @@ public class MeepMeepTesting {
                 .setConstraints(40, 80, 5.02, 3.17, 20.5)
                 .setColorScheme(new ColorSchemeBlueDark())
                 .followTrajectorySequence(drive -> {
-                            return drive.trajectorySequenceBuilder(redFrontStart)
-                                    .addTemporalMarker(() -> {/**/})
-                                    .addTemporalMarker(() -> {/**/})
-                                    .lineTo(new Vector2d(15, -53))
+                            return drive.trajectorySequenceBuilder(blueFrontStart)
+                                    .addTemporalMarker(() -> {/**/}) // close claw
+                                    .addTemporalMarker(() -> {/**/}) // target = 0
+                                    .lineTo(new Vector2d(18, 53))
                                     .waitSeconds(0.25)
-                                    .lineTo(new Vector2d(30, -36))
-                                    .splineToConstantHeading(new Vector2d(19, -23), Math.toRadians(180))
-                                    .waitSeconds(0.3)
-                                    .addTemporalMarker(() -> {/**/})
+                                    //.setVelConstraint(bot.odometry.SLOW_VEL_CONSTRAINT)
+                                    .lineTo(new Vector2d(14, 40))
+                                    .splineToConstantHeading(new Vector2d(23, 35), Math.toRadians(0))
+                                    .waitSeconds(0.5)
+                                    .addTemporalMarker(() -> {/**/}) // open claw
                                     .back(4)
-                                    .addTemporalMarker(() -> {/**/})
-                                    .waitSeconds(0.3)
-                                    .back(8)
+                                    .addTemporalMarker(() -> {/**/}) // close claw
+                                    .waitSeconds(0.5)
+                                    .UNSTABLE_addDisplacementMarkerOffset(15, () -> {{/**/}})
+                                    .back(6)
                                     //.setConstraints(bot.odometry.SHAKE_VEL_CONSTRAINT, bot.odometry.SHAKE_ACCEL_CONSTRAINT)
                                     .forward(4)
+                                    .waitSeconds(0.5)
                                     .resetConstraints()
-                                    .UNSTABLE_addDisplacementMarkerOffset(6, () -> {/**/})
-                                    .lineToSplineHeading(new Pose2d(52, -29, Math.toRadians(180)))
+                                    .lineTo(new Vector2d(24, 52))
+                                    .splineToSplineHeading(new Pose2d(52, 37, Math.toRadians(180)), Math.toRadians(0))
+                                    .addTemporalMarker(() -> {/**/}) // open claw
                                     .waitSeconds(0.5)
-                                    .addTemporalMarker(() -> {/**/})
+                                    .addTemporalMarker(() -> {{/**/};}) // target = 80
+                                    .addTemporalMarker(() -> {/**/}) // close claw
+                                    .UNSTABLE_addTemporalMarkerOffset(0.8, () -> {/**/}) // target = 40
+                                    .UNSTABLE_addTemporalMarkerOffset(1.2, () -> {/**/}) // target = 0
+                                    .lineTo(new Vector2d(34, 18))
+                                    .addTemporalMarker(() -> {/**/}) // open claw
+                                    .addTemporalMarker(() -> {/**/}) // intake on
+                                    .lineTo(new Vector2d(-59, 8))
+                                    .addTemporalMarker(() -> {/**/}) // intake off
+                                    .addTemporalMarker(() -> {/**/}) // close claw
+                                    .lineTo(new Vector2d(24, 12))
+                                    .addTemporalMarker(() -> {/**/}) // arm up
+                                    .splineToConstantHeading(new Vector2d(52, 37), Math.toRadians(0))
                                     .waitSeconds(0.5)
-                                    .addTemporalMarker(() -> {/**/})
-                                    .addTemporalMarker(() -> {/**/})
-                                    .UNSTABLE_addTemporalMarkerOffset(0.8, () -> {/**/})
-                                    .UNSTABLE_addTemporalMarkerOffset(1.2, () -> {/**/})
-                                    .lineTo(new Vector2d(34, -18))
-                                    .addTemporalMarker(() -> {/**/})
-                                    .addTemporalMarker(() -> {/**/})
-                                    .lineTo(new Vector2d(-59, -14))
+                                    .addTemporalMarker(() -> {/**/}) // open claw
                                     .waitSeconds(0.5)
-                                    .addTemporalMarker(() -> {/**/})
-                                    .addTemporalMarker(() -> {/**/})
-                                    .lineTo(new Vector2d(24, -12))
-                                    .splineToConstantHeading(new Vector2d(52, -37), Math.toRadians(0))
+                                    .addTemporalMarker(() -> {/**/}) // target = 80
+                                    .addTemporalMarker(() -> {/**/}) // close claw
                                     .waitSeconds(0.5)
-                                    .addTemporalMarker(() -> {/**/})
-                                    .waitSeconds(0.5)
-                                    .addTemporalMarker(() -> {{/**/}})
-                                    .addTemporalMarker(() -> {/**/})
-                                    .UNSTABLE_addTemporalMarkerOffset(0.8, () -> {/**/})
-                                    .UNSTABLE_addTemporalMarkerOffset(1.2, () -> {/**/})
-                                    .forward(5)
-                                    .splineToConstantHeading(new Vector2d(60, -60), Math.toRadians(0))
+                                    .UNSTABLE_addTemporalMarkerOffset(0.8, () -> {/**/}) // target = 40
+                                    .UNSTABLE_addTemporalMarkerOffset(1.2, () -> {/**/}) // target = 0
+                                    .lineTo(new Vector2d(36, 45))
+                                    .splineToConstantHeading(new Vector2d(60, 60), Math.toRadians(0))
                                     .build();
                         }
                 );
