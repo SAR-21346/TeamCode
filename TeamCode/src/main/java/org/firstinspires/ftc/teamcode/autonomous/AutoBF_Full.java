@@ -64,10 +64,10 @@ public class AutoBF_Full extends LinearOpMode {
                 .addTemporalMarker(() -> bot.closeClaw())
                 .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40)
                 .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0)
-                .lineTo(new Vector2d(36, 45))
-                .splineToConstantHeading(new Vector2d(60, 60), Math.toRadians(0))
-//                .lineTo(new Vector2d(38, 18))
-//                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0))
+                .lineTo(new Vector2d(36, 45)) // wall side
+                .splineToConstantHeading(new Vector2d(60, 60), Math.toRadians(0)) //wall side
+//                .lineTo(new Vector2d(42, 10)) // center side
+//                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0)) //center side
                 .build();
         TrajectorySequence BFdriveToLSpike_2White = bot.odometry.trajectorySequenceBuilder(findBlueFProp.end())
                 .addTemporalMarker(() -> bot.closeClaw()) // close claw
@@ -110,8 +110,10 @@ public class AutoBF_Full extends LinearOpMode {
                 .waitSeconds(0.5)
                 .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40) // target = 40
                 .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0) // target = 0
-                .lineTo(new Vector2d(36, 45))
-                .splineToConstantHeading(new Vector2d(60, 60), Math.toRadians(0))
+                .lineTo(new Vector2d(36, 45)) // wall side
+                .splineToConstantHeading(new Vector2d(60, 60), Math.toRadians(0)) //wall side
+//                .lineTo(new Vector2d(42, 10)) // center side
+//                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0)) //center side
                 .build();
 
         TrajectorySequence BFdriveToCSpike = bot.odometry.trajectorySequenceBuilder(findBlueFProp.end())
@@ -139,10 +141,10 @@ public class AutoBF_Full extends LinearOpMode {
                 .waitSeconds(0.5)
                 .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40)
                 .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0)
-                .lineTo(new Vector2d(36, 45))
-                .splineToConstantHeading(new Vector2d(60, 60), Math.toRadians(0))
-//                .lineTo(new Vector2d(42, 10))
-//                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0))
+                .lineTo(new Vector2d(36, 45)) // wall side
+                .splineToConstantHeading(new Vector2d(60, 60), Math.toRadians(0)) //wall side
+//                .lineTo(new Vector2d(42, 10)) // center side
+//                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0)) //center side
                 .build();
 
         TrajectorySequence BFdriveToRSpike = bot.odometry.trajectorySequenceBuilder(findBlueFProp.end())

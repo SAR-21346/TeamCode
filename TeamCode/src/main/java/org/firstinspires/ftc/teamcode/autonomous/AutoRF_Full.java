@@ -65,8 +65,10 @@ public class AutoRF_Full extends LinearOpMode {
                 .waitSeconds(0.4)
                 .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40)
                 .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0)
-                .lineTo(new Vector2d(38, -18))
-                .splineToConstantHeading(new Vector2d(60, -5), Math.toRadians(0))
+                //                .lineTo(new Vector2d(36, 45)) // wall side
+//                .splineToConstantHeading(new Vector2d(60, -60), Math.toRadians(0)) //wall side
+                .lineTo(new Vector2d(42, 10)) // center side
+                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0)) //center side
                 .build();
 
         TrajectorySequence RFdriveToRSpike_2White = bot.odometry.trajectorySequenceBuilder(findRedFProp.end())
@@ -116,8 +118,10 @@ public class AutoRF_Full extends LinearOpMode {
                 .waitSeconds(0.4)
                 .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 80)
                 .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 40)
-                .forward(5)
-                .splineToConstantHeading(new Vector2d(60, -60), Math.toRadians(0))
+                //                .lineTo(new Vector2d(36, 45)) // wall side
+//                .splineToConstantHeading(new Vector2d(60, -60), Math.toRadians(0)) //wall side
+                .lineTo(new Vector2d(42, 10)) // center side
+                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0)) //center side
                 .build();
 
         TrajectorySequence RFdriveToCSpike = bot.odometry.trajectorySequenceBuilder(findRedFProp.end())
@@ -145,8 +149,10 @@ public class AutoRF_Full extends LinearOpMode {
                 .waitSeconds(1)
                 .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40)
                 .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0)
-                .lineTo(new Vector2d(34, -18))
-                .splineToConstantHeading(new Vector2d(60, -5), Math.toRadians(0))
+                //                .lineTo(new Vector2d(36, 45)) // wall side
+//                .splineToConstantHeading(new Vector2d(60, -60), Math.toRadians(0)) //wall side
+                .lineTo(new Vector2d(42, 10)) // center side
+                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0)) //center side
                 .build();
 
         TrajectorySequence RFdriveToCSpike_2White = bot.odometry.trajectorySequenceBuilder(findRedFProp.end())
@@ -221,8 +227,10 @@ public class AutoRF_Full extends LinearOpMode {
                 .waitSeconds(.5)
                 .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40)
                 .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0)
-                .lineTo(new Vector2d(34, -18))
-                .splineToConstantHeading(new Vector2d(60, -5), Math.toRadians(0))
+                //                .lineTo(new Vector2d(36, 45)) // wall side
+//                .splineToConstantHeading(new Vector2d(60, -60), Math.toRadians(0)) //wall side
+                .lineTo(new Vector2d(42, 10)) // center side
+                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0)) //center side
                 .build();
 
         TrajectorySequence RFdriveToLSpike_2White = bot.odometry.trajectorySequenceBuilder(findRedFProp.end())
@@ -273,7 +281,10 @@ public class AutoRF_Full extends LinearOpMode {
                 .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40)
                 .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0)
                 .forward(5)
-                .splineToConstantHeading(new Vector2d(60, -60), Math.toRadians(0))
+//                .lineTo(new Vector2d(36, 45)) // wall side
+//                .splineToConstantHeading(new Vector2d(60, -60), Math.toRadians(0)) //wall side
+                .lineTo(new Vector2d(42, 10)) // center side
+                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0)) //center side
                 .build();
         bot.arm_start = bot.outMotor.getCurrentPosition();
         bot.initEocvRed(hardwareMap);

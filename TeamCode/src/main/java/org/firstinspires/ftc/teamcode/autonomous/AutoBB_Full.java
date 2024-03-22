@@ -70,8 +70,10 @@ public class AutoBB_Full extends LinearOpMode {
                 .waitSeconds(1)
                 .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40)
                 .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0)
-                .lineTo(new Vector2d(36, 45))
-                .splineToConstantHeading(new Vector2d(60, 60), Math.toRadians(0))
+                .lineTo(new Vector2d(36, 45)) // wall side
+                .splineToConstantHeading(new Vector2d(60, 60), Math.toRadians(0)) //wall side
+//                .lineTo(new Vector2d(42, 10)) // center side
+//                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0)) //center side
                 .build();
 
         TrajectorySequence BBdriveToCSpike = bot.odometry.trajectorySequenceBuilder(findBlueBProp.end())
@@ -106,8 +108,10 @@ public class AutoBB_Full extends LinearOpMode {
                 .waitSeconds(1)
                 .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40)
                 .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0)
-                .lineTo(new Vector2d(36, 45))
-                .splineToConstantHeading(new Vector2d(60, 60), Math.toRadians(0))
+                .lineTo(new Vector2d(36, 45)) // wall side
+                .splineToConstantHeading(new Vector2d(60, 60), Math.toRadians(0)) //wall side
+//                .lineTo(new Vector2d(42, 10)) // center side
+//                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0)) //center side
                 .build();
 
         TrajectorySequence BBdriveToRSpike = bot.odometry.trajectorySequenceBuilder(findBlueBProp.end())
@@ -142,8 +146,10 @@ public class AutoBB_Full extends LinearOpMode {
                 .waitSeconds(1)
                 .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40)
                 .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0)
-                .lineTo(new Vector2d(36,45))
-                .splineToConstantHeading(new Vector2d(60, 60), Math.toRadians(0))
+                .lineTo(new Vector2d(36, 45)) // wall side
+                .splineToConstantHeading(new Vector2d(60, 60), Math.toRadians(0)) //wall side
+//                .lineTo(new Vector2d(42, 10)) // center side
+//                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0)) //center side
                 .build();
 
         bot.initEocvBlue(hardwareMap);
