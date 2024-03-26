@@ -53,7 +53,7 @@ public class AutoRB_Full extends LinearOpMode {
                 .waitSeconds(0.5)
                 .back(8)
                 .lineTo(new Vector2d(-40, -55))
-                .UNSTABLE_addDisplacementMarkerOffset(81, () -> bot.target = 140)
+                .UNSTABLE_addDisplacementMarkerOffset(81, () -> bot.target = 132)
                 .lineTo(new Vector2d(14, -55))
                 .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
                 .forward(6)
@@ -71,8 +71,10 @@ public class AutoRB_Full extends LinearOpMode {
                 .waitSeconds(1)
                 .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40)
                 .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0)
-                .lineTo(new Vector2d(36, -45))
-                .splineToConstantHeading(new Vector2d(60, -60), Math.toRadians(0))
+                .lineTo(new Vector2d(36, 45)) // wall side
+                .splineToConstantHeading(new Vector2d(60, -60), Math.toRadians(0)) //wall side
+//                .lineTo(new Vector2d(42, 10)) // center side
+//                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0)) //center side
                 .build();
 
         TrajectorySequence RBdriveToCSpike = bot.odometry.trajectorySequenceBuilder(startPose)
@@ -91,7 +93,7 @@ public class AutoRB_Full extends LinearOpMode {
                 .back(8)
                 .lineTo(new Vector2d(-40, -55))
                 .turn(Math.toRadians(-45))
-                .UNSTABLE_addDisplacementMarkerOffset(81, () -> bot.target = 140)
+                .UNSTABLE_addDisplacementMarkerOffset(81, () -> bot.target = 132)
                 .lineTo(new Vector2d(14, -55))
                 .waitSeconds(0.5)
                 .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
@@ -108,8 +110,10 @@ public class AutoRB_Full extends LinearOpMode {
                 .waitSeconds(1)
                 .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40)
                 .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0)
-                .lineTo(new Vector2d(36, -45))
-                .splineToConstantHeading(new Vector2d(60, -60), Math.toRadians(0))
+                .lineTo(new Vector2d(36, 45)) // wall side
+                .splineToConstantHeading(new Vector2d(60, -60), Math.toRadians(0)) //wall side
+//                .lineTo(new Vector2d(42, 10)) // center side
+//                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0)) //center side
                 .build();
 
         TrajectorySequence RBdriveToRSpike = bot.odometry.trajectorySequenceBuilder(startPose)
@@ -118,8 +122,8 @@ public class AutoRB_Full extends LinearOpMode {
                 .setVelConstraint(bot.odometry.SLOW_VEL_CONSTRAINT)
                 .lineTo(new Vector2d(-40, -55))
                 .waitSeconds(0.5)
-                .lineToSplineHeading(new Pose2d(-43, -40, Math.toRadians(0)))
-                .splineToConstantHeading(new Vector2d(-28, -34), Math.toRadians(0))
+                .lineToSplineHeading(new Pose2d(-43, -37, Math.toRadians(0)))
+                .splineToConstantHeading(new Vector2d(-30, -29), Math.toRadians(0))
                 .addTemporalMarker(() -> bot.openClaw())
                 .waitSeconds(0.5)
                 .back(5)
@@ -127,7 +131,7 @@ public class AutoRB_Full extends LinearOpMode {
                 .waitSeconds(0.5)
                 .back(8)
                 .lineTo(new Vector2d(-40, -55))
-                .UNSTABLE_addDisplacementMarkerOffset(81, () -> bot.target = 140)
+                .UNSTABLE_addDisplacementMarkerOffset(81, () -> bot.target = 132)
                 .lineTo(new Vector2d(14, -55))
                 .waitSeconds(0.5)
                 .setAccelConstraint(bot.odometry.SHAKE_ACCEL_CONSTRAINT)
@@ -143,10 +147,12 @@ public class AutoRB_Full extends LinearOpMode {
                 })
                 .addTemporalMarker(() -> bot.closeClaw())
                 .waitSeconds(1)
-                .lineTo(new Vector2d(36, -45))
                 .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40)
                 .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0)
-                .splineToConstantHeading(new Vector2d(60, -60), Math.toRadians(0))
+                .lineTo(new Vector2d(36, 45)) // wall side
+                .splineToConstantHeading(new Vector2d(60, -60), Math.toRadians(0)) //wall side
+//                .lineTo(new Vector2d(42, 10)) // center side
+//                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0)) //center side
                 .build();
 
         bot.initEocvRed(hardwareMap);
@@ -176,9 +182,6 @@ public class AutoRB_Full extends LinearOpMode {
                         break;
                     } else {
                         spikeLoc = SPIKE_LOC.RIGHT;
-                        if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
-                            bot.visionPortal.close();
-                        }
                     }
                     telemetry.addData("x", bot.pipelineRed.centerX);
                     sleep(20);

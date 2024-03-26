@@ -4,7 +4,6 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -65,8 +64,56 @@ public class AutoBF_Full extends LinearOpMode {
                 .addTemporalMarker(() -> bot.closeClaw())
                 .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40)
                 .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0)
-                .lineTo(new Vector2d(38, 18))
-                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0))
+                .lineTo(new Vector2d(36, 45)) // wall side
+                .splineToConstantHeading(new Vector2d(60, 60), Math.toRadians(0)) //wall side
+//                .lineTo(new Vector2d(42, 10)) // center side
+//                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0)) //center side
+                .build();
+        TrajectorySequence BFdriveToLSpike_2White = bot.odometry.trajectorySequenceBuilder(findBlueFProp.end())
+                .addTemporalMarker(() -> bot.closeClaw()) // close claw
+                .addTemporalMarker(() -> bot.target = 0) // target = 0
+                .lineTo(new Vector2d(14, 40))
+                .splineToConstantHeading(new Vector2d(23, 35), Math.toRadians(0))
+                .waitSeconds(0.5)
+                .addTemporalMarker(() -> bot.openClaw()) // open claw
+                .back(4)
+                .addTemporalMarker(() -> bot.closeClaw()) // close claw
+                .waitSeconds(0.5)
+                .UNSTABLE_addDisplacementMarkerOffset(15, () -> bot.target = 140)
+                .back(6)
+                .setConstraints(bot.odometry.SHAKE_VEL_CONSTRAINT, bot.odometry.SHAKE_ACCEL_CONSTRAINT)
+                .forward(4)
+                .waitSeconds(0.5)
+                .resetConstraints()
+                .lineTo(new Vector2d(24, 52))
+                .splineToSplineHeading(new Pose2d(52, 37, Math.toRadians(180)), Math.toRadians(0))
+                .addTemporalMarker(() -> bot.openClaw()) // open claw
+                .waitSeconds(0.5)
+                .addTemporalMarker(() -> bot.target = 80) // target = 80
+                .addTemporalMarker(() -> bot.closeClaw()) // close claw
+                .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40) // target = 40
+                .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0) // target = 0
+                .lineTo(new Vector2d(34, 18))
+                .addTemporalMarker(() -> bot.openClaw()) // open claw
+                .addTemporalMarker(() -> bot.runIntake(0.3)) // intake on
+                .lineTo(new Vector2d(-59, 8))
+                .addTemporalMarker(() -> bot.runIntake(0)) // intake off
+                .addTemporalMarker(() -> bot.closeClaw()) // close claw
+                .lineTo(new Vector2d(24, 12))
+                .addTemporalMarker(() -> bot.target = 140) // arm up
+                .splineToConstantHeading(new Vector2d(52, 37), Math.toRadians(0))
+                .waitSeconds(0.5)
+                .addTemporalMarker(() -> bot.openClaw()) // open claw
+                .waitSeconds(0.5)
+                .addTemporalMarker(() -> bot.target = 80) // target = 80
+                .addTemporalMarker(() -> bot.closeClaw()) // close claw
+                .waitSeconds(0.5)
+                .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40) // target = 40
+                .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0) // target = 0
+                .lineTo(new Vector2d(36, 45)) // wall side
+                .splineToConstantHeading(new Vector2d(60, 60), Math.toRadians(0)) //wall side
+//                .lineTo(new Vector2d(42, 10)) // center side
+//                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0)) //center side
                 .build();
 
         TrajectorySequence BFdriveToCSpike = bot.odometry.trajectorySequenceBuilder(findBlueFProp.end())
@@ -94,8 +141,10 @@ public class AutoBF_Full extends LinearOpMode {
                 .waitSeconds(0.5)
                 .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40)
                 .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0)
-                .lineTo(new Vector2d(42, 10))
-                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0))
+                .lineTo(new Vector2d(36, 45)) // wall side
+                .splineToConstantHeading(new Vector2d(60, 60), Math.toRadians(0)) //wall side
+//                .lineTo(new Vector2d(42, 10)) // center side
+//                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0)) //center side
                 .build();
 
         TrajectorySequence BFdriveToRSpike = bot.odometry.trajectorySequenceBuilder(findBlueFProp.end())
@@ -127,8 +176,10 @@ public class AutoBF_Full extends LinearOpMode {
                 .waitSeconds(.5)
                 .UNSTABLE_addTemporalMarkerOffset(0.8, () -> bot.target = 40)
                 .UNSTABLE_addTemporalMarkerOffset(1.2, () -> bot.target = 0)
-                .lineTo(new Vector2d(34, 18))
-                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0))
+                .lineTo(new Vector2d(36, 45))
+                .splineToConstantHeading(new Vector2d(60, 60), Math.toRadians(0))
+//                .lineTo(new Vector2d(34, 18))
+//                .splineToConstantHeading(new Vector2d(60, 5), Math.toRadians(0))
                 .build();
 
         bot.initEocvBlue(hardwareMap);
@@ -162,9 +213,6 @@ public class AutoBF_Full extends LinearOpMode {
                     } else {
                         spikeLoc = SPIKE_LOC.RIGHT;
                         telemetry.addData("x", bot.pipeline.centerX);
-                        if (bot.visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
-                            bot.visionPortal.close();
-                        }
                     }
                     sleep(20);
                 }
