@@ -30,9 +30,6 @@
 package org.firstinspires.ftc.teamcode;
 
 
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.GEAR_RATIO;
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.WHEEL_RADIUS;
-
 import android.util.Size;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -46,7 +43,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.opencv.BluePropPipeline;
 import org.firstinspires.ftc.teamcode.opencv.RedPropPipeline;
 import org.firstinspires.ftc.vision.VisionPortal;
@@ -74,7 +70,7 @@ public class MecanumTrain{
     public Servo drone;
 
     // Odometry helper class
-    public SampleMecanumDrive odometry;
+    //public SampleMecanumDrive odometry;
 
     // Camera
     public TfodProcessor tfod;
@@ -86,8 +82,8 @@ public class MecanumTrain{
 
     // Motor Info
     static final double COUNTS_PER_REV = 537.6;
-    static final double COUNTS_PER_INCH = (COUNTS_PER_REV * GEAR_RATIO) /
-            (2 * WHEEL_RADIUS * Math.PI);
+//    static final double COUNTS_PER_INCH = (COUNTS_PER_REV * GEAR_RATIO) /
+//            (2 * WHEEL_RADIUS * Math.PI);
     public static int target = 0;
 
     private PIDController controllerArm;
@@ -118,7 +114,7 @@ public class MecanumTrain{
         hwMap = hwMapX; // saves reference to hwMap
 
         // Odometry
-        odometry = new SampleMecanumDrive(hwMap);
+//        odometry = new SampleMecanumDrive(hwMap);
 
         // Drive Motors
         leftFrontDrive = hwMap.get(DcMotorEx.class, "FLdrive");
