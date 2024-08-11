@@ -24,17 +24,19 @@ public class TeleOpMain extends LinearOpMode{
 
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
 
+        // TODO: Set aux motor modes
+        /*
         bot.leftSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         bot.rightSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         bot.arm_start = bot.outMotor.getCurrentPosition();
         bot.liftL_start = bot.leftSlide.getCurrentPosition();
         bot.liftR_start = bot.rightSlide.getCurrentPosition();
-
+        */
         double intakePower = 0.0;
         int liftPos = 0;
         double servoPos = 0.3;
-        bot.target = 0;
+        // bot.target = 0;
 
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");
@@ -67,6 +69,7 @@ public class TeleOpMain extends LinearOpMode{
                 liftPos = 0;
             }
 
+            /*
             if(gamepad2.left_trigger > 0){
                 float decreaseFlip = gamepad2.left_trigger;
                 if (bot.target >= 50 && bot.target <=165) {
@@ -100,7 +103,7 @@ public class TeleOpMain extends LinearOpMode{
                 bot.openClaw();
                 intakePower = 0.3;
             }
-
+            */
 
 
             // calculate motor powers
@@ -116,22 +119,22 @@ public class TeleOpMain extends LinearOpMode{
             }
 
 
-
-            bot.runIntake(intakePower);
-            bot.runLift(liftPos);
-            bot.updateArmPID(bot.outMotor.getCurrentPosition());
+//
+//            bot.runIntake(intakePower);
+//            bot.runLift(liftPos);
+//            bot.updateArmPID(bot.outMotor.getCurrentPosition());
 
             telemetry.addLine("ENCODER:");
             telemetry.addData("leftPos", bot.leftFrontDrive.getCurrentPosition());
             telemetry.addData("rightPos", bot.rightFrontDrive.getCurrentPosition());
-            telemetry.addData("frontPos", bot.spinTake.getCurrentPosition());
-            //bot.runOuttake(outPower);
-            telemetry.addData("ArmPos: ", bot.outMotor.getCurrentPosition());
-            telemetry.addData("target: ", bot.target);
-            telemetry.addLine();
-            telemetry.addData("Servo: ", bot.drone.getPosition());
-            telemetry.addData("Left Slide Pos: ", bot.leftSlide.getCurrentPosition());
-            telemetry.addData("Right Slide Pos: ", bot.rightSlide.getCurrentPosition());
+//            telemetry.addData("frontPos", bot.spinTake.getCurrentPosition());
+//            //bot.runOuttake(outPower);
+//            telemetry.addData("ArmPos: ", bot.outMotor.getCurrentPosition());
+//            telemetry.addData("target: ", bot.target);
+//            telemetry.addLine();
+//            telemetry.addData("Servo: ", bot.drone.getPosition());
+//            telemetry.addData("Left Slide Pos: ", bot.leftSlide.getCurrentPosition());
+//            telemetry.addData("Right Slide Pos: ", bot.rightSlide.getCurrentPosition());
             telemetry.addLine();
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", motorPowers[0], motorPowers[2]);
