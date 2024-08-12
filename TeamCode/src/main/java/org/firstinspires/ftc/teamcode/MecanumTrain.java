@@ -28,7 +28,6 @@
  */
 
 package org.firstinspires.ftc.teamcode;
-
 import android.util.Size;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -82,6 +81,7 @@ public class MecanumTrain{
     // TODO: Configure motor constants for both types of motors we use
     // Motor Constants
 
+
     // REV Motor Definitions
 /*
     static final double COUNTS_PER_REV = 537.6;
@@ -90,9 +90,10 @@ public class MecanumTrain{
 
      GoBilda Motor Definitions
     static final double COUNTS_PER_REV = 537.6;
-    static final double COUNTS_PER_INCH = (COUNTS_PER_REV * GEAR_RATIO) /
-            (2 * WHEEL_RADIUS * Math.PI);
-*/
+
+//    static final double COUNTS_PER_INCH = (COUNTS_PER_REV * GEAR_RATIO) /
+//            (2 * WHEEL_RADIUS * Math.PI);
+    public static int target = 0;
 
 //    public static int target = 0;
 
@@ -127,6 +128,7 @@ public class MecanumTrain{
 
         // TODO: Add Odometry
         // odometry = new SampleMecanumDrive(hwMap);
+
 
         // Drive Motors
         leftFrontDrive = hwMap.get(DcMotorEx.class, "FLdrive");
