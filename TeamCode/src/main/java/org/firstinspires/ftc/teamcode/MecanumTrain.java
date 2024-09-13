@@ -1,50 +1,11 @@
-/* Copyright (c) 2021 FIRST. All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided that
- * the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this list
- * of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice, this
- * list of conditions and the following disclaimer in the documentation and/or
- * other materials provided with the distribution.
- *
- * Neither the name of FIRST nor the names of its contributors may be used to endorse or
- * promote products derived from this software without specific prior written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
- * LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
 package org.firstinspires.ftc.teamcode;
-import android.util.Size;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.opencv.BluePropPipeline;
-import org.firstinspires.ftc.teamcode.opencv.RedPropPipeline;
-import org.firstinspires.ftc.vision.VisionPortal;
-import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 
 import java.util.Arrays;
 import java.util.List;
@@ -71,7 +32,6 @@ public class MecanumTrain{
     // TODO: Add Odometry, Vision, and other sensors
 
 //    // Camera
-//    public TfodProcessor tfod;
 //    public VisionPortal visionPortal;
 //    public BluePropPipeline pipeline;
 //    public RedPropPipeline pipelineRed;
@@ -101,9 +61,9 @@ public class MecanumTrain{
 //    private PIDController controllerArm;
 //    private PIDController controllerLift;
 //    public static double p = 0, i = 0, d = 0, f = 0;
-
+*/
     private List<DcMotorEx> motors;
-
+/*
     // TODO: Delete these constants if not used
     // Initial Motor Positions
     public double arm_start;
@@ -122,7 +82,7 @@ public class MecanumTrain{
     public static int liftR_speed = 450;
 
     public Gamepad.RumbleEffect rumbleEffect;
-
+*/
     public MecanumTrain(HardwareMap hwMapX, ElapsedTime runtime) {
         hwMap = hwMapX; // saves reference to hwMap
 
@@ -171,12 +131,12 @@ public class MecanumTrain{
         // controllerArm = new PIDController(p, i, d);
 
         // Gamepad Rumble Effect
-        rumbleEffect = new Gamepad.RumbleEffect.Builder()
-                .addStep(0.5, 0.5, 500)
-                .addStep(0.0,0.0, 300)
-                .addStep(1.0, 1.0, 500)
-                .addStep(0.0, 0.0, 1000)
-                .build();
+//        rumbleEffect = new Gamepad.RumbleEffect.Builder()
+//                .addStep(0.5, 0.5, 500)
+//                .addStep(0.0,0.0, 300)
+//                .addStep(1.0, 1.0, 500)
+//                .addStep(0.0, 0.0, 1000)
+//                .build();
         }
 
     // calculateMotorPowers(axial, lateral, yaw)
