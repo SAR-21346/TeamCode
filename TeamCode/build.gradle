@@ -23,7 +23,7 @@ android {
 
     packagingOptions {
         jniLibs {
-            pickFirsts += ['**/*.so']
+            pickFirsts += ['**/*.so', '**/*.so']
         }
         jniLibs.useLegacyPackaging true
     }
@@ -35,7 +35,6 @@ dependencies {
 
     //RoadRunner
     implementation "com.acmerobotics.dashboard:dashboard:0.4.14"
-    implementation 'com.fasterxml/jackson.core:jacson-databind:2.12.7'
     implementation 'org.apache.commons:commons-math3:3.6.1'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.7'
 
