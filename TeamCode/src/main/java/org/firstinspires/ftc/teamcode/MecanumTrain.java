@@ -1,142 +1,90 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.controller.PIDController;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
+import org.firstinspires.ftc.vision.VisionPortal;
 
 import java.util.Arrays;
 import java.util.List;
 
 @Config
 public class MecanumTrain{
-    // Drive Motors
+    HardwareMap hwMap = null; // saves HardwareMap reference to hwMap
+
+    // ----------------- Drive Motors -----------------
     public DcMotorEx leftFrontDrive;
     public DcMotorEx leftBackDrive;
     public DcMotorEx rightFrontDrive;
     public DcMotorEx rightBackDrive;
 
-      // TODO: Add extra motor definitions based on game
-//    // Auxiliary Motors
-//    public DcMotorEx leftSlide;
-//    public DcMotorEx rightSlide;
-//    public DcMotorEx spinTake;
-//    public DcMotorEx outMotor;
-//
-//    // Servos
-//    public Servo claw;
-//    public Servo drone;
+    private List<DcMotorEx> motors;
+
+    // ----------------- Auxillary Motors -----------------
+    public DcMotorEx verticalExtension;
+
+    // ----------------- Servos -----------------
+    public Servo intakePivot;
+    public CRServo intakeServo;
+    public Servo horizontalExtension;
 
     // TODO: Add Odometry, Vision, and other sensors
+    // ----------------- Camera -----------------
+    public VisionPortal visionPortal;
+    private WebcamName webcam1, webcam2;
 
-//    // Camera
-//    public VisionPortal visionPortal;
-//    public BluePropPipeline pipeline;
-//    public RedPropPipeline pipelineRed;
+    // ----------------- Odometry -----------------
+    private Follower follower;
 
-    HardwareMap hwMap = null; // saves HardwareMap reference to hwMap
-
-    // TODO: Configure motor constants for both types of motors we use
-    // Motor Constants
+    // ----------------- Sensors -----------------
 
 
-    // REV Motor Definitions
-/*
-    static final double COUNTS_PER_REV = 537.6;
-    static final double REV_COUNTS_PER_INCH = (REV_COUNTS_PER_REV * GEAR_RATIO) /
-            (2 * WHEEL_RADIUS * Math.PI);
+    // TODO: PID Controller definitions
+    private PIDController pidLift;
 
-     GoBilda Motor Definitions
-    static final double COUNTS_PER_REV = 537.6;
 
-//    static final double COUNTS_PER_INCH = (COUNTS_PER_REV * GEAR_RATIO) /
-//            (2 * WHEEL_RADIUS * Math.PI);
-    public static int target = 0;
-
-//    public static int target = 0;
-
-      // TODO: PID Controller definitions
-//    private PIDController controllerArm;
-//    private PIDController controllerLift;
-//    public static double p = 0, i = 0, d = 0, f = 0;
-*/
-    private List<DcMotorEx> motors;
-/*
-    // TODO: Delete these constants if not used
-    // Initial Motor Positions
-    public double arm_start;
-    public int liftL_start;
-    public int liftR_start;
-
-    // Claw and Drone Position Constants
-    public static double CLAW_OPEN = 0.20;
-    public static double CLAW_CLOSED = 0;
-
-    public static double DRONE_OPEN = 0;
-    public static double DRONE_CLOSED = .7;
-
-    // Lift Speeds
-    public static int liftL_speed = 450;
-    public static int liftR_speed = 450;
-
-    public Gamepad.RumbleEffect rumbleEffect;
-*/
     public MecanumTrain(HardwareMap hwMapX, ElapsedTime runtime) {
         hwMap = hwMapX; // saves reference to hwMap
 
         // TODO: Add Odometry
-        // odometry = new SampleMecanumDrive(hwMap);
+        follower = new Follower(hwMap);
 
-
-        // Drive Motors
+        // ----------------- Drive Motors -----------------
         leftFrontDrive = hwMap.get(DcMotorEx.class, "FLdrive");
-        leftBackDrive = hwMap.get(DcMotorEx.class, "BLdrive");
         rightFrontDrive = hwMap.get(DcMotorEx.class, "FRdrive");
+        leftBackDrive = hwMap.get(DcMotorEx.class, "BLdrive");
         rightBackDrive = hwMap.get(DcMotorEx.class, "BRdrive");
-/*
-        // TODO: Configure Auxiliary Motors
-        leftSlide = hwMap.get(DcMotorEx.class, "Lslide");
-        rightSlide = hwMap.get(DcMotorEx.class, "Rslide");
-        spinTake = hwMap.get(DcMotorEx.class, "Spintake");
-        outMotor = hwMap.get(DcMotorEx.class, "Outtake");
-*/
 
-        // TODO: Add Servos
-//        claw = hwMap.get(Servo.class, "claw");
-//        drone = hwMap.get(Servo.class, "drone");
-
-        // Motor List
         motors = Arrays.asList(leftFrontDrive, leftBackDrive, rightFrontDrive, rightBackDrive);
+
+        // ----------------- Auxillary Motors -----------------
+        verticalExtension = hwMap.get(DcMotorEx.class, "verticalExt");
+
+        // ----------------- Servos -----------------
+        intakePivot = hwMap.get(Servo.class, "intakePivot");
+        intakeServo = hwMap.get(CRServo.class, "intakeServo");
+        horizontalExtension = hwMap.get(Servo.class, "horizontalExt");
 
         // Set Modes for Motors
         setMotorsMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        // outMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Set directions for Motors
         leftBackDrive.setDirection(DcMotorSimple.Direction.REVERSE);
-//        leftSlide.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Set ZeroPowerBehavior for Motors
-        setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE); /*
-        leftSlide.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        rightSlide.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        outMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
-        leftSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-*/
         // TODO: Instantiate PID Controllers
-        // controllerArm = new PIDController(p, i, d);
-
-        // Gamepad Rumble Effect
-//        rumbleEffect = new Gamepad.RumbleEffect.Builder()
-//                .addStep(0.5, 0.5, 500)
-//                .addStep(0.0,0.0, 300)
-//                .addStep(1.0, 1.0, 500)
-//                .addStep(0.0, 0.0, 1000)
-//                .build();
+        // pidLift = new PIDController(p, i, d);
         }
 
     // calculateMotorPowers(axial, lateral, yaw)
@@ -186,10 +134,6 @@ public class MecanumTrain{
     }
 
 
-    public void openClaw() { claw.setPosition(CLAW_OPEN); }
-    public void closeClaw() { claw.setPosition(CLAW_CLOSED); }
-    public void openDrone() { drone.setPosition(DRONE_OPEN); }
-    public void closeDrone() { drone.setPosition(DRONE_CLOSED); }
 
     */
     // update()
@@ -220,21 +164,8 @@ public class MecanumTrain{
             motor.setZeroPowerBehavior(zpb);
         }
     }
-    /*
-    public void initTfodRed(HardwareMap hwMap) {
-        final String[] LABELS = {"RedProp1"};
-        tfod = new TfodProcessor.Builder()
-                .setModelFileName("/sdcard/FIRST/tflitemodels/RedProp1.tflite")
-                .setModelLabels(LABELS)
-                .build();
-        VisionPortal.Builder builder = new VisionPortal.Builder();
-        builder.setCamera(hwMap.get(WebcamName.class, "camera"));
-        builder.setCameraResolution(new Size(800, 448));
-        builder.addProcessor(tfod);
-        visionPortal = builder.build();
-        tfod.setMinResultConfidence(0.4f);
-    }
 
+    /*
     public void initEocvRed(HardwareMap hwMap) {
         pipelineRed = new RedPropPipeline();
         VisionPortal.Builder builder = new VisionPortal.Builder();
