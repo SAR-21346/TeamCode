@@ -1,13 +1,23 @@
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.teamcode.RobotConstants.EXTENSION_IN;
+import static org.firstinspires.ftc.teamcode.RobotConstants.EXTENSION_OUT;
+import static org.firstinspires.ftc.teamcode.RobotConstants.INTAKE_BACKWARD;
+import static org.firstinspires.ftc.teamcode.RobotConstants.INTAKE_FORWARD;
+import static org.firstinspires.ftc.teamcode.RobotConstants.INTAKE_OFF;
+import static org.firstinspires.ftc.teamcode.RobotConstants.PIVOT_IN;
+import static org.firstinspires.ftc.teamcode.RobotConstants.PIVOT_OUT;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -27,7 +37,7 @@ public class MecanumTrain{
     public DcMotorEx rightFrontDrive;
     public DcMotorEx rightBackDrive;
 
-    private List<DcMotorEx> motors;
+    private final List<DcMotorEx> motors;
 
     // ----------------- Auxillary Motors -----------------
     public DcMotorEx verticalExtension;
@@ -46,7 +56,9 @@ public class MecanumTrain{
     private Follower follower;
 
     // ----------------- Sensors -----------------
-
+    public ColorSensor intakeColor;
+    public TouchSensor verticalLimit; // change this in robot config
+    public TouchSensor horizontalLimit;
 
     // TODO: PID Controller definitions
     private PIDController pidLift;
@@ -73,6 +85,11 @@ public class MecanumTrain{
         intakePivot = hwMap.get(Servo.class, "intakePivot");
         intakeServo = hwMap.get(CRServo.class, "intakeServo");
         horizontalExtension = hwMap.get(Servo.class, "horizontalExt");
+
+        // ----------------- Sensors -----------------
+        intakeColor = hwMap.get(ColorSensor.class, "intakeColor");
+        horizontalLimit = hwMap.get(TouchSensor.class, "horizontalLimit");
+        verticalLimit = hwMap.get(TouchSensor.class, "verticalLimit");
 
         // Set Modes for Motors
         setMotorsMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -116,26 +133,36 @@ public class MecanumTrain{
 
     // TODO: Configure runner methods
     /*
-     runIntake(power)
-     power - double (power for spinTake)
+     runIntake(dir)
+     dir - forward, off, backward
+     passed in as a string
      */
-     // public void runIntake(double power) { spinTake.setPower(power); }
+     public void runIntake(String dir) {
+         if (dir == "forward") {
+             intakeServo.setPower(INTAKE_FORWARD);
+         } else if (dir == "off") {
+             intakeServo.setPower(INTAKE_OFF);
+         } else if (dir == "backward") {
+             intakeServo.setPower(INTAKE_BACKWARD);
+         }
+     }
 
-    // runLift(pos)
-    // pos - int (target position for leftSlide and rightSlide)
-    /*
-    public void runLift (int pos) {
-        leftSlide.setTargetPosition((pos + liftL_start)); // liftL_start is the initial position of the left slide
-        leftSlide.setVelocity(liftL_speed); // Was told to change speeds for the individual motors
-        leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION); // Allows motor to move via encoder
-        rightSlide.setTargetPosition(pos + liftR_start); // liftR_start is the initial position of the right slide
-        rightSlide.setVelocity(liftR_speed); // Was told to change speeds for the individual motors
-        rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION); // Allows motor to move via encoder
-    }
+     public void setHorizontalExtension(String dir) {
+         if (dir == "in") {
+             horizontalExtension.setPosition(EXTENSION_IN);
+         } else if (dir == "out") {
+             horizontalExtension.setPosition(EXTENSION_OUT);
+         }
+     }
 
+     public void setIntakePivot(String dir) {
+         if (dir == "in") {
+             intakePivot.setPosition(PIVOT_IN);
+         } else if (dir == "out") {
+             intakePivot.setPosition(PIVOT_OUT);
+         }
+     }
 
-
-    */
     // update()
     // Updates the telemetry with the current encoder values for the arm
     // Should be called in a loop
@@ -164,25 +191,4 @@ public class MecanumTrain{
             motor.setZeroPowerBehavior(zpb);
         }
     }
-
-    /*
-    public void initEocvRed(HardwareMap hwMap) {
-        pipelineRed = new RedPropPipeline();
-        VisionPortal.Builder builder = new VisionPortal.Builder();
-        builder.setCamera(hwMap.get(WebcamName.class, "camera"));
-        builder.setCameraResolution(new Size(800, 448));
-        builder.addProcessor(pipelineRed);
-        visionPortal = builder.build();
-    }
-
-    public void initEocvBlue(HardwareMap hwMap) {
-        pipeline = new BluePropPipeline();
-        VisionPortal.Builder builder = new VisionPortal.Builder();
-        builder.setCamera(hwMap.get(WebcamName.class, "camera"));
-        builder.setCameraResolution(new Size(800, 448));
-        builder.addProcessor(pipeline);
-        visionPortal = builder.build();
-    }
-    */
-
 }
