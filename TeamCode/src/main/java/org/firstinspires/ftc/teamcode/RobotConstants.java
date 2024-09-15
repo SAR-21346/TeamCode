@@ -18,5 +18,9 @@ public class RobotConstants {
     public static double INTAKE_FORWARD = 1;
     public static double INTAKE_BACKWARD = 0;
 
+    public static double EXTENSION_IN = 1;
+    public static double EXTENSION_OUT = 0;
 
+    public static double PIVOT_IN = 0;
+    public static double PIVOT_OUT = 1;
 }
