@@ -12,4 +12,11 @@ public class RobotConstants {
     
     // PID Constants
     public static double p_lift = 0, i_lift = 0, d_lift = 0, f_lift = 0;
+
+    // Servo Positions
+    public static double INTAKE_OFF = 0.5;
+    public static double INTAKE_FORWARD = 1;
+    public static double INTAKE_BACKWARD = 0;
+
+
 }
