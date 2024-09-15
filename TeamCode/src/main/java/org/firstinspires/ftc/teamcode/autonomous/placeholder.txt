@@ -1,1 +1,0 @@
-This is a file that allows for the org.firstinspires.ftc.teamcode.autonomous package to be created. This is a placeholder file and can be deleted.
