@@ -29,7 +29,7 @@ import java.util.List;
 
 @Config
 public class MecanumTrain{
-    HardwareMap hwMap = null; // saves HardwareMap reference to hwMap
+    HardwareMap hwMap; // saves HardwareMap reference to hwMap
 
     // ----------------- Drive Motors -----------------
     public DcMotorEx leftFrontDrive;
@@ -59,7 +59,8 @@ public class MecanumTrain{
     public ColorSensor intakeColor;
     public TouchSensor verticalLimit; // change this in robot config
     public TouchSensor horizontalLimit;
-
+//    public TouchSensor leftFrontTouch;
+//    public TouchSensor rightFrontTouch;
     // TODO: PID Controller definitions
     private PIDController pidLift;
 
@@ -90,6 +91,8 @@ public class MecanumTrain{
         intakeColor = hwMap.get(ColorSensor.class, "intakeColor");
         horizontalLimit = hwMap.get(TouchSensor.class, "horizontalLimit");
         verticalLimit = hwMap.get(TouchSensor.class, "verticalLimit");
+        // rightFrontTouch = hwMap.get(TouchSensor.class, "rightFrontTouch");
+        // leftFrontTouch = hwMap.get(TouchSensor.class, "leftFrontTouch");
 
         // Set Modes for Motors
         setMotorsMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -138,27 +141,27 @@ public class MecanumTrain{
      passed in as a string
      */
      public void runIntake(String dir) {
-         if (dir == "forward") {
+         if (dir.equals("forward")) {
              intakeServo.setPower(INTAKE_FORWARD);
-         } else if (dir == "off") {
+         } else if (dir.equals("off")) {
              intakeServo.setPower(INTAKE_OFF);
-         } else if (dir == "backward") {
+         } else if (dir.equals("backward")) {
              intakeServo.setPower(INTAKE_BACKWARD);
          }
      }
 
      public void setHorizontalExtension(String dir) {
-         if (dir == "in") {
+         if (dir.equals("in")) {
              horizontalExtension.setPosition(EXTENSION_IN);
-         } else if (dir == "out") {
+         } else if (dir.equals("out")) {
              horizontalExtension.setPosition(EXTENSION_OUT);
          }
      }
 
      public void setIntakePivot(String dir) {
-         if (dir == "in") {
+         if (dir.equals("in")) {
              intakePivot.setPosition(PIVOT_IN);
-         } else if (dir == "out") {
+         } else if (dir.equals("out")) {
              intakePivot.setPosition(PIVOT_OUT);
          }
      }
