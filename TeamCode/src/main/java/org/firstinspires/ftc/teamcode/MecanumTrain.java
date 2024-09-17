@@ -10,11 +10,13 @@ import static org.firstinspires.ftc.teamcode.RobotConstants.PIVOT_OUT;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
@@ -23,6 +25,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.Arrays;
 import java.util.List;
@@ -47,20 +50,21 @@ public class MecanumTrain{
     public CRServo intakeServo;
     public Servo horizontalExtension;
 
-    // TODO: Add Odometry, Vision, and other sensors
     // ----------------- Camera -----------------
     public VisionPortal visionPortal;
     private WebcamName webcam1, webcam2;
+    private AprilTagProcessor apriltag;
 
     // ----------------- Odometry -----------------
     private Follower follower;
 
     // ----------------- Sensors -----------------
     public ColorSensor intakeColor;
-    public TouchSensor verticalLimit; // change this in robot config
+    public TouchSensor verticalLimit; // TODO: change this in robot config
     public TouchSensor horizontalLimit;
-//    public TouchSensor leftFrontTouch;
-//    public TouchSensor rightFrontTouch;
+    public DistanceSensor leftFrontDist;
+    public DistanceSensor rightFrontDist;
+
     // TODO: PID Controller definitions
     private PIDController pidLift;
 
@@ -68,7 +72,6 @@ public class MecanumTrain{
     public MecanumTrain(HardwareMap hwMapX, ElapsedTime runtime) {
         hwMap = hwMapX; // saves reference to hwMap
 
-        // TODO: Add Odometry
         follower = new Follower(hwMap);
 
         // ----------------- Drive Motors -----------------
@@ -91,8 +94,8 @@ public class MecanumTrain{
         intakeColor = hwMap.get(ColorSensor.class, "intakeColor");
         horizontalLimit = hwMap.get(TouchSensor.class, "horizontalLimit");
         verticalLimit = hwMap.get(TouchSensor.class, "verticalLimit");
-        // rightFrontTouch = hwMap.get(TouchSensor.class, "rightFrontTouch");
-        // leftFrontTouch = hwMap.get(TouchSensor.class, "leftFrontTouch");
+        rightFrontDist = hwMap.get(DistanceSensor.class, "rightFrontDist");
+        leftFrontDist = hwMap.get(DistanceSensor.class, "leftFrontDist");
 
         // Set Modes for Motors
         setMotorsMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -102,6 +105,12 @@ public class MecanumTrain{
 
         // Set ZeroPowerBehavior for Motors
         setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+
+        // Set BulkCachingMode for all hubs - gets sensor reads faster
+        List<LynxModule> allHubs = hwMap.getAll(LynxModule.class);
+        for (LynxModule hub : allHubs) {
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+        }
 
         // TODO: Instantiate PID Controllers
         // pidLift = new PIDController(p, i, d);
@@ -127,20 +136,20 @@ public class MecanumTrain{
     // v1 - double (power for leftFrontDrive)
     // v2 - double (power for rightBackDrive)
     // v3 - double (power for rightFrontDrive)
-    public void setMotorPowers(double v, double v1, double v2, double v3) {
-        leftBackDrive.setPower(v2);
-        leftFrontDrive.setPower(v);
-        rightBackDrive.setPower(v3);
-        rightFrontDrive.setPower(v1);
+    public void setMotorPowers(double v, double v1, double v2, double v3, double speedMultiplier) {
+        leftBackDrive.setPower(v2 * speedMultiplier);
+        leftFrontDrive.setPower(v * speedMultiplier);
+        rightBackDrive.setPower(v3 * speedMultiplier);
+        rightFrontDrive.setPower(v1 * speedMultiplier);
     }
 
-    // TODO: Configure runner methods
+
     /*
      runIntake(dir)
      dir - forward, off, backward
      passed in as a string
      */
-     public void runIntake(String dir) {
+     public void setIntakeServo(String dir) {
          if (dir.equals("forward")) {
              intakeServo.setPower(INTAKE_FORWARD);
          } else if (dir.equals("off")) {
