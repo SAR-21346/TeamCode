@@ -13,6 +13,7 @@ import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_S
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -21,6 +22,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.RobotConstants.IntakeState;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 
+@TeleOp(name = "TeleOpFSMRed")
 public class TeleOpFSMRed extends OpMode {
     MecanumTrain bot;
 
@@ -121,6 +123,10 @@ public class TeleOpFSMRed extends OpMode {
         if (gamepad1.right_bumper) { bot.setMotorPowers(motorPowers[0], motorPowers[1], motorPowers[2], motorPowers[3], SPEED_MULTIPLIER); }
         else { bot.setMotorPowers(motorPowers[0], motorPowers[1], motorPowers[2], motorPowers[3], 1); }
 
-
+        telemetry.addData("distLeft", bot.leftFrontDist.getDistance(DistanceUnit.CM));
+        telemetry.addData("distRight", bot.rightFrontDist.getDistance(DistanceUnit.CM));
+        telemetry.addData("intakeColorRed", bot.intakeColor.red());
+        telemetry.addData("intakeColorBlue", bot.intakeColor.blue());
+        telemetry.addData("intakeColorAlpha", bot.intakeColor.alpha());
     }
 }

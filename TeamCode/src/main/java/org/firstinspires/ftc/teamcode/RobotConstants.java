@@ -27,7 +27,8 @@ public class RobotConstants {
         INTAKE_SAMPLE_IN,
         INTAKE_SAMPLE_OUT,
         INTAKE_RETRACT,
-        INTAKE_RELEASE;
+        INTAKE_RELEASE,
+        INTAKE_STOP;
     }
 
     public enum OuttakeState {
@@ -43,8 +44,8 @@ public class RobotConstants {
     public static final double INTAKE_FORWARD = 1;
     public static final double INTAKE_BACKWARD = 0;
 
-    public static final double EXTENSION_IN = 1;
-    public static final double EXTENSION_OUT = 0;
+    public static final double EXTENSION_IN = 0;
+    public static final double EXTENSION_OUT = 1;
 
     public static final double PIVOT_IN = 0;
     public static final double PIVOT_OUT = 1;
