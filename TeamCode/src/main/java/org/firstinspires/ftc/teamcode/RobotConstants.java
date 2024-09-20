@@ -40,9 +40,9 @@ public class RobotConstants {
 
 
     // Servo Positions
-    public static final double INTAKE_OFF = 0.5;
-    public static final double INTAKE_FORWARD = 1;
-    public static final double INTAKE_BACKWARD = 0;
+    public static final double INTAKE_OFF = 0;
+    public static final double INTAKE_FORWARD = -1;
+    public static final double INTAKE_BACKWARD = 1;
 
     public static final double EXTENSION_IN = 0;
     public static final double EXTENSION_OUT = 1;

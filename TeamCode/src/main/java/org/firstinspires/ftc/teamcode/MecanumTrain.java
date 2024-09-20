@@ -112,6 +112,8 @@ public class MecanumTrain{
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
+        intakeColor.enableLed(true);
+
         // TODO: Instantiate PID Controllers
         // pidLift = new PIDController(p, i, d);
         }

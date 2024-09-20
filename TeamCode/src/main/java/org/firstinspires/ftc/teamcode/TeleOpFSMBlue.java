@@ -15,7 +15,9 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -31,13 +33,12 @@ public class TeleOpFSMBlue extends OpMode {
     private Timer intakeTimer;
     private ElapsedTime opmodeTimer;
     private final double SPEED_MULTIPLIER = 0.50;
-    private int blueValue, redValue, alphaValue;
 
-    private boolean intakeDistCheck = true;
+    private boolean intakeDistCheck = false;
     private void intakeStateUpdate () {
         switch (intakeState) {
             case INTAKE_START:
-                if (intakeDistCheck && (bot.leftFrontDist.getDistance(DistanceUnit.CM) + bot.rightFrontDist.getDistance(DistanceUnit.CM)) / 2 < 0.6) {
+                if (intakeDistCheck && (bot.leftFrontDist.getDistance(DistanceUnit.CM) + bot.rightFrontDist.getDistance(DistanceUnit.CM)) / 2 < 15) {
                     setIntakeState(INTAKE_EXTEND);
                     intakeDistCheck = false;
                 }
@@ -52,15 +53,17 @@ public class TeleOpFSMBlue extends OpMode {
                 bot.setIntakePivot("out");
                 if (intakeTimer.getElapsedTimeSeconds() > 1.0) {
                     setIntakeState(INTAKE_SPIN);
-                    }
+                }
                 break;
             case INTAKE_FLIP_IN:
                 bot.setIntakePivot("in");
-                setIntakeState(INTAKE_RETRACT);
+                setIntakeState(INTAKE_RELEASE);
                 break;
             case INTAKE_SPIN:
                 bot.setIntakeServo("forward");
-                setIntakeState(INTAKE_SAMPLE_IN);
+                if(sampleDetected()) {
+                    setIntakeState(INTAKE_SAMPLE_IN);
+                }
                 break;
             case INTAKE_SAMPLE_IN:
                 bot.setIntakeServo("off");
@@ -68,19 +71,19 @@ public class TeleOpFSMBlue extends OpMode {
                 break;
             case INTAKE_SAMPLE_OUT:
                 bot.setIntakeServo("backward");
-                setIntakeState(INTAKE_SPIN);
+                if (sampleDetected()) {
+                    setIntakeState(INTAKE_SAMPLE_IN);
+                }
                 break;
             case INTAKE_RETRACT:
                 bot.setHorizontalExtension("in");
-                if (bot.horizontalLimit.isPressed()) {
+                while (bot.horizontalLimit.isPressed()) {
                     setIntakeState(INTAKE_FLIP_IN);
-                    setIntakeState(INTAKE_RELEASE);
                 }
                 break;
             case INTAKE_RELEASE:
-                bot.setIntakePivot("out");
+                bot.setIntakePivot("in");
                 setIntakeState(INTAKE_START);
-                intakeDistCheck = true;
                 break;
             case INTAKE_STOP:
                 bot.setIntakeServo("off");
@@ -98,12 +101,23 @@ public class TeleOpFSMBlue extends OpMode {
 
         int maxValue = Math.max(r, Math.max(g, b));
 
-        if (maxValue == b || maxValue == ((r+g)/2)) {
+        if (maxValue == b || r < ((g+b)/2)) {
             return INTAKE_RETRACT;
         } else if (maxValue == r) {
             return INTAKE_SAMPLE_OUT;
         }
         return INTAKE_SPIN;
+    }
+
+    private boolean sampleDetected() {
+        if (bot.intakeColor instanceof DistanceSensor) {
+            ColorSensor color = bot.intakeColor;
+            double distance = ((DistanceSensor) color).getDistance(DistanceUnit.MM);
+            if (distance < 30) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void setIntakeState (IntakeState iState) {
@@ -132,6 +146,11 @@ public class TeleOpFSMBlue extends OpMode {
 
         if (gamepad2.x) {
             setIntakeState(INTAKE_START);
+            intakeDistCheck = true;
+        }
+
+        if (gamepad2.dpad_down) {
+            setIntakeState(INTAKE_FLIP_OUT);
         }
 
         if (gamepad2.y) {
@@ -158,6 +177,7 @@ public class TeleOpFSMBlue extends OpMode {
         telemetry.addData("intakeColorRed", bot.intakeColor.red());
         telemetry.addData("intakeColorBlue", bot.intakeColor.blue());
         telemetry.addData("intakeColorGreen", bot.intakeColor.green());
+        telemetry.addData("horizontalLimit", bot.horizontalLimit.isPressed());
         telemetry.addData("current intake state", intakeState);
         telemetry.update();
     }
