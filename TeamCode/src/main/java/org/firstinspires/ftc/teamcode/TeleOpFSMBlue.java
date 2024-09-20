@@ -34,6 +34,75 @@ public class TeleOpFSMBlue extends OpMode {
     private ElapsedTime opmodeTimer;
     private final double SPEED_MULTIPLIER = 0.50;
 
+    @Override
+    public void init() {
+        intakeTimer = new Timer();
+        opmodeTimer = new ElapsedTime(); 
+
+        opmodeTimer.reset();
+
+        bot = new MecanumTrain(hardwareMap, opmodeTimer);
+        bot.verticalExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
+    }
+
+    @Override
+    public void start() {
+        bot.setIntakeServo("off");
+        bot.setIntakePivot("in");
+        bot.setHorizontalExtension("in");
+
+        opmodeTimer.reset();
+
+        intakeState = INTAKE_START;
+    }
+
+    @Override
+    public void loop() {
+        // -------------- INTAKE ----------------
+         intakeStateUpdate();
+
+        if (gamepad2.x) {
+            setIntakeState(INTAKE_START);
+            intakeDistCheck = true;
+        }
+
+        if (gamepad2.dpad_down) {
+            setIntakeState(INTAKE_FLIP_OUT);
+        }
+
+        if (gamepad2.y) {
+            setIntakeState(INTAKE_STOP);
+        }
+
+        // -------------- DRIVE ----------------
+        double gamepadLS_Y_adj = Math.abs(gamepad1.left_stick_y) < .10 ? 0 : gamepad1.left_stick_y;
+
+        double axial = -gamepadLS_Y_adj; // Note: pushing stick forward gives negative value
+        double lateral = gamepad1.left_stick_x;
+        double yaw = gamepad1.right_stick_x;
+
+        // calculate motor powers
+        double[] motorPowers = bot.calculateMotorPowers(axial, lateral, yaw);
+
+        if (gamepad1.right_bumper) { bot.setMotorPowers(motorPowers[0], motorPowers[1], motorPowers[2], motorPowers[3], SPEED_MULTIPLIER); }
+        else { bot.setMotorPowers(motorPowers[0], motorPowers[1], motorPowers[2], motorPowers[3], 1); }
+
+
+        // -------------- TELEMETRY ---------------
+        telemetry.addData("distLeft", bot.leftFrontDist.getDistance(DistanceUnit.CM));
+        telemetry.addData("distRight", bot.rightFrontDist.getDistance(DistanceUnit.CM));
+        telemetry.addData("intakeColorRed", bot.intakeColor.red());
+        telemetry.addData("intakeColorBlue", bot.intakeColor.blue());
+        telemetry.addData("intakeColorGreen", bot.intakeColor.green());
+        telemetry.addData("horizontalLimit", bot.horizontalLimit.isPressed());
+        telemetry.addData("current intake state", intakeState);
+        telemetry.update();
+    }
+
+
+
     private boolean intakeDistCheck = false;
     private void intakeStateUpdate () {
         switch (intakeState) {
@@ -101,7 +170,7 @@ public class TeleOpFSMBlue extends OpMode {
 
         int maxValue = Math.max(r, Math.max(g, b));
 
-        if (maxValue == b || r < ((g+b)/2)) {
+        if (maxValue == b || b < ((r+g)/2)) {
             return INTAKE_RETRACT;
         } else if (maxValue == r) {
             return INTAKE_SAMPLE_OUT;
@@ -124,71 +193,5 @@ public class TeleOpFSMBlue extends OpMode {
         intakeState = iState;
         intakeTimer.resetTimer();
         intakeStateUpdate();
-    }
-
-    @Override
-    public void init() {
-        intakeTimer = new Timer();
-        opmodeTimer = new ElapsedTime(); 
-
-        opmodeTimer.reset();
-
-        bot = new MecanumTrain(hardwareMap, opmodeTimer);
-        bot.verticalExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
-    }
-
-    @Override
-    public void loop() {
-        // -------------- INTAKE ----------------
-         intakeStateUpdate();
-
-        if (gamepad2.x) {
-            setIntakeState(INTAKE_START);
-            intakeDistCheck = true;
-        }
-
-        if (gamepad2.dpad_down) {
-            setIntakeState(INTAKE_FLIP_OUT);
-        }
-
-        if (gamepad2.y) {
-            setIntakeState(INTAKE_STOP);
-        }
-
-        // -------------- DRIVE ----------------
-        double gamepadLS_Y_adj = Math.abs(gamepad1.left_stick_y) < .10 ? 0 : gamepad1.left_stick_y;
-
-        double axial = -gamepadLS_Y_adj; // Note: pushing stick forward gives negative value
-        double lateral = gamepad1.left_stick_x;
-        double yaw = gamepad1.right_stick_x;
-
-        // calculate motor powers
-        double[] motorPowers = bot.calculateMotorPowers(axial, lateral, yaw);
-
-        if (gamepad1.right_bumper) { bot.setMotorPowers(motorPowers[0], motorPowers[1], motorPowers[2], motorPowers[3], SPEED_MULTIPLIER); }
-        else { bot.setMotorPowers(motorPowers[0], motorPowers[1], motorPowers[2], motorPowers[3], 1); }
-
-
-        // -------------- TELEMETRY ---------------
-        telemetry.addData("distLeft", bot.leftFrontDist.getDistance(DistanceUnit.CM));
-        telemetry.addData("distRight", bot.rightFrontDist.getDistance(DistanceUnit.CM));
-        telemetry.addData("intakeColorRed", bot.intakeColor.red());
-        telemetry.addData("intakeColorBlue", bot.intakeColor.blue());
-        telemetry.addData("intakeColorGreen", bot.intakeColor.green());
-        telemetry.addData("horizontalLimit", bot.horizontalLimit.isPressed());
-        telemetry.addData("current intake state", intakeState);
-        telemetry.update();
-    }
-
-    public void start() {
-        bot.setIntakeServo("off");
-        bot.setIntakePivot("in");
-        bot.setHorizontalExtension("in");
-
-        opmodeTimer.reset();
-
-        intakeState = INTAKE_START;
     }
 }

@@ -56,7 +56,7 @@ public class MecanumTrain{
     private AprilTagProcessor apriltag;
 
     // ----------------- Odometry -----------------
-    private Follower follower;
+    public Follower follower;
 
     // ----------------- Sensors -----------------
     public ColorSensor intakeColor;
