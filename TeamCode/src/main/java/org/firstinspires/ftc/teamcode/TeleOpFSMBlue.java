@@ -77,9 +77,9 @@ public class TeleOpFSMBlue extends OpMode {
         }
 
         // -------------- DRIVE ----------------
-        double gamepadLS_Y_adj = Math.abs(gamepad1.left_stick_y) < .10 ? 0 : gamepad1.left_stick_y;
 
-        double axial = -gamepadLS_Y_adj; // Note: pushing stick forward gives negative value
+
+        double axial = -gamepad1.left_stick_y;
         double lateral = gamepad1.left_stick_x;
         double yaw = gamepad1.right_stick_x;
 
@@ -98,6 +98,7 @@ public class TeleOpFSMBlue extends OpMode {
         telemetry.addData("intakeColorGreen", bot.intakeColor.green());
         telemetry.addData("horizontalLimit", bot.horizontalLimit.isPressed());
         telemetry.addData("current intake state", intakeState);
+
         telemetry.update();
     }
 
@@ -136,22 +137,27 @@ public class TeleOpFSMBlue extends OpMode {
                 break;
             case INTAKE_SAMPLE_IN:
                 bot.setIntakeServo("off");
-                setIntakeState(intakeColorCheck());
+                int r = bot.intakeColor.red(), g = bot.intakeColor.green(), b = bot.intakeColor.blue();
+                int maxValue = Math.max(r, Math.max(g, b));
+                if (sampleDetected() && maxValue == r){
+                    bot.setIntakeServo("backward");
+                }
                 break;
             case INTAKE_SAMPLE_OUT:
-                bot.setIntakeServo("backward");
+                bot.setIntakeServo("forward");
                 if (sampleDetected()) {
-                    setIntakeState(INTAKE_SAMPLE_IN);
+                    setIntakeState(intakeColorCheck());
                 }
                 break;
             case INTAKE_RETRACT:
                 bot.setHorizontalExtension("in");
-                while (bot.horizontalLimit.isPressed()) {
+                if (bot.horizontalLimit.isPressed()) {
                     setIntakeState(INTAKE_FLIP_IN);
                 }
                 break;
             case INTAKE_RELEASE:
                 bot.setIntakePivot("in");
+                bot.setIntakeServo("backward");
                 setIntakeState(INTAKE_START);
                 break;
             case INTAKE_STOP:
@@ -170,11 +176,13 @@ public class TeleOpFSMBlue extends OpMode {
 
         int maxValue = Math.max(r, Math.max(g, b));
 
-        if (maxValue == b || b < ((r+g)/2)) {
-            return INTAKE_RETRACT;
-        } else if (maxValue == r) {
+        if (maxValue == r) {
             return INTAKE_SAMPLE_OUT;
         }
+        if (maxValue == b || (r+g)/2 > b) {
+            return INTAKE_RETRACT;
+        }
+
         return INTAKE_SPIN;
     }
 
