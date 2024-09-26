@@ -115,7 +115,7 @@ public class TeleOpFSMBlue extends OpMode {
                 break;
             case INTAKE_EXTEND:
                 bot.setHorizontalExtension("out");
-                if (intakeTimer.getElapsedTimeSeconds() > 1.0) {
+                if (intakeTimer.getElapsedTimeSeconds() > 0.7) {
                     setIntakeState(INTAKE_FLIP_OUT);
                 }
                 break;
@@ -127,6 +127,10 @@ public class TeleOpFSMBlue extends OpMode {
                 break;
             case INTAKE_FLIP_IN:
                 bot.setIntakePivot("in");
+                intakeTimer.resetTimer();
+                if (bot.horizontalLimit.isPressed() && intakeTimer.getElapsedTimeSeconds() > 0.5) {
+                    bot.setIntakeServo("backward");
+                }
                 setIntakeState(INTAKE_RELEASE);
                 break;
             case INTAKE_SPIN:
@@ -139,9 +143,10 @@ public class TeleOpFSMBlue extends OpMode {
                 bot.setIntakeServo("off");
                 int r = bot.intakeColor.red(), g = bot.intakeColor.green(), b = bot.intakeColor.blue();
                 int maxValue = Math.max(r, Math.max(g, b));
-                if (sampleDetected() && maxValue == r){
+                if (sampleDetected() && maxValue == r) {
                     bot.setIntakeServo("backward");
                 }
+                setIntakeState(INTAKE_RETRACT);
                 break;
             case INTAKE_SAMPLE_OUT:
                 bot.setIntakeServo("forward");
@@ -151,7 +156,7 @@ public class TeleOpFSMBlue extends OpMode {
                 break;
             case INTAKE_RETRACT:
                 bot.setHorizontalExtension("in");
-                if (bot.horizontalLimit.isPressed()) {
+                if (intakeTimer.getElapsedTimeSeconds() > 0.8) {
                     setIntakeState(INTAKE_FLIP_IN);
                 }
                 break;

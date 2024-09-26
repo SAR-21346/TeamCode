@@ -6,6 +6,7 @@ import static org.firstinspires.ftc.teamcode.RobotConstants.INTAKE_BACKWARD;
 import static org.firstinspires.ftc.teamcode.RobotConstants.INTAKE_FORWARD;
 import static org.firstinspires.ftc.teamcode.RobotConstants.INTAKE_OFF;
 import static org.firstinspires.ftc.teamcode.RobotConstants.PIVOT_IN;
+import static org.firstinspires.ftc.teamcode.RobotConstants.PIVOT_MID;
 import static org.firstinspires.ftc.teamcode.RobotConstants.PIVOT_OUT;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -101,7 +102,7 @@ public class MecanumTrain{
         setMotorsMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // Set directions for Motors
-        leftBackDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightBackDrive.setDirection(DcMotorSimple.Direction.FORWARD);
 
         // Set ZeroPowerBehavior for Motors
         setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
@@ -126,10 +127,10 @@ public class MecanumTrain{
     public double[] calculateMotorPowers(double axial, double lateral, double yaw) {
         double[] motorPowers = new double[4];
         double multiplier = .55;
-        motorPowers[0] = (axial + lateral + yaw) * multiplier;
-        motorPowers[1] = (axial - lateral - yaw) * multiplier;
-        motorPowers[2] = (axial - lateral + yaw) * multiplier;
-        motorPowers[3] = (axial + lateral - yaw) * multiplier;
+        motorPowers[0] = (axial - lateral + yaw) * multiplier;
+        motorPowers[1] = (axial + lateral + yaw) * multiplier;
+        motorPowers[2] = (axial + lateral - yaw) * multiplier;
+        motorPowers[3] = (axial - lateral - yaw) * multiplier;
         return motorPowers;
     }
 
@@ -139,10 +140,10 @@ public class MecanumTrain{
     // v2 - double (power for rightBackDrive)
     // v3 - double (power for rightFrontDrive)
     public void setMotorPowers(double v, double v1, double v2, double v3, double speedMultiplier) {
-        leftBackDrive.setPower(v2 * speedMultiplier);
-        leftFrontDrive.setPower(v * speedMultiplier);
-        rightBackDrive.setPower(v3 * speedMultiplier);
-        rightFrontDrive.setPower(v1 * speedMultiplier);
+        leftBackDrive.setPower(v * speedMultiplier);
+        leftFrontDrive.setPower(v1 * speedMultiplier);
+        rightBackDrive.setPower(v2 * speedMultiplier);
+        rightFrontDrive.setPower(v3 * speedMultiplier);
     }
 
 
@@ -174,19 +175,10 @@ public class MecanumTrain{
              intakePivot.setPosition(PIVOT_IN);
          } else if (dir.equals("out")) {
              intakePivot.setPosition(PIVOT_OUT);
+         } else if (dir.equals("mid")) {
+             intakePivot.setPosition(PIVOT_MID);
          }
      }
-
-    // update()
-    // Updates the telemetry with the current encoder values for the arm
-    // Should be called in a loop
-//    public void updateArmPID(double armPos) {
-//        controllerArm.setPID(p, i, d);
-//        double pid = controllerArm.calculate(armPos, target + arm_start);
-//        double ff =  Math.cos(Math.toRadians((target + arm_start) / (COUNTS_PER_REV / (2 * Math.PI)))) * f;
-//        double power = pid + ff;
-//        outMotor.setPower(power);
-//    }
 
     // setMotorsMode(mode)
     // mode - DcMotor.RunMode (run mode for all motors)

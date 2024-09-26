@@ -26,5 +26,5 @@ public class FieldConstants {
     public static final Pose redAllianceBasket = new Pose(130, 15, Math.toRadians(-135));
 
     // Start Locations
-    public static final Pose blueAllianceBasketStart = new Pose(6, 90);
+    public static final Pose blueAllianceBasketStart = new Pose(10, 84, Math.toRadians(0));
 }

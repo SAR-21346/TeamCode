@@ -179,6 +179,10 @@ public class TeleOpFSMRed extends OpMode {
         telemetry.addData("intakeColorGreen", bot.intakeColor.green());
         telemetry.addData("horizontalLimit", bot.horizontalLimit.isPressed());
         telemetry.addData("current intake state", intakeState);
+
+        telemetry.addData("leftEnc", bot.leftFrontDrive.getCurrentPosition());
+        telemetry.addData("rightEnc", bot.rightBackDrive.getCurrentPosition());
+        telemetry.addData("strafe", bot.rightFrontDrive.getCurrentPosition());
         telemetry.update();
     }
 
