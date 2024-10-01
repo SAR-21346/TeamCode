@@ -79,9 +79,9 @@ public class TeleOpFSMBlue extends OpMode {
         // -------------- DRIVE ----------------
 
 
-        double axial = -gamepad1.left_stick_y;
+        double axial = gamepad1.left_stick_y;
         double lateral = gamepad1.left_stick_x;
-        double yaw = gamepad1.right_stick_x;
+        double yaw = -gamepad1.right_stick_x;
 
         // calculate motor powers
         double[] motorPowers = bot.calculateMotorPowers(axial, lateral, yaw);
@@ -127,9 +127,11 @@ public class TeleOpFSMBlue extends OpMode {
                 break;
             case INTAKE_FLIP_IN:
                 bot.setIntakePivot("in");
-                intakeTimer.resetTimer();
-                if (bot.horizontalLimit.isPressed() && intakeTimer.getElapsedTimeSeconds() > 0.5) {
-                    bot.setIntakeServo("backward");
+                if (bot.horizontalLimit.isPressed()) {
+                    intakeTimer.resetTimer();
+                    if (intakeTimer.getElapsedTimeSeconds() > 1) {
+                        bot.setIntakeServo("backward");
+                    }
                 }
                 setIntakeState(INTAKE_RELEASE);
                 break;

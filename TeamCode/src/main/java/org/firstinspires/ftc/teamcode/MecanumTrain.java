@@ -126,11 +126,11 @@ public class MecanumTrain{
     // returns double[]
     public double[] calculateMotorPowers(double axial, double lateral, double yaw) {
         double[] motorPowers = new double[4];
-        double multiplier = .55;
-        motorPowers[0] = (axial - lateral + yaw) * multiplier;
-        motorPowers[1] = (axial + lateral + yaw) * multiplier;
-        motorPowers[2] = (axial + lateral - yaw) * multiplier;
-        motorPowers[3] = (axial - lateral - yaw) * multiplier;
+        double multiplier = 1;
+        motorPowers[0] = (axial + lateral + yaw) * multiplier; // front left
+        motorPowers[1] = (axial - lateral + yaw) * multiplier; // back left
+        motorPowers[2] = (axial - lateral - yaw) * multiplier; // front right
+        motorPowers[3] = (axial + lateral - yaw) * multiplier; // back right
         return motorPowers;
     }
 
@@ -140,10 +140,10 @@ public class MecanumTrain{
     // v2 - double (power for rightBackDrive)
     // v3 - double (power for rightFrontDrive)
     public void setMotorPowers(double v, double v1, double v2, double v3, double speedMultiplier) {
-        leftBackDrive.setPower(v * speedMultiplier);
-        leftFrontDrive.setPower(v1 * speedMultiplier);
-        rightBackDrive.setPower(v2 * speedMultiplier);
-        rightFrontDrive.setPower(v3 * speedMultiplier);
+        leftBackDrive.setPower(v1 * speedMultiplier);
+        leftFrontDrive.setPower(-v * speedMultiplier);
+        rightBackDrive.setPower(v3 * speedMultiplier);
+        rightFrontDrive.setPower(v2 * speedMultiplier);
     }
 
 

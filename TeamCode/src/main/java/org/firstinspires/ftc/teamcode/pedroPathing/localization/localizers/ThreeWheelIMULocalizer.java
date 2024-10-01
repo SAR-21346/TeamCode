@@ -63,9 +63,9 @@ public class ThreeWheelIMULocalizer extends Localizer {
     private double previousIMUOrientation;
     private double deltaRadians;
     private double totalHeading;
-    public static double FORWARD_TICKS_TO_INCHES = 0.0029449;//.02382
-    public static double STRAFE_TICKS_TO_INCHES = 0.00295;//8192 * 1.37795 * 2 * Math.PI * 0.5018874659;
-    public static double TURN_TICKS_TO_RADIANS = 0.003;//8192 * 1.37795 * 2 * Math.PI * 0.5;
+    public static double FORWARD_TICKS_TO_INCHES = 0.0029449;
+    public static double STRAFE_TICKS_TO_INCHES = 0.00295;
+    public static double TURN_TICKS_TO_RADIANS = 0.003;
 
     public static boolean useIMU = true;
 
@@ -94,8 +94,8 @@ public class ThreeWheelIMULocalizer extends Localizer {
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.FORWARD, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
 
         // TODO: replace these with your encoder positions
-        leftEncoderPose = new Pose(1.375, -8.0625, 0);
-        rightEncoderPose = new Pose(1.375, 8.0625, 0);
+        leftEncoderPose = new Pose(1.375, 8.0625, 0);
+        rightEncoderPose = new Pose(1.375, -8.0625, 0);
         strafeEncoderPose = new Pose(-2.625, 0.6875, Math.toRadians(90));
 
         // TODO: replace these with your encoder ports
