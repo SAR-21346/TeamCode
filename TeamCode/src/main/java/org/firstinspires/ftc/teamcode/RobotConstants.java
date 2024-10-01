@@ -48,5 +48,6 @@ public class RobotConstants {
     public static final double EXTENSION_OUT = 1;
 
     public static final double PIVOT_IN = 0;
+    public static final double PIVOT_MID = 0.5;
     public static final double PIVOT_OUT = 1;
 }

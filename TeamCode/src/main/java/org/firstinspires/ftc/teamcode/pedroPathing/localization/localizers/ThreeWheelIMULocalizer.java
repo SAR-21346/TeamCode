@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.pedroPathing.localization.localizers;
 
-import static org.firstinspires.ftc.teamcode.RobotConstants.COUNTS_PER_REV_ODO;
-import static org.firstinspires.ftc.teamcode.RobotConstants.WHEEL_RADIUS_ODO;
-
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -66,9 +63,9 @@ public class ThreeWheelIMULocalizer extends Localizer {
     private double previousIMUOrientation;
     private double deltaRadians;
     private double totalHeading;
-    public static double FORWARD_TICKS_TO_INCHES = WHEEL_RADIUS_ODO * 2 * Math.PI / COUNTS_PER_REV_ODO;
-    public static double STRAFE_TICKS_TO_INCHES = -0.003127403096038503;//8192 * 1.37795 * 2 * Math.PI * 0.5018874659;
-    public static double TURN_TICKS_TO_RADIANS = 0.002995;//8192 * 1.37795 * 2 * Math.PI * 0.5;
+    public static double FORWARD_TICKS_TO_INCHES = 0.0029449;//.02382
+    public static double STRAFE_TICKS_TO_INCHES = 0.00295;//8192 * 1.37795 * 2 * Math.PI * 0.5018874659;
+    public static double TURN_TICKS_TO_RADIANS = 0.003;//8192 * 1.37795 * 2 * Math.PI * 0.5;
 
     public static boolean useIMU = true;
 
@@ -97,19 +94,19 @@ public class ThreeWheelIMULocalizer extends Localizer {
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.FORWARD, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
 
         // TODO: replace these with your encoder positions
-        leftEncoderPose = new Pose(-3, 5.7, 0);
-        rightEncoderPose = new Pose(-3, -5.7, 0);
-        strafeEncoderPose = new Pose(6.9, 1, Math.toRadians(90));
+        leftEncoderPose = new Pose(1.375, -8.0625, 0);
+        rightEncoderPose = new Pose(1.375, 8.0625, 0);
+        strafeEncoderPose = new Pose(-2.625, 0.6875, Math.toRadians(90));
 
         // TODO: replace these with your encoder ports
-        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "parL"));
+        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "FLdrive"));
         rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "BRdrive"));
-        strafeEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "perp"));
+        strafeEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "FRdrive"));
 
         // TODO: reverse any encoders necessary
-        leftEncoder.setDirection(Encoder.REVERSE);
-        rightEncoder.setDirection(Encoder.FORWARD);
-        strafeEncoder.setDirection(Encoder.FORWARD);
+        leftEncoder.setDirection(Encoder.FORWARD);
+        rightEncoder.setDirection(Encoder.REVERSE);
+        strafeEncoder.setDirection(Encoder.REVERSE);
 
         setStartPose(setStartPose);
         timer = new NanoTimer();
