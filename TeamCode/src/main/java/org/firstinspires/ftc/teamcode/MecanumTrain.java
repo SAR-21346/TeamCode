@@ -48,6 +48,7 @@ public class MecanumTrain{
 
     // ----------------- Servos -----------------
     public Servo intakePivot;
+    public Servo intakePivot2;
     public CRServo intakeServo;
     public Servo horizontalExtension;
 
@@ -88,6 +89,7 @@ public class MecanumTrain{
 
         // ----------------- Servos -----------------
         intakePivot = hwMap.get(Servo.class, "intakePivot");
+        intakePivot2 = hwMap.get(Servo.class, "intakePivot2");
         intakeServo = hwMap.get(CRServo.class, "intakeServo");
         horizontalExtension = hwMap.get(Servo.class, "horizontalExt");
 
@@ -173,10 +175,13 @@ public class MecanumTrain{
      public void setIntakePivot(String dir) {
          if (dir.equals("in")) {
              intakePivot.setPosition(PIVOT_IN);
+             intakePivot2.setPosition(PIVOT_IN);
          } else if (dir.equals("out")) {
              intakePivot.setPosition(PIVOT_OUT);
+             intakePivot2.setPosition(PIVOT_OUT);
          } else if (dir.equals("mid")) {
              intakePivot.setPosition(PIVOT_MID);
+             intakePivot2.setPosition(PIVOT_MID);
          }
      }
 

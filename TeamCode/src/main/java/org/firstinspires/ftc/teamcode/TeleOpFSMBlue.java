@@ -129,7 +129,7 @@ public class TeleOpFSMBlue extends OpMode {
                 bot.setIntakePivot("in");
                 if (bot.horizontalLimit.isPressed()) {
                     intakeTimer.resetTimer();
-                    if (intakeTimer.getElapsedTimeSeconds() > 1) {
+                    if (intakeTimer.getElapsedTimeSeconds() > 4) {
                         bot.setIntakeServo("backward");
                     }
                 }
@@ -147,6 +147,7 @@ public class TeleOpFSMBlue extends OpMode {
                 int maxValue = Math.max(r, Math.max(g, b));
                 if (sampleDetected() && maxValue == r) {
                     bot.setIntakeServo("backward");
+                    setIntakeState(INTAKE_SPIN);
                 }
                 setIntakeState(INTAKE_RETRACT);
                 break;
