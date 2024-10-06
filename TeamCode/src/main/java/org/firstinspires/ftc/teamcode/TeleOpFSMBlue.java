@@ -6,7 +6,6 @@ import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_F
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_RELEASE;
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_RETRACT;
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_SAMPLE_IN;
-import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_SAMPLE_OUT;
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_SPIN;
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_START;
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_STOP;
@@ -25,7 +24,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.RobotConstants.IntakeState;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 
-@TeleOp(name = "TeleOpFSMBlue")
+@TeleOp(name = "Blue TeleOp", group = "TeleOp")
 public class TeleOpFSMBlue extends OpMode {
     MecanumTrain bot;
 
@@ -137,7 +136,7 @@ public class TeleOpFSMBlue extends OpMode {
                 break;
             case INTAKE_SPIN:
                 bot.setIntakeServo("forward");
-                if(sampleDetected()) {
+                if (sampleDetected()) {
                     setIntakeState(INTAKE_SAMPLE_IN);
                 }
                 break;
@@ -150,12 +149,6 @@ public class TeleOpFSMBlue extends OpMode {
                     setIntakeState(INTAKE_SPIN);
                 }
                 setIntakeState(INTAKE_RETRACT);
-                break;
-            case INTAKE_SAMPLE_OUT:
-                bot.setIntakeServo("forward");
-                if (sampleDetected()) {
-                    setIntakeState(intakeColorCheck());
-                }
                 break;
             case INTAKE_RETRACT:
                 bot.setHorizontalExtension("in");
@@ -175,23 +168,6 @@ public class TeleOpFSMBlue extends OpMode {
 
                 break;
         }
-    }
-
-    private IntakeState intakeColorCheck() {
-        int r = bot.intakeColor.red();
-        int g = bot.intakeColor.green();
-        int b = bot.intakeColor.blue();
-
-        int maxValue = Math.max(r, Math.max(g, b));
-
-        if (maxValue == r) {
-            return INTAKE_SAMPLE_OUT;
-        }
-        if (maxValue == b || (r+g)/2 > b) {
-            return INTAKE_RETRACT;
-        }
-
-        return INTAKE_SPIN;
     }
 
     private boolean sampleDetected() {
