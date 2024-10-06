@@ -46,7 +46,7 @@ public class BlueBasketNoSpec extends OpMode {
             blueAllianceBasketStart.getY(),
             blueAllianceBasketStart.getHeading());
 
-    private Path preloadBasketScore, rightSampleCycle, rightSampleScore,
+    Path preloadBasketScore, rightSampleCycle, rightSampleScore,
             centerSampleCycle, centerSampleScore, leftSampleCycle, leftSampleScore, parkPath;
 
 
@@ -65,9 +65,9 @@ public class BlueBasketNoSpec extends OpMode {
 
     @Override
     public void start() {
-        opmodeTimer.reset();
-
         setIntakeState(INTAKE_INIT);
+        opmodeTimer.reset();
+        buildPaths();
         setPathState(1);
     }
     @Override
@@ -135,6 +135,8 @@ public class BlueBasketNoSpec extends OpMode {
                 new Point(ascentParking.getX(), 120, Point.CARTESIAN),
                 new Point(ascentParking)
         ));
+        parkPath.setLinearHeadingInterpolation(blueAllianceBasket.getHeading(), ascentParking.getHeading());
+        parkPath.setPathEndTimeoutConstraint(0);
     }
 
     private void autonomousPathUpdate() {
