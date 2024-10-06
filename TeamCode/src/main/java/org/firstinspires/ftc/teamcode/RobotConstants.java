@@ -19,6 +19,7 @@ public class RobotConstants {
 
     // Intake States
     public enum IntakeState {
+        INTAKE_INIT,
         INTAKE_START,
         INTAKE_EXTEND,
         INTAKE_FLIP_IN,
