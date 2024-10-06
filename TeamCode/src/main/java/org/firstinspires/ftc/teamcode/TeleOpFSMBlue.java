@@ -51,7 +51,7 @@ public class TeleOpFSMBlue extends OpMode {
     public void start() {
         opmodeTimer.reset();
 
-        intakeState = INTAKE_INIT;
+        setIntakeState(INTAKE_INIT);
     }
 
     @Override
