@@ -1,142 +1,118 @@
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.teamcode.RobotConstants.BUCKET_FLAT;
+import static org.firstinspires.ftc.teamcode.RobotConstants.BUCKET_TIP;
+import static org.firstinspires.ftc.teamcode.RobotConstants.EXTENSION_IN;
+import static org.firstinspires.ftc.teamcode.RobotConstants.EXTENSION_OUT;
+import static org.firstinspires.ftc.teamcode.RobotConstants.INTAKE_BACKWARD;
+import static org.firstinspires.ftc.teamcode.RobotConstants.INTAKE_FORWARD;
+import static org.firstinspires.ftc.teamcode.RobotConstants.INTAKE_OFF;
+import static org.firstinspires.ftc.teamcode.RobotConstants.PIVOT_IN;
+import static org.firstinspires.ftc.teamcode.RobotConstants.PIVOT_MID;
+import static org.firstinspires.ftc.teamcode.RobotConstants.PIVOT_OUT;
+
 import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.controller.PIDController;
+import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.Arrays;
 import java.util.List;
 
 @Config
 public class MecanumTrain{
-    // Drive Motors
-    public DcMotorEx leftFrontDrive;
-    public DcMotorEx leftBackDrive;
-    public DcMotorEx rightFrontDrive;
-    public DcMotorEx rightBackDrive;
+    HardwareMap hwMap; // saves HardwareMap reference to hwMap
 
-      // TODO: Add extra motor definitions based on game
-//    // Auxiliary Motors
-//    public DcMotorEx leftSlide;
-//    public DcMotorEx rightSlide;
-//    public DcMotorEx spinTake;
-//    public DcMotorEx outMotor;
-//
-//    // Servos
-//    public Servo claw;
-//    public Servo drone;
+    // ----------------- Drive Motors -----------------
+    public DcMotorEx leftFrontDrive, leftBackDrive, rightFrontDrive, rightBackDrive;
+    private final List<DcMotorEx> motors;
 
-    // TODO: Add Odometry, Vision, and other sensors
+    // ----------------- Auxillary Motors -----------------
+    public DcMotorEx verticalExtension;
 
-//    // Camera
-//    public VisionPortal visionPortal;
-//    public BluePropPipeline pipeline;
-//    public RedPropPipeline pipelineRed;
+    // ----------------- Servos -----------------
+    public Servo intakePivot1, intakePivot2, bucket, horizontalExtension;
+    public CRServo intakeServo;
 
-    HardwareMap hwMap = null; // saves HardwareMap reference to hwMap
+    // ----------------- Camera -----------------
+    public VisionPortal visionPortal;
+    private WebcamName webcam1, webcam2;
+    private AprilTagProcessor apriltag;
 
-    // TODO: Configure motor constants for both types of motors we use
-    // Motor Constants
+    // ----------------- Odometry -----------------
+    public Follower follower;
+
+    // ----------------- Sensors -----------------
+    public ColorSensor intakeColor, bucketDetector; // TODO: Add bucket detector
+    public TouchSensor verticalLimit, horizontalLimit;
+    public DistanceSensor leftFrontDist, rightFrontDist;
+
+    // TODO: PID Controller definitions
+    private PIDController pidLift;
 
 
-    // REV Motor Definitions
-/*
-    static final double COUNTS_PER_REV = 537.6;
-    static final double REV_COUNTS_PER_INCH = (REV_COUNTS_PER_REV * GEAR_RATIO) /
-            (2 * WHEEL_RADIUS * Math.PI);
-
-     GoBilda Motor Definitions
-    static final double COUNTS_PER_REV = 537.6;
-
-//    static final double COUNTS_PER_INCH = (COUNTS_PER_REV * GEAR_RATIO) /
-//            (2 * WHEEL_RADIUS * Math.PI);
-    public static int target = 0;
-
-//    public static int target = 0;
-
-      // TODO: PID Controller definitions
-//    private PIDController controllerArm;
-//    private PIDController controllerLift;
-//    public static double p = 0, i = 0, d = 0, f = 0;
-*/
-    private List<DcMotorEx> motors;
-/*
-    // TODO: Delete these constants if not used
-    // Initial Motor Positions
-    public double arm_start;
-    public int liftL_start;
-    public int liftR_start;
-
-    // Claw and Drone Position Constants
-    public static double CLAW_OPEN = 0.20;
-    public static double CLAW_CLOSED = 0;
-
-    public static double DRONE_OPEN = 0;
-    public static double DRONE_CLOSED = .7;
-
-    // Lift Speeds
-    public static int liftL_speed = 450;
-    public static int liftR_speed = 450;
-
-    public Gamepad.RumbleEffect rumbleEffect;
-*/
     public MecanumTrain(HardwareMap hwMapX, ElapsedTime runtime) {
         hwMap = hwMapX; // saves reference to hwMap
 
-        // TODO: Add Odometry
-        // odometry = new SampleMecanumDrive(hwMap);
+        follower = new Follower(hwMap);
 
-
-        // Drive Motors
+        // ----------------- Drive Motors -----------------
         leftFrontDrive = hwMap.get(DcMotorEx.class, "FLdrive");
-        leftBackDrive = hwMap.get(DcMotorEx.class, "BLdrive");
         rightFrontDrive = hwMap.get(DcMotorEx.class, "FRdrive");
+        leftBackDrive = hwMap.get(DcMotorEx.class, "BLdrive");
         rightBackDrive = hwMap.get(DcMotorEx.class, "BRdrive");
-/*
-        // TODO: Configure Auxiliary Motors
-        leftSlide = hwMap.get(DcMotorEx.class, "Lslide");
-        rightSlide = hwMap.get(DcMotorEx.class, "Rslide");
-        spinTake = hwMap.get(DcMotorEx.class, "Spintake");
-        outMotor = hwMap.get(DcMotorEx.class, "Outtake");
-*/
 
-        // TODO: Add Servos
-//        claw = hwMap.get(Servo.class, "claw");
-//        drone = hwMap.get(Servo.class, "drone");
-
-        // Motor List
         motors = Arrays.asList(leftFrontDrive, leftBackDrive, rightFrontDrive, rightBackDrive);
+
+        // ----------------- Auxillary Motors -----------------
+        verticalExtension = hwMap.get(DcMotorEx.class, "verticalExt");
+
+        // ----------------- Servos -----------------
+        intakePivot1 = hwMap.get(Servo.class, "intakePivot");
+        intakePivot2 = hwMap.get(Servo.class, "intakePivot2");
+        intakeServo = hwMap.get(CRServo.class, "intakeServo");
+        bucket = hwMap.get(Servo.class, "bucket");
+        horizontalExtension = hwMap.get(Servo.class, "horizontalExt");
+
+        // ----------------- Sensors -----------------
+        intakeColor = hwMap.get(ColorSensor.class, "intakeColor");
+//        bucketDetector = hwMap.get(ColorSensor.class, "bucketDetector");
+        horizontalLimit = hwMap.get(TouchSensor.class, "horizontalLimit");
+        verticalLimit = hwMap.get(TouchSensor.class, "verticalLimit");
+        rightFrontDist = hwMap.get(DistanceSensor.class, "rightFrontDist");
+        leftFrontDist = hwMap.get(DistanceSensor.class, "leftFrontDist");
 
         // Set Modes for Motors
         setMotorsMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        // outMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Set directions for Motors
-        leftBackDrive.setDirection(DcMotorSimple.Direction.REVERSE);
-//        leftSlide.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftFrontDrive.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Set ZeroPowerBehavior for Motors
-        setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE); /*
-        leftSlide.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        rightSlide.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        outMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
-        leftSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-*/
+        // Set BulkCachingMode for all hubs - gets sensor reads faster
+        List<LynxModule> allHubs = hwMap.getAll(LynxModule.class);
+        for (LynxModule hub : allHubs) {
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+        }
+
         // TODO: Instantiate PID Controllers
-        // controllerArm = new PIDController(p, i, d);
-
-        // Gamepad Rumble Effect
-//        rumbleEffect = new Gamepad.RumbleEffect.Builder()
-//                .addStep(0.5, 0.5, 500)
-//                .addStep(0.0,0.0, 300)
-//                .addStep(1.0, 1.0, 500)
-//                .addStep(0.0, 0.0, 1000)
-//                .build();
+        // pidLift = new PIDController(p, i, d);
         }
 
     // calculateMotorPowers(axial, lateral, yaw)
@@ -146,11 +122,11 @@ public class MecanumTrain{
     // returns double[]
     public double[] calculateMotorPowers(double axial, double lateral, double yaw) {
         double[] motorPowers = new double[4];
-        double multiplier = .55;
-        motorPowers[0] = (axial + lateral + yaw) * multiplier;
-        motorPowers[1] = (axial - lateral - yaw) * multiplier;
-        motorPowers[2] = (axial - lateral + yaw) * multiplier;
-        motorPowers[3] = (axial + lateral - yaw) * multiplier;
+        double multiplier = 1;
+        motorPowers[0] = (axial + lateral + yaw) * multiplier; // front left
+        motorPowers[1] = (axial - lateral + yaw) * multiplier; // back left
+        motorPowers[2] = (axial - lateral - yaw) * multiplier; // front right
+        motorPowers[3] = (axial + lateral - yaw) * multiplier; // back right
         return motorPowers;
     }
 
@@ -159,49 +135,12 @@ public class MecanumTrain{
     // v1 - double (power for leftFrontDrive)
     // v2 - double (power for rightBackDrive)
     // v3 - double (power for rightFrontDrive)
-    public void setMotorPowers(double v, double v1, double v2, double v3) {
-        leftBackDrive.setPower(v2);
-        leftFrontDrive.setPower(v);
-        rightBackDrive.setPower(v3);
-        rightFrontDrive.setPower(v1);
+    public void setMotorPowers(double v, double v1, double v2, double v3, double speedMultiplier) {
+        leftBackDrive.setPower(v1 * speedMultiplier);
+        leftFrontDrive.setPower(v * speedMultiplier); // TODO: if doesn't work, change back to negative
+        rightBackDrive.setPower(v3 * speedMultiplier);
+        rightFrontDrive.setPower(v2 * speedMultiplier);
     }
-
-    // TODO: Configure runner methods
-    /*
-     runIntake(power)
-     power - double (power for spinTake)
-     */
-     // public void runIntake(double power) { spinTake.setPower(power); }
-
-    // runLift(pos)
-    // pos - int (target position for leftSlide and rightSlide)
-    /*
-    public void runLift (int pos) {
-        leftSlide.setTargetPosition((pos + liftL_start)); // liftL_start is the initial position of the left slide
-        leftSlide.setVelocity(liftL_speed); // Was told to change speeds for the individual motors
-        leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION); // Allows motor to move via encoder
-        rightSlide.setTargetPosition(pos + liftR_start); // liftR_start is the initial position of the right slide
-        rightSlide.setVelocity(liftR_speed); // Was told to change speeds for the individual motors
-        rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION); // Allows motor to move via encoder
-    }
-
-
-    public void openClaw() { claw.setPosition(CLAW_OPEN); }
-    public void closeClaw() { claw.setPosition(CLAW_CLOSED); }
-    public void openDrone() { drone.setPosition(DRONE_OPEN); }
-    public void closeDrone() { drone.setPosition(DRONE_CLOSED); }
-
-    */
-    // update()
-    // Updates the telemetry with the current encoder values for the arm
-    // Should be called in a loop
-//    public void updateArmPID(double armPos) {
-//        controllerArm.setPID(p, i, d);
-//        double pid = controllerArm.calculate(armPos, target + arm_start);
-//        double ff =  Math.cos(Math.toRadians((target + arm_start) / (COUNTS_PER_REV / (2 * Math.PI)))) * f;
-//        double power = pid + ff;
-//        outMotor.setPower(power);
-//    }
 
     // setMotorsMode(mode)
     // mode - DcMotor.RunMode (run mode for all motors)
@@ -220,38 +159,48 @@ public class MecanumTrain{
             motor.setZeroPowerBehavior(zpb);
         }
     }
+
     /*
-    public void initTfodRed(HardwareMap hwMap) {
-        final String[] LABELS = {"RedProp1"};
-        tfod = new TfodProcessor.Builder()
-                .setModelFileName("/sdcard/FIRST/tflitemodels/RedProp1.tflite")
-                .setModelLabels(LABELS)
-                .build();
-        VisionPortal.Builder builder = new VisionPortal.Builder();
-        builder.setCamera(hwMap.get(WebcamName.class, "camera"));
-        builder.setCameraResolution(new Size(800, 448));
-        builder.addProcessor(tfod);
-        visionPortal = builder.build();
-        tfod.setMinResultConfidence(0.4f);
+     runIntake(dir)
+     dir - forward, off, backward
+     passed in as a string
+     */
+    public void setIntakeServo(String dir) {
+        if (dir.equals("forward")) {
+            intakeServo.setPower(INTAKE_FORWARD);
+        } else if (dir.equals("off")) {
+            intakeServo.setPower(INTAKE_OFF);
+        } else if (dir.equals("backward")) {
+            intakeServo.setPower(INTAKE_BACKWARD);
+        }
     }
 
-    public void initEocvRed(HardwareMap hwMap) {
-        pipelineRed = new RedPropPipeline();
-        VisionPortal.Builder builder = new VisionPortal.Builder();
-        builder.setCamera(hwMap.get(WebcamName.class, "camera"));
-        builder.setCameraResolution(new Size(800, 448));
-        builder.addProcessor(pipelineRed);
-        visionPortal = builder.build();
+    public void setHorizontalExtension(String dir) {
+        if (dir.equals("in")) {
+            horizontalExtension.setPosition(EXTENSION_IN);
+        } else if (dir.equals("out")) {
+            horizontalExtension.setPosition(EXTENSION_OUT);
+        }
     }
 
-    public void initEocvBlue(HardwareMap hwMap) {
-        pipeline = new BluePropPipeline();
-        VisionPortal.Builder builder = new VisionPortal.Builder();
-        builder.setCamera(hwMap.get(WebcamName.class, "camera"));
-        builder.setCameraResolution(new Size(800, 448));
-        builder.addProcessor(pipeline);
-        visionPortal = builder.build();
+    public void setIntakePivot(String dir) {
+        if (dir.equals("in")) {
+            intakePivot1.setPosition(PIVOT_IN);
+            intakePivot2.setPosition(PIVOT_IN);
+        } else if (dir.equals("out")) {
+            intakePivot1.setPosition(PIVOT_OUT);
+            intakePivot2.setPosition(PIVOT_OUT);
+        } else if (dir.equals("mid")) {
+            intakePivot1.setPosition(PIVOT_MID);
+            intakePivot2.setPosition(PIVOT_MID);
+        }
     }
-    */
 
+    public void setBucket(String dir) {
+        if (dir.equals("flat")) {
+            bucket.setPosition(BUCKET_FLAT);
+        } else if (dir.equals("tip")) {
+            bucket.setPosition(BUCKET_TIP);
+        }
+    }
 }
