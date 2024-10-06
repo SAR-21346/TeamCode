@@ -75,7 +75,6 @@ public class ForwardVelocityTuner extends OpMode {
         // TODO: Make sure that this is the direction your motors need to be reversed in.
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
 
-
         motors = Arrays.asList(leftFront, leftRear, rightFront, rightRear);
 
         for (DcMotorEx motor : motors) {
