@@ -19,13 +19,13 @@ public class RobotConstants {
 
     // Intake States
     public enum IntakeState {
+        INTAKE_INIT,
         INTAKE_START,
         INTAKE_EXTEND,
         INTAKE_FLIP_IN,
         INTAKE_FLIP_OUT,
         INTAKE_SPIN,
         INTAKE_SAMPLE_IN,
-        INTAKE_SAMPLE_OUT,
         INTAKE_RETRACT,
         INTAKE_RELEASE,
         INTAKE_STOP;
@@ -41,8 +41,8 @@ public class RobotConstants {
 
     // Servo Positions
     public static final double INTAKE_OFF = 0;
-    public static final double INTAKE_FORWARD = -1;
-    public static final double INTAKE_BACKWARD = 1;
+    public static final double INTAKE_FORWARD = 1;
+    public static final double INTAKE_BACKWARD = -1;
 
     public static final double EXTENSION_IN = 0;
     public static final double EXTENSION_OUT = 1;
@@ -50,4 +50,7 @@ public class RobotConstants {
     public static final double PIVOT_IN = 0;
     public static final double PIVOT_MID = 0.5;
     public static final double PIVOT_OUT = 1;
+
+    public static final double BUCKET_FLAT = 0.3;
+    public static final double BUCKET_TIP = 1;
 }

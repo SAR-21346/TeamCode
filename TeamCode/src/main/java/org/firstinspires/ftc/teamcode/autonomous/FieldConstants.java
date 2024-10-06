@@ -5,9 +5,9 @@ import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 
 public class FieldConstants {
     // Spike Mark Locations
-    public static final Pose blueAllianceNeutralRightSpike = new Pose(44.5, 144-2.5);
+    public static final Pose blueAllianceNeutralLeftSpike = new Pose(44.5, 144-2.5);
     public static final Pose blueAllianceNeutralCenterSpike = new Pose(44.5, 144-12.5);
-    public static final Pose blueAllianceNeutralLeftSpike = new Pose(44.5, 144-22.5);
+    public static final Pose blueAllianceNeutralRightSpike = new Pose(44.5, 144-22.5);
 
     public static final Pose redAllianceRedRightSpike = new Pose(144-44.5, 144-2.5);
     public static final Pose redAllianceRedCenterSpike = new Pose(144-44.5, 144-12.5);

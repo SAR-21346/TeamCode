@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.teamcode.RobotConstants.BUCKET_FLAT;
+import static org.firstinspires.ftc.teamcode.RobotConstants.BUCKET_TIP;
 import static org.firstinspires.ftc.teamcode.RobotConstants.EXTENSION_IN;
 import static org.firstinspires.ftc.teamcode.RobotConstants.EXTENSION_OUT;
 import static org.firstinspires.ftc.teamcode.RobotConstants.INTAKE_BACKWARD;
@@ -36,20 +38,15 @@ public class MecanumTrain{
     HardwareMap hwMap; // saves HardwareMap reference to hwMap
 
     // ----------------- Drive Motors -----------------
-    public DcMotorEx leftFrontDrive;
-    public DcMotorEx leftBackDrive;
-    public DcMotorEx rightFrontDrive;
-    public DcMotorEx rightBackDrive;
-
+    public DcMotorEx leftFrontDrive, leftBackDrive, rightFrontDrive, rightBackDrive;
     private final List<DcMotorEx> motors;
 
     // ----------------- Auxillary Motors -----------------
     public DcMotorEx verticalExtension;
 
     // ----------------- Servos -----------------
-    public Servo intakePivot;
+    public Servo intakePivot1, intakePivot2, bucket, horizontalExtension;
     public CRServo intakeServo;
-    public Servo horizontalExtension;
 
     // ----------------- Camera -----------------
     public VisionPortal visionPortal;
@@ -60,11 +57,9 @@ public class MecanumTrain{
     public Follower follower;
 
     // ----------------- Sensors -----------------
-    public ColorSensor intakeColor;
-    public TouchSensor verticalLimit; // TODO: change this in robot config
-    public TouchSensor horizontalLimit;
-    public DistanceSensor leftFrontDist;
-    public DistanceSensor rightFrontDist;
+    public ColorSensor intakeColor, bucketDetector; // TODO: Add bucket detector
+    public TouchSensor verticalLimit, horizontalLimit;
+    public DistanceSensor leftFrontDist, rightFrontDist;
 
     // TODO: PID Controller definitions
     private PIDController pidLift;
@@ -87,12 +82,15 @@ public class MecanumTrain{
         verticalExtension = hwMap.get(DcMotorEx.class, "verticalExt");
 
         // ----------------- Servos -----------------
-        intakePivot = hwMap.get(Servo.class, "intakePivot");
+        intakePivot1 = hwMap.get(Servo.class, "intakePivot");
+        intakePivot2 = hwMap.get(Servo.class, "intakePivot2");
         intakeServo = hwMap.get(CRServo.class, "intakeServo");
+        bucket = hwMap.get(Servo.class, "bucket");
         horizontalExtension = hwMap.get(Servo.class, "horizontalExt");
 
         // ----------------- Sensors -----------------
         intakeColor = hwMap.get(ColorSensor.class, "intakeColor");
+//        bucketDetector = hwMap.get(ColorSensor.class, "bucketDetector");
         horizontalLimit = hwMap.get(TouchSensor.class, "horizontalLimit");
         verticalLimit = hwMap.get(TouchSensor.class, "verticalLimit");
         rightFrontDist = hwMap.get(DistanceSensor.class, "rightFrontDist");
@@ -102,7 +100,7 @@ public class MecanumTrain{
         setMotorsMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // Set directions for Motors
-        rightBackDrive.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftFrontDrive.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Set ZeroPowerBehavior for Motors
         setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
@@ -112,8 +110,6 @@ public class MecanumTrain{
         for (LynxModule hub : allHubs) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
-
-        intakeColor.enableLed(true);
 
         // TODO: Instantiate PID Controllers
         // pidLift = new PIDController(p, i, d);
@@ -141,44 +137,10 @@ public class MecanumTrain{
     // v3 - double (power for rightFrontDrive)
     public void setMotorPowers(double v, double v1, double v2, double v3, double speedMultiplier) {
         leftBackDrive.setPower(v1 * speedMultiplier);
-        leftFrontDrive.setPower(-v * speedMultiplier);
+        leftFrontDrive.setPower(v * speedMultiplier); // TODO: if doesn't work, change back to negative
         rightBackDrive.setPower(v3 * speedMultiplier);
         rightFrontDrive.setPower(v2 * speedMultiplier);
     }
-
-
-    /*
-     runIntake(dir)
-     dir - forward, off, backward
-     passed in as a string
-     */
-     public void setIntakeServo(String dir) {
-         if (dir.equals("forward")) {
-             intakeServo.setPower(INTAKE_FORWARD);
-         } else if (dir.equals("off")) {
-             intakeServo.setPower(INTAKE_OFF);
-         } else if (dir.equals("backward")) {
-             intakeServo.setPower(INTAKE_BACKWARD);
-         }
-     }
-
-     public void setHorizontalExtension(String dir) {
-         if (dir.equals("in")) {
-             horizontalExtension.setPosition(EXTENSION_IN);
-         } else if (dir.equals("out")) {
-             horizontalExtension.setPosition(EXTENSION_OUT);
-         }
-     }
-
-     public void setIntakePivot(String dir) {
-         if (dir.equals("in")) {
-             intakePivot.setPosition(PIVOT_IN);
-         } else if (dir.equals("out")) {
-             intakePivot.setPosition(PIVOT_OUT);
-         } else if (dir.equals("mid")) {
-             intakePivot.setPosition(PIVOT_MID);
-         }
-     }
 
     // setMotorsMode(mode)
     // mode - DcMotor.RunMode (run mode for all motors)
@@ -195,6 +157,50 @@ public class MecanumTrain{
     public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior zpb) {
         for (DcMotorEx motor : motors) {
             motor.setZeroPowerBehavior(zpb);
+        }
+    }
+
+    /*
+     runIntake(dir)
+     dir - forward, off, backward
+     passed in as a string
+     */
+    public void setIntakeServo(String dir) {
+        if (dir.equals("forward")) {
+            intakeServo.setPower(INTAKE_FORWARD);
+        } else if (dir.equals("off")) {
+            intakeServo.setPower(INTAKE_OFF);
+        } else if (dir.equals("backward")) {
+            intakeServo.setPower(INTAKE_BACKWARD);
+        }
+    }
+
+    public void setHorizontalExtension(String dir) {
+        if (dir.equals("in")) {
+            horizontalExtension.setPosition(EXTENSION_IN);
+        } else if (dir.equals("out")) {
+            horizontalExtension.setPosition(EXTENSION_OUT);
+        }
+    }
+
+    public void setIntakePivot(String dir) {
+        if (dir.equals("in")) {
+            intakePivot1.setPosition(PIVOT_IN);
+            intakePivot2.setPosition(PIVOT_IN);
+        } else if (dir.equals("out")) {
+            intakePivot1.setPosition(PIVOT_OUT);
+            intakePivot2.setPosition(PIVOT_OUT);
+        } else if (dir.equals("mid")) {
+            intakePivot1.setPosition(PIVOT_MID);
+            intakePivot2.setPosition(PIVOT_MID);
+        }
+    }
+
+    public void setBucket(String dir) {
+        if (dir.equals("flat")) {
+            bucket.setPosition(BUCKET_FLAT);
+        } else if (dir.equals("tip")) {
+            bucket.setPosition(BUCKET_TIP);
         }
     }
 }
