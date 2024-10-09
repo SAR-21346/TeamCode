@@ -14,13 +14,13 @@ import static org.firstinspires.ftc.teamcode.autonomous.FieldConstants.blueAllia
 import static org.firstinspires.ftc.teamcode.autonomous.FieldConstants.blueAllianceBlueLeftSpike;
 import static org.firstinspires.ftc.teamcode.autonomous.FieldConstants.blueAllianceBlueRightSpike;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.MecanumTrain;
 import org.firstinspires.ftc.teamcode.RobotConstants.IntakeState;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
@@ -41,7 +41,7 @@ public class BlueBasketNoSpec extends OpMode {
 
     private int pathState;
 
-    private Pose startPose = new Pose(
+    Pose startPose = new Pose(
             blueAllianceBasketStart.getX(),
             blueAllianceBasketStart.getY(),
             blueAllianceBasketStart.getHeading());
@@ -52,20 +52,19 @@ public class BlueBasketNoSpec extends OpMode {
 
     @Override
     public void init() {
+        Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
+
         intakeTimer = new Timer();
         pathTimer = new Timer();
         opmodeTimer = new ElapsedTime();
 
         bot = new MecanumTrain(hardwareMap, opmodeTimer);
 
-        bot.setIntakeServo("off");
-        bot.setIntakePivot("in");
-        bot.setHorizontalExtension("in");
+        setIntakeState(INTAKE_INIT);
     }
 
     @Override
     public void start() {
-        setIntakeState(INTAKE_INIT);
         opmodeTimer.reset();
         buildPaths();
         setPathState(1);
@@ -76,6 +75,10 @@ public class BlueBasketNoSpec extends OpMode {
 
         autonomousPathUpdate();
         intakeStateUpdate();
+
+        telemetry.addData("Path State", pathState);
+        telemetry.addData("Intake State", intakeState);
+        telemetry.update();
     }
 
     private void buildPaths() {
@@ -142,6 +145,8 @@ public class BlueBasketNoSpec extends OpMode {
     private void autonomousPathUpdate() {
         switch(pathState) {
             case 1:
+                bot.follower.followPath(preloadBasketScore);
+                setPathState(2);
                 break;
             case 2:
                 break;
@@ -184,7 +189,7 @@ public class BlueBasketNoSpec extends OpMode {
                 break;
             case INTAKE_SPIN:
                 bot.setIntakeServo("forward");
-                if (sampleDetected()) {
+                if (bot.sampleDetected()) {
                     setIntakeState(INTAKE_SAMPLE_IN);
                 }
                 break;
@@ -192,7 +197,7 @@ public class BlueBasketNoSpec extends OpMode {
                 bot.setIntakeServo("off");
                 int r = bot.intakeColor.red(), g = bot.intakeColor.green(), b = bot.intakeColor.blue();
                 int maxValue = Math.max(r, Math.max(g, b));
-                if (sampleDetected() && maxValue == r) {
+                if (bot.sampleDetected() && maxValue == r) {
                     bot.setIntakeServo("backward");
                     setIntakeState(INTAKE_SPIN);
                 }
@@ -218,14 +223,4 @@ public class BlueBasketNoSpec extends OpMode {
         }
     }
 
-    private boolean sampleDetected() {
-        if (bot.intakeColor instanceof DistanceSensor) {
-            ColorSensor color = bot.intakeColor;
-            double distance = ((DistanceSensor) color).getDistance(DistanceUnit.MM);
-            if (distance < 30) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

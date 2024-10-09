@@ -26,6 +26,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -43,6 +44,7 @@ public class MecanumTrain{
 
     // ----------------- Auxillary Motors -----------------
     public DcMotorEx verticalExtension;
+    public int liftStart;
 
     // ----------------- Servos -----------------
     public Servo intakePivot1, intakePivot2, bucket, horizontalExtension;
@@ -98,12 +100,14 @@ public class MecanumTrain{
 
         // Set Modes for Motors
         setMotorsMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        verticalExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         // Set directions for Motors
-        leftFrontDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+        verticalExtension.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Set ZeroPowerBehavior for Motors
         setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        verticalExtension.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Set BulkCachingMode for all hubs - gets sensor reads faster
         List<LynxModule> allHubs = hwMap.getAll(LynxModule.class);
@@ -111,6 +115,7 @@ public class MecanumTrain{
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
+        liftStart = verticalExtension.getCurrentPosition();
         // TODO: Instantiate PID Controllers
         // pidLift = new PIDController(p, i, d);
         }
@@ -137,7 +142,7 @@ public class MecanumTrain{
     // v3 - double (power for rightFrontDrive)
     public void setMotorPowers(double v, double v1, double v2, double v3, double speedMultiplier) {
         leftBackDrive.setPower(v1 * speedMultiplier);
-        leftFrontDrive.setPower(v * speedMultiplier); // TODO: if doesn't work, change back to negative
+        leftFrontDrive.setPower(-v * speedMultiplier); // TODO: if doesn't work, change back to negative
         rightBackDrive.setPower(v3 * speedMultiplier);
         rightFrontDrive.setPower(v2 * speedMultiplier);
     }
@@ -203,4 +208,45 @@ public class MecanumTrain{
             bucket.setPosition(BUCKET_TIP);
         }
     }
+
+    public void liftExtend_lowBucket() {
+        verticalExtension.setTargetPosition(450);//TODO: change to the accurate value
+        verticalExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        verticalExtension.setPower(0.4); //TODO: Change to 1 once we have the correct values
+    }
+
+    public void liftExtend_highBucket() {
+        verticalExtension.setTargetPosition(1300); //TODO: change to the accurate value
+        verticalExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        verticalExtension.setPower(0.4); //TODO: Change to 1 once we have the correct values
+    }
+    public void liftRetract() {
+        verticalExtension.setTargetPosition(liftStart);
+        verticalExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        verticalExtension.setPower(0.4); //TODO: Change to 1 once we have the correct values
+    }
+    public void runLift(int pos) {
+        verticalExtension.setTargetPosition(pos);
+        verticalExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        verticalExtension.setPower(0.4); //TODO: Change to 1 once we have the correct values
+    }
+
+    public void resetLift() {
+        verticalExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
+    public void stopLift() {
+        verticalExtension.setPower(0);
+    }
+
+    public boolean sampleDetected() {
+        if (intakeColor instanceof DistanceSensor) {
+            ColorSensor color = intakeColor;
+            double distance = ((DistanceSensor) color).getDistance(DistanceUnit.MM);
+            return distance < 30;
+        }
+        return false;
+    }
+
+
 }

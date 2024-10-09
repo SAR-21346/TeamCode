@@ -15,14 +15,13 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.RobotConstants.IntakeState;
+import org.firstinspires.ftc.teamcode.RobotConstants.LiftState;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 
 @TeleOp(name = "Blue TeleOp", group = "TeleOp")
@@ -31,8 +30,16 @@ public class TeleOpFSMBlue extends OpMode {
 
     private IntakeState intakeState;
     private Timer intakeTimer;
+
+    private LiftState liftState;
+    private Timer liftTimer;
+
     private ElapsedTime opmodeTimer;
     private final double SPEED_MULTIPLIER = 0.50;
+
+    int target = 0;
+
+
 
     @Override
     public void init() {
@@ -72,16 +79,33 @@ public class TeleOpFSMBlue extends OpMode {
             setIntakeState(INTAKE_STOP);
         }
 
+        if (gamepad2.a) {
+            bot.liftRetract();
+        }
+
+        if (gamepad2.b) {
+            bot.liftExtend_highBucket();
+        }
+
+        // -------------- LIFT ---------------- (JUST FOR TEST)
+        if(gamepad2.right_trigger > 0){
+            float decreaseFlip = gamepad2.right_trigger;
+            target += (int) (decreaseFlip*5);
+        }
+
+        if (gamepad2.left_trigger > 0) {
+            float decreaseFlip = gamepad2.left_trigger;
+            target -= (int) (decreaseFlip*5);
+        }
+
         // -------------- DRIVE ----------------
-
-
         double axial = gamepad1.left_stick_y;
         double lateral = gamepad1.left_stick_x;
         double yaw = -gamepad1.right_stick_x;
 
         // calculate motor powers
         double[] motorPowers = bot.calculateMotorPowers(axial, lateral, yaw);
-
+//        bot.runLift(target);
         if (gamepad1.right_bumper) { bot.setMotorPowers(motorPowers[0], motorPowers[1], motorPowers[2], motorPowers[3], SPEED_MULTIPLIER); }
         else { bot.setMotorPowers(motorPowers[0], motorPowers[1], motorPowers[2], motorPowers[3], 1); }
 
@@ -89,10 +113,11 @@ public class TeleOpFSMBlue extends OpMode {
         // -------------- TELEMETRY ---------------
         telemetry.addData("distLeft", bot.leftFrontDist.getDistance(DistanceUnit.CM));
         telemetry.addData("distRight", bot.rightFrontDist.getDistance(DistanceUnit.CM));
-        telemetry.addData("intakeColorRed", bot.intakeColor.red());
-        telemetry.addData("intakeColorBlue", bot.intakeColor.blue());
-        telemetry.addData("intakeColorGreen", bot.intakeColor.green());
+        telemetry.addData("lift encoder", bot.verticalExtension.getCurrentPosition());
         telemetry.addData("horizontalLimit", bot.horizontalLimit.isPressed());
+        telemetry.addData("leftEnc", bot.leftFrontDrive.getCurrentPosition());
+        telemetry.addData("rightEnc", bot.leftBackDrive.getCurrentPosition());
+        telemetry.addData("strafeEnc", bot.rightFrontDrive.getCurrentPosition());
         telemetry.addData("current intake state", intakeState);
 
         telemetry.update();
@@ -126,9 +151,10 @@ public class TeleOpFSMBlue extends OpMode {
                 }
                 break;
             case INTAKE_FLIP_IN:
-                bot.setIntakePivot("in");
+                bot.setIntakePivot("mid");
                 if (bot.horizontalLimit.isPressed()) {
                     intakeTimer.resetTimer();
+                    bot.setIntakePivot("in");
                     if (intakeTimer.getElapsedTimeSeconds() > 4) {
                         bot.setIntakeServo("backward");
                     }
@@ -137,7 +163,7 @@ public class TeleOpFSMBlue extends OpMode {
                 break;
             case INTAKE_SPIN:
                 bot.setIntakeServo("forward");
-                if (sampleDetected()) {
+                if (bot.sampleDetected()) {
                     setIntakeState(INTAKE_SAMPLE_IN);
                 }
                 break;
@@ -145,7 +171,7 @@ public class TeleOpFSMBlue extends OpMode {
                 bot.setIntakeServo("off");
                 int r = bot.intakeColor.red(), g = bot.intakeColor.green(), b = bot.intakeColor.blue();
                 int maxValue = Math.max(r, Math.max(g, b));
-                if (sampleDetected() && maxValue == r) {
+                if (bot.sampleDetected() && maxValue == r) {
                     bot.setIntakeServo("backward");
                     setIntakeState(INTAKE_SPIN);
                 }
@@ -171,20 +197,44 @@ public class TeleOpFSMBlue extends OpMode {
         }
     }
 
-    private boolean sampleDetected() {
-        if (bot.intakeColor instanceof DistanceSensor) {
-            ColorSensor color = bot.intakeColor;
-            double distance = ((DistanceSensor) color).getDistance(DistanceUnit.MM);
-            if (distance < 30) {
-                return true;
-            }
+    private void outtakeStateUpdate() {
+        switch(liftState) {
+            case LIFT_INIT:
+                bot.resetLift();
+                break;
+            case LIFT_START:
+                bot.liftRetract();
+                break;
+            case LIFT_EXTEND_LOW:
+                bot.liftExtend_lowBucket();
+                break;
+            case LIFT_EXTEND_HIGH:
+                break;
+            case BUCKET_TIP:
+                break;
+            case LIFT_SAMPLE_RELEASED:
+                break;
+            case LIFT_RETRACT:
+                break;
+            case LIFT_STOP:
+                break;
+            case LIFT_RELEASE:
+                break;
+
         }
-        return false;
     }
+
+
 
     private void setIntakeState (IntakeState iState) {
         intakeState = iState;
         intakeTimer.resetTimer();
         intakeStateUpdate();
+    }
+
+    private void setLiftState (LiftState lState) {
+        liftState = lState;
+        liftTimer.resetTimer();
+        outtakeStateUpdate();
     }
 }
