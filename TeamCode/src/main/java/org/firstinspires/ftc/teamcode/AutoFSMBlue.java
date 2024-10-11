@@ -1,5 +1,12 @@
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.teamcode.RobotConstants.AutoMovementState.INTAKE;
+import static org.firstinspires.ftc.teamcode.RobotConstants.AutoMovementState.MOVE_BUCKET;
+import static org.firstinspires.ftc.teamcode.RobotConstants.AutoMovementState.MOVE_BUCK_SUB;
+import static org.firstinspires.ftc.teamcode.RobotConstants.AutoMovementState.MOVE_INIT;
+import static org.firstinspires.ftc.teamcode.RobotConstants.AutoMovementState.MOVE_STOP;
+import static org.firstinspires.ftc.teamcode.RobotConstants.AutoMovementState.MOVE_SUB;
+import static org.firstinspires.ftc.teamcode.RobotConstants.AutoMovementState.OUTAKE;
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_EXTEND;
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_FLIP_IN;
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_FLIP_OUT;
@@ -13,6 +20,7 @@ import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_S
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -22,9 +30,24 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.RobotConstants.IntakeState;
 import org.firstinspires.ftc.teamcode.RobotConstants.LiftState;
+import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierCurve;
+import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.PathBuilder;
+import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 
-@AUTO(name = "Blue Auto", group = "AUTO")
+import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_INIT;
+import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_FLIP_IN;
+import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_FLIP_OUT;
+import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_INIT;
+import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_RELEASE;
+import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_RETRACT;
+import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_SAMPLE_IN;
+import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_SPIN;
+import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_START;
+import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_STOP;
+import static org.firstinspires.ftc.teamcode.RobotConstants.LiftState.LIFT_INIT;
+
+@Autonomous(name = "Blue Auto", group = "AUTO")
 public class AutoFSMBlue extends OpMode {
     MecanumTrain bot;
 
@@ -34,7 +57,7 @@ public class AutoFSMBlue extends OpMode {
     private LiftState liftState;
     private Timer liftTimer;
 
-    private AutoMovementState moveState;
+    private RobotConstants.AutoMovementState moveState;
     
 
     private ElapsedTime opmodeTimer;
@@ -98,7 +121,7 @@ public class AutoFSMBlue extends OpMode {
                     new Point(37.392, 78.232, Point.CARTESIAN)
                     )
                 )
-                .setTangentialHeadingInterpolation();
+                .setLinearHeadingInterpolation(bot.follower.getHeadingOffset(), bot.follower.getHeadingOffset());
                 setMoveState(INTAKE);
             case INTAKE:
                 // Not sure if this works - but let's just pray
@@ -114,7 +137,7 @@ public class AutoFSMBlue extends OpMode {
                     new Point(14.586, 130.475, Point.CARTESIAN)
                     )
                 )
-                .setTangentialHeadingInterpolation()
+                .setLinearHeadingInterpolation(bot.follower.getHeadingOffset(), bot.follower.getHeadingOffset()) // TODO: FIX THIS - THESE are random headings
                 .setReversed(true);
                 setMoveState(OUTAKE);
             case OUTAKE:
@@ -131,7 +154,7 @@ public class AutoFSMBlue extends OpMode {
                     new Point(37.392, 78.232, Point.CARTESIAN)
                     )
                 )
-                .setTangentialHeadingInterpolation();
+                .setLinearHeadingInterpolation(bot.follower.getHeadingOffset(), bot.follower.getHeadingOffset());
                 setMoveState(INTAKE);
             case MOVE_STOP:
                 // reset everything
@@ -254,7 +277,7 @@ public class AutoFSMBlue extends OpMode {
         outtakeStateUpdate();
     }
 
-    private void setMoveState (AutoMovementState mState) {
+    private void setMoveState (RobotConstants.AutoMovementState mState) {
         moveState = mState;
         movementStateUpdate();
     }

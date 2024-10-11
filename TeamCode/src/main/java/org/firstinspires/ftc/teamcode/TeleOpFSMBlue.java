@@ -10,6 +10,12 @@ import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_S
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_SPIN;
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_START;
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_STOP;
+import static org.firstinspires.ftc.teamcode.RobotConstants.LiftState.BUCKET_TIP;
+import static org.firstinspires.ftc.teamcode.RobotConstants.LiftState.LIFT_EXTEND_HIGH;
+import static org.firstinspires.ftc.teamcode.RobotConstants.LiftState.LIFT_RETRACT;
+import static org.firstinspires.ftc.teamcode.RobotConstants.LiftState.LIFT_SAMPLE_RELEASED;
+import static org.firstinspires.ftc.teamcode.RobotConstants.LiftState.LIFT_START;
+import static org.firstinspires.ftc.teamcode.RobotConstants.LiftState.LIFT_STOP;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -23,6 +29,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.RobotConstants.IntakeState;
 import org.firstinspires.ftc.teamcode.RobotConstants.LiftState;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
+
 
 @TeleOp(name = "Blue TeleOp", group = "TeleOp")
 public class TeleOpFSMBlue extends OpMode {
@@ -212,14 +219,14 @@ public class TeleOpFSMBlue extends OpMode {
                 setLiftState(LIFT_EXTEND_HIGH);
                 break;
             case LIFT_EXTEND_LOW:
-                if(sampleDetectedInBucket()) {
-                    bot.liftExtend_lowBucket();   
-                }
+//                if(sampleDetectedInBucket()) {
+//                    bot.liftExtend_lowBucket();
+//                }
                 break;
             case LIFT_EXTEND_HIGH:
-                if(sampleDetectedInBucket()) {
-                    bot.liftExtend_highBucket();
-                }
+//                if(sampleDetectedInBucket()) {
+//                    bot.liftExtend_highBucket();
+//                }
                 setLiftState(BUCKET_TIP);
                 break;
             case BUCKET_TIP:
@@ -227,9 +234,9 @@ public class TeleOpFSMBlue extends OpMode {
                 setLiftState(LIFT_SAMPLE_RELEASED);
                 break;
             case LIFT_SAMPLE_RELEASED:
-                if(!sampleDetectedInBucket()) {
-                    bot.setBucket("flat");
-                }
+//                if(!sampleDetectedInBucket()) {
+//                    bot.setBucket("flat");
+//                }
                 setLiftState(LIFT_RETRACT);
                 break;
             case LIFT_RETRACT:
