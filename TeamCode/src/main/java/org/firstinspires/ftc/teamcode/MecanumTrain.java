@@ -92,7 +92,7 @@ public class MecanumTrain{
 
         // ----------------- Sensors -----------------
         intakeColor = hwMap.get(ColorSensor.class, "intakeColor");
-//        bucketDetector = hwMap.get(ColorSensor.class, "bucketDetector");
+        bucketDetector = hwMap.get(ColorSensor.class, "bucketDetector");
         horizontalLimit = hwMap.get(TouchSensor.class, "horizontalLimit");
         verticalLimit = hwMap.get(TouchSensor.class, "verticalLimit");
         rightFrontDist = hwMap.get(DistanceSensor.class, "rightFrontDist");
@@ -242,6 +242,15 @@ public class MecanumTrain{
     public boolean sampleDetected() {
         if (intakeColor instanceof DistanceSensor) {
             ColorSensor color = intakeColor;
+            double distance = ((DistanceSensor) color).getDistance(DistanceUnit.MM);
+            return distance < 30;
+        }
+        return false;
+    }
+
+    public boolean sampleDetectedInBucket() {
+        if (bucketDetector instanceof DistanceSensor) {
+            ColorSensor color = bucketDetector;
             double distance = ((DistanceSensor) color).getDistance(DistanceUnit.MM);
             return distance < 30;
         }

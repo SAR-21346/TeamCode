@@ -24,8 +24,8 @@ import org.firstinspires.ftc.teamcode.RobotConstants.IntakeState;
 import org.firstinspires.ftc.teamcode.RobotConstants.LiftState;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 
-@TeleOp(name = "Blue TeleOp", group = "TeleOp")
-public class TeleOpFSMBlue extends OpMode {
+@AUTO(name = "Blue Auto", group = "AUTO")
+public class AutoFSMBlue extends OpMode {
     MecanumTrain bot;
 
     private IntakeState intakeState;
@@ -33,6 +33,9 @@ public class TeleOpFSMBlue extends OpMode {
 
     private LiftState liftState;
     private Timer liftTimer;
+
+    private AutoMovementState moveState;
+    
 
     private ElapsedTime opmodeTimer;
     private final double SPEED_MULTIPLIER = 0.50;
@@ -58,60 +61,12 @@ public class TeleOpFSMBlue extends OpMode {
     public void start() {
         opmodeTimer.reset();
 
-        setIntakeState(INTAKE_INIT);
     }
 
     @Override
     public void loop() {
-        // -------------- INTAKE ----------------
-        intakeStateUpdate();
-
-        if (gamepad2.x) {
-            setIntakeState(INTAKE_START);
-            intakeDistCheck = true;
-        }
-
-        if (gamepad2.dpad_down) {
-            setIntakeState(INTAKE_FLIP_OUT);
-        }
-
-        if (gamepad2.y) {
-            setIntakeState(INTAKE_STOP);
-        }
-
-        if (gamepad2.a) {
-            bot.liftRetract();
-        }
-
-        if (gamepad2.b) {
-            bot.liftExtend_highBucket();
-        }
-
-        // -------------- LIFT ---------------- (JUST FOR TEST)
-        if(gamepad2.right_trigger > 0){
-            float decreaseFlip = gamepad2.right_trigger;
-            target += (int) (decreaseFlip*5);
-        }
-
-        if (gamepad2.left_trigger > 0) {
-            float decreaseFlip = gamepad2.left_trigger;
-            target -= (int) (decreaseFlip*5);
-        }
-
-        if(gamepad2.dpad_up) {
-            bot.setBucket("tip");
-        }
-
-        // -------------- DRIVE ----------------
-        double axial = gamepad1.left_stick_y;
-        double lateral = gamepad1.left_stick_x;
-        double yaw = -gamepad1.right_stick_x;
-
-        // calculate motor powers
-        double[] motorPowers = bot.calculateMotorPowers(axial, lateral, yaw);
-//        bot.runLift(target);
-        if (gamepad1.right_bumper) { bot.setMotorPowers(motorPowers[0], motorPowers[1], motorPowers[2], motorPowers[3], SPEED_MULTIPLIER); }
-        else { bot.setMotorPowers(motorPowers[0], motorPowers[1], motorPowers[2], motorPowers[3], 1); }
+        setMoveState(MOVE_INIT);
+        movementStateUpdate();
 
 
         // -------------- TELEMETRY ---------------
@@ -125,6 +80,62 @@ public class TeleOpFSMBlue extends OpMode {
         telemetry.addData("current intake state", intakeState);
 
         telemetry.update();
+    }
+
+    private void movementStateUpdate () {
+        PathBuilder builder = new PathBuilder();
+
+        switch(moveState) {
+            case MOVE_INIT:
+                // DK what to add here
+            case MOVE_SUB:
+                builder
+                .addPath(
+                    // Line 1
+                    new BezierCurve(
+                    new Point(9.757, 84.983, Point.CARTESIAN),
+                    new Point(22.011, 77.436, Point.CARTESIAN),
+                    new Point(37.392, 78.232, Point.CARTESIAN)
+                    )
+                )
+                .setTangentialHeadingInterpolation();
+                setMoveState(INTAKE);
+            case INTAKE:
+                // Not sure if this works - but let's just pray
+                setIntakeState(INTAKE_INIT);
+                intakeStateUpdate();
+                setMoveState(MOVE_BUCKET);
+            case MOVE_BUCKET:
+                builder
+                .addPath(
+                    new BezierCurve(
+                    new Point(37.392, 78.232, Point.CARTESIAN),
+                    new Point(27.580, 118.807, Point.CARTESIAN),
+                    new Point(14.586, 130.475, Point.CARTESIAN)
+                    )
+                )
+                .setTangentialHeadingInterpolation()
+                .setReversed(true);
+                setMoveState(OUTAKE);
+            case OUTAKE:
+                setLiftState(LIFT_INIT);
+                outtakeStateUpdate();
+                setMoveState(MOVE_BUCK_SUB);
+            case MOVE_BUCK_SUB:
+                builder
+                .addPath(
+                    // Line 3
+                    new BezierCurve(
+                    new Point(14.586, 130.475, Point.CARTESIAN),
+                    new Point(15.381, 78.497, Point.CARTESIAN),
+                    new Point(37.392, 78.232, Point.CARTESIAN)
+                    )
+                )
+                .setTangentialHeadingInterpolation();
+                setMoveState(INTAKE);
+            case MOVE_STOP:
+                // reset everything
+        }
     }
 
 
@@ -159,7 +170,7 @@ public class TeleOpFSMBlue extends OpMode {
                 if (bot.horizontalLimit.isPressed()) {
                     intakeTimer.resetTimer();
                     bot.setIntakePivot("in");
-                    if (intakeTimer.getElapsedTimeSeconds() > 10) {
+                    if (intakeTimer.getElapsedTimeSeconds() > 4) {
                         bot.setIntakeServo("backward");
                     }
                 }
@@ -205,39 +216,23 @@ public class TeleOpFSMBlue extends OpMode {
         switch(liftState) {
             case LIFT_INIT:
                 bot.resetLift();
-                setLiftState(LIFT_START);
                 break;
             case LIFT_START:
                 bot.liftRetract();
-                setLiftState(LIFT_EXTEND_HIGH);
                 break;
             case LIFT_EXTEND_LOW:
-                if(sampleDetectedInBucket()) {
-                    bot.liftExtend_lowBucket();   
-                }
+                bot.liftExtend_lowBucket();
                 break;
             case LIFT_EXTEND_HIGH:
-                if(sampleDetectedInBucket()) {
-                    bot.liftExtend_highBucket();
-                }
-                setLiftState(BUCKET_TIP);
+
                 break;
             case BUCKET_TIP:
-                bot.setBucket("tip");
-                setLiftState(LIFT_SAMPLE_RELEASED);
                 break;
             case LIFT_SAMPLE_RELEASED:
-                if(!sampleDetectedInBucket()) {
-                    bot.setBucket("flat");
-                }
-                setLiftState(LIFT_RETRACT);
                 break;
             case LIFT_RETRACT:
-                bot.resetLift();
-                setLiftState(LIFT_STOP);
                 break;
             case LIFT_STOP:
-                bot.stopLift();
                 break;
             case LIFT_RELEASE:
                 break;
@@ -257,5 +252,10 @@ public class TeleOpFSMBlue extends OpMode {
         liftState = lState;
         liftTimer.resetTimer();
         outtakeStateUpdate();
+    }
+
+    private void setMoveState (AutoMovementState mState) {
+        moveState = mState;
+        movementStateUpdate();
     }
 }
