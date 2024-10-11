@@ -43,6 +43,16 @@ public class RobotConstants {
         LIFT_RELEASE;
     }
 
+    public enum AutoMovementState {
+        MOVE_INIT,
+        MOVE_SUB,
+        INTAKE,
+        MOVE_BUCKET,
+        OUTAKE,
+        MOVE_BUCK_SUB,
+        MOVE_STOP;
+    }
+
 
     // Servo Positions
     public static final double INTAKE_OFF = 0;
