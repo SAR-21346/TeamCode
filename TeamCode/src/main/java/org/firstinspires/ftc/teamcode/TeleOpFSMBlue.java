@@ -10,6 +10,10 @@ import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_S
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_SPIN;
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_START;
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_STOP;
+import static org.firstinspires.ftc.teamcode.RobotConstants.LiftState.LIFT_INIT;
+import static org.firstinspires.ftc.teamcode.RobotConstants.LiftState.LIFT_RETRACT;
+import static org.firstinspires.ftc.teamcode.RobotConstants.LiftState.LIFT_START;
+import static org.firstinspires.ftc.teamcode.RobotConstants.LiftState.LIFT_STOP;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -29,10 +33,9 @@ public class TeleOpFSMBlue extends OpMode {
     MecanumTrain bot;
 
     private IntakeState intakeState;
-    private Timer intakeTimer;
+    private Timer intakeTimer, liftTimer;
 
     private LiftState liftState;
-    private Timer liftTimer;
 
     private ElapsedTime opmodeTimer;
     private final double SPEED_MULTIPLIER = 0.50;
@@ -44,6 +47,7 @@ public class TeleOpFSMBlue extends OpMode {
     @Override
     public void init() {
         intakeTimer = new Timer();
+        liftTimer = new Timer();
         opmodeTimer = new ElapsedTime(); 
 
         opmodeTimer.reset();
@@ -59,6 +63,7 @@ public class TeleOpFSMBlue extends OpMode {
         opmodeTimer.reset();
 
         setIntakeState(INTAKE_INIT);
+        setLiftState(LIFT_INIT);
     }
 
     @Override
@@ -68,6 +73,7 @@ public class TeleOpFSMBlue extends OpMode {
 
         if (gamepad2.x) {
             setIntakeState(INTAKE_START);
+            setLiftState(LIFT_START);
             intakeDistCheck = true;
         }
 
@@ -86,6 +92,8 @@ public class TeleOpFSMBlue extends OpMode {
         if (gamepad2.b) {
             bot.liftExtend_highBucket();
         }
+
+        outtakeStateUpdate();
 
         // -------------- LIFT ---------------- (JUST FOR TEST)
         if(gamepad2.right_trigger > 0){
@@ -119,6 +127,7 @@ public class TeleOpFSMBlue extends OpMode {
         telemetry.addData("rightEnc", bot.leftBackDrive.getCurrentPosition());
         telemetry.addData("strafeEnc", bot.rightFrontDrive.getCurrentPosition());
         telemetry.addData("current intake state", intakeState);
+        telemetry.addData("current lift state", liftState);
 
         telemetry.update();
     }
@@ -140,13 +149,13 @@ public class TeleOpFSMBlue extends OpMode {
                 break;
             case INTAKE_EXTEND:
                 bot.setHorizontalExtension("out");
-                if (intakeTimer.getElapsedTimeSeconds() > 0.7) {
+                if (!bot.horizontalLimit.isPressed()) {
                     setIntakeState(INTAKE_FLIP_OUT);
                 }
                 break;
             case INTAKE_FLIP_OUT:
                 bot.setIntakePivot("out");
-                if (intakeTimer.getElapsedTimeSeconds() > 1.0) {
+                if (intakeTimer.getElapsedTimeSeconds() > 0.5) {
                     setIntakeState(INTAKE_SPIN);
                 }
                 break;
@@ -155,7 +164,7 @@ public class TeleOpFSMBlue extends OpMode {
                 if (bot.horizontalLimit.isPressed()) {
                     intakeTimer.resetTimer();
                     bot.setIntakePivot("in");
-                    if (intakeTimer.getElapsedTimeSeconds() > 4) {
+                    if (intakeTimer.getElapsedTimeSeconds() > 4.4) {
                         bot.setIntakeServo("backward");
                     }
                 }
@@ -173,7 +182,9 @@ public class TeleOpFSMBlue extends OpMode {
                 int maxValue = Math.max(r, Math.max(g, b));
                 if (bot.sampleDetected() && maxValue == r) {
                     bot.setIntakeServo("backward");
-                    setIntakeState(INTAKE_SPIN);
+                    if (!bot.sampleDetected()){
+                        setIntakeState(INTAKE_SPIN);
+                    }
                 }
                 setIntakeState(INTAKE_RETRACT);
                 break;
@@ -186,13 +197,14 @@ public class TeleOpFSMBlue extends OpMode {
             case INTAKE_RELEASE:
                 bot.setIntakePivot("in");
                 bot.setIntakeServo("backward");
-                setIntakeState(INTAKE_START);
+                if (intakeTimer.getElapsedTimeSeconds() > 1.6) {
+                    setIntakeState(INTAKE_STOP);
+                }
                 break;
             case INTAKE_STOP:
                 bot.setIntakeServo("off");
                 bot.setIntakePivot("in");
                 bot.setHorizontalExtension("in");
-
                 break;
         }
     }
@@ -201,22 +213,41 @@ public class TeleOpFSMBlue extends OpMode {
         switch(liftState) {
             case LIFT_INIT:
                 bot.resetLift();
+                setLiftState(LIFT_START);
                 break;
             case LIFT_START:
                 bot.liftRetract();
+                if (bot.sampleInOuttake()) {
+                    setLiftState(RobotConstants.LiftState.LIFT_EXTEND_HIGH);
+                }
                 break;
             case LIFT_EXTEND_LOW:
                 bot.liftExtend_lowBucket();
+                if (bot.verticalExtension.getCurrentPosition() >= 450) {
+                    setLiftState(RobotConstants.LiftState.BUCKET_TIP);
+                }
                 break;
             case LIFT_EXTEND_HIGH:
+                bot.liftExtend_highBucket();
+                if (bot.verticalExtension.getCurrentPosition() >= 1200) {
+                    setLiftState(RobotConstants.LiftState.BUCKET_TIP);
+                }
                 break;
             case BUCKET_TIP:
-                break;
-            case LIFT_SAMPLE_RELEASED:
+                bot.setBucket("tip");
+                if (!bot.sampleInOuttake()) {
+                    setLiftState(LIFT_RETRACT);
+                }
                 break;
             case LIFT_RETRACT:
+                bot.setBucket("flat");
+                bot.liftRetract();
+                if (bot.verticalExtension.getCurrentPosition() <= 0) {
+                    setLiftState(LIFT_STOP);
+                }
                 break;
             case LIFT_STOP:
+                bot.verticalExtension.setPower(0);
                 break;
             case LIFT_RELEASE:
                 break;
