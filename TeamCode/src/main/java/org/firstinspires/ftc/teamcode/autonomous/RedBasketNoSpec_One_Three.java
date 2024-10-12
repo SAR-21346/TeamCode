@@ -38,7 +38,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 
-@Autonomous(name = "Red Basket No Specimen Preload + 3", group = "Red Basket")
+@Autonomous(name = "Red Basket No Specimen Preload + 3", group = "Red Basket", preselectTeleOp = "Red TeleOp")
 public class RedBasketNoSpec_One_Three extends OpMode {
 
     private IntakeState intakeState;
@@ -169,24 +169,24 @@ public class RedBasketNoSpec_One_Three extends OpMode {
                     }
                 }
                 break;
-            case 3:
+            case 3: // Path to the right sample cycle
                 bot.setBucket("flat");
                 bot.follower.followPath(rightSampleCycle);
                 setPathState(4);
                 break;
-            case 4:
+            case 4:  // Flip out the intake at 95% through the path
                 if (bot.follower.getCurrentTValue() > 0.95) {
                     setIntakeState(INTAKE_FLIP_OUT);
                     setPathState(5);
                 }
                 break;
-            case 5:
+            case 5: // Retract the intake and follow path to bucket
                 if (intakeState == INTAKE_RETRACT) {
                     bot.follower.followPath(rightSampleScore, true);
                     setPathState(6);
                 }
                 break;
-            case 6:
+            case 6: // Run the lift and outtake
                 if (pathTimer.getElapsedTimeSeconds() > 1.5) {
                     setLiftState(LIFT_START);
                     if (bot.verticalExtension.getCurrentPosition() >= 1200) {
@@ -198,24 +198,24 @@ public class RedBasketNoSpec_One_Three extends OpMode {
                     }
                 }
                 break;
-            case 7:
+            case 7: // Path to the center sample cycle
                 bot.setBucket("flat");
                 bot.follower.followPath(centerSampleCycle);
                 setPathState(8);
                 break;
-            case 8:
+            case 8: // Flip out the intake at 95% through the path
                 if (bot.follower.getCurrentTValue() > 0.95) {
                     setIntakeState(INTAKE_FLIP_OUT);
                     setPathState(9);
                 }
                 break;
-            case 9:
+            case 9: // Retract the intake and follow path to bucket
                 if (intakeState == INTAKE_RETRACT) {
                     bot.follower.followPath(centerSampleScore, true);
                     setPathState(10);
                 }
                 break;
-            case 10:
+            case 10: // Run the lift and outtake
                 if (pathTimer.getElapsedTimeSeconds() > 1.5) {
                     setLiftState(LIFT_START);
                     if (bot.verticalExtension.getCurrentPosition() >= 1200) {
@@ -227,24 +227,24 @@ public class RedBasketNoSpec_One_Three extends OpMode {
                     }
                 }
                 break;
-            case 11:
+            case 11: // Path to the left sample cycle
                 bot.setBucket("flat");
                 bot.follower.followPath(leftSampleCycle);
                 setPathState(12);
                 break;
-            case 12:
+            case 12: // Flip out the intake at 95% through the path
                 if (bot.follower.getCurrentTValue() > 0.95) {
                     setIntakeState(INTAKE_FLIP_OUT);
                     setPathState(13);
                 }
                 break;
-            case 13:
+            case 13: // Retract the intake and follow path to bucket
                 if (intakeState == INTAKE_RETRACT) {
                     bot.follower.followPath(leftSampleScore, true);
                     setPathState(14);
                 }
                 break;
-            case 14:
+            case 14: // Run the lift and outtake
                 if (pathTimer.getElapsedTimeSeconds() > 1.5) {
                     setLiftState(LIFT_START);
                     if (bot.verticalExtension.getCurrentPosition() >= 1200) {
@@ -256,11 +256,11 @@ public class RedBasketNoSpec_One_Three extends OpMode {
                     }
                 }
                 break;
-            case 15:
+            case 15: // Path to park
                 bot.follower.followPath(parkPath);
                 setPathState(16);
                 break;
-            case 16:
+            case 16: // Stop the auto after parking
                 if(!bot.follower.isBusy()) {
                     requestOpModeStop();
                 }
