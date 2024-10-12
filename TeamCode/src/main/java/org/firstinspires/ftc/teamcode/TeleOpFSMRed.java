@@ -14,7 +14,9 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -134,7 +136,7 @@ public class TeleOpFSMRed extends OpMode {
                 break;
             case INTAKE_SPIN:
                 bot.setIntakeServo("forward");
-                if (bot.sampleDetected()) {
+                if (sampleDetected()) {
                     setIntakeState(INTAKE_SAMPLE_IN);
                 }
                 break;
@@ -142,7 +144,7 @@ public class TeleOpFSMRed extends OpMode {
                 bot.setIntakeServo("off");
                 int r = bot.intakeColor.red(), g = bot.intakeColor.green(), b = bot.intakeColor.blue();
                 int maxValue = Math.max(r, Math.max(g, b));
-                if (bot.sampleDetected() && maxValue == b) {
+                if (sampleDetected() && maxValue == b) {
                     bot.setIntakeServo("backward");
                     setIntakeState(INTAKE_SPIN);
                 }
@@ -166,6 +168,17 @@ public class TeleOpFSMRed extends OpMode {
 
                 break;
         }
+    }
+
+    private boolean sampleDetected() {
+        if (bot.intakeColor instanceof DistanceSensor) {
+            ColorSensor color = bot.intakeColor;
+            double distance = ((DistanceSensor) color).getDistance(DistanceUnit.MM);
+            if (distance < 30) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void setIntakeState (IntakeState iState) {

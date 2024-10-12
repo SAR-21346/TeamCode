@@ -19,7 +19,6 @@ public class RobotConstants {
 
     // Intake States
     public enum IntakeState {
-        INTAKE_INIT,
         INTAKE_START,
         INTAKE_EXTEND,
         INTAKE_FLIP_IN,
@@ -31,16 +30,11 @@ public class RobotConstants {
         INTAKE_STOP;
     }
 
-    public enum LiftState {
-        LIFT_INIT,
-        LIFT_START,
-        LIFT_EXTEND_LOW,
-        LIFT_EXTEND_HIGH,
-        BUCKET_TIP,
-        LIFT_SAMPLE_RELEASED,
-        LIFT_RETRACT,
-        LIFT_STOP,
-        LIFT_RELEASE;
+    public enum OuttakeState {
+        OUTTAKE_START,
+        OUTTAKE_TIP,
+        OUTTAKE_SAMPLE_RELEASED,
+        OUTTAKE_RETRACT;
     }
 
     public enum AutoMovementState {

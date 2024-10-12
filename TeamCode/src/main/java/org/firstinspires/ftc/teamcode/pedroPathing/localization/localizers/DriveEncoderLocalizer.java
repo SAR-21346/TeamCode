@@ -1,12 +1,14 @@
 package org.firstinspires.ftc.teamcode.pedroPathing.localization.localizers;
 
+import static org.firstinspires.ftc.teamcode.pedroPathing.tuning.FollowerConstants.leftFrontMotorName;
+import static org.firstinspires.ftc.teamcode.pedroPathing.tuning.FollowerConstants.leftRearMotorName;
+import static org.firstinspires.ftc.teamcode.pedroPathing.tuning.FollowerConstants.rightFrontMotorName;
+import static org.firstinspires.ftc.teamcode.pedroPathing.tuning.FollowerConstants.rightRearMotorName;
+
 import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.IMU;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Encoder;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Localizer;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Matrix;
@@ -16,35 +18,14 @@ import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Vector;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.NanoTimer;
 
 /**
- * This is the ThreeWheelIMULocalizer class. This class extends the Localizer superclass and is a
- * localizer that uses the three wheel odometry set up with the IMU to have more accurate heading
- * readings. The diagram below, which is modified from Road Runner, shows a typical set up.
+ * This is the DriveEncoderLocalizer class. This class extends the Localizer superclass and is a
+ * localizer that uses the drive encoder set up.
  *
- * The view is from the top of the robot looking downwards.
- *
- * left on robot is the y positive direction
- *
- * forward on robot is the x positive direction
- *
- *    /--------------\
- *    |     ____     |
- *    |     ----     |
- *    | ||        || |
- *    | ||        || |  ----> left (y positive)
- *    |              |
- *    |              |
- *    \--------------/
- *           |
- *           |
- *           V
- *    forward (x positive)
- *
- * @author Logan Nash
  * @author Anyi Lin - 10158 Scott's Bots
- * @version 1.0, 7/9/2024
+ * @version 1.0, 4/2/2024
  */
 @Config
-public class ThreeWheelIMULocalizer extends Localizer {
+public class DriveEncoderLocalizer extends Localizer {
     private HardwareMap hardwareMap;
     private Pose startPose;
     private Pose displacementPose;
@@ -52,70 +33,53 @@ public class ThreeWheelIMULocalizer extends Localizer {
     private Matrix prevRotationMatrix;
     private NanoTimer timer;
     private long deltaTimeNano;
-    private Encoder leftEncoder;
-    private Encoder rightEncoder;
-    private Encoder strafeEncoder;
-    private Pose leftEncoderPose;
-    private Pose rightEncoderPose;
-    private Pose strafeEncoderPose;
-
-    public final IMU imu;
-    private double previousIMUOrientation;
-    private double deltaRadians;
+    private Encoder leftFront;
+    private Encoder rightFront;
+    private Encoder leftRear;
+    private Encoder rightRear;
     private double totalHeading;
-    public static double FORWARD_TICKS_TO_INCHES = 0.0029449;
-    public static double STRAFE_TICKS_TO_INCHES = 0.00295;
-    public static double TURN_TICKS_TO_RADIANS = 0.003;
-
-    public static boolean useIMU = true;
+    public static double FORWARD_TICKS_TO_INCHES = 1;
+    public static double STRAFE_TICKS_TO_INCHES = 1;
+    public static double TURN_TICKS_TO_RADIANS = 1;
+    public static double ROBOT_WIDTH = 1;
+    public static double ROBOT_LENGTH = 1;
 
     /**
-     * This creates a new ThreeWheelIMULocalizer from a HardwareMap, with a starting Pose at (0,0)
+     * This creates a new DriveEncoderLocalizer from a HardwareMap, with a starting Pose at (0,0)
      * facing 0 heading.
      *
      * @param map the HardwareMap
      */
-    public ThreeWheelIMULocalizer(HardwareMap map) {
+    public DriveEncoderLocalizer(HardwareMap map) {
         this(map, new Pose());
     }
 
     /**
-     * This creates a new ThreeWheelIMULocalizer from a HardwareMap and a Pose, with the Pose
+     * This creates a new DriveEncoderLocalizer from a HardwareMap and a Pose, with the Pose
      * specifying the starting pose of the localizer.
      *
-     * @param map          the HardwareMap
+     * @param map the HardwareMap
      * @param setStartPose the Pose to start from
      */
-    public ThreeWheelIMULocalizer(HardwareMap map, Pose setStartPose) {
+    public DriveEncoderLocalizer(HardwareMap map, Pose setStartPose) {
         hardwareMap = map;
-        imu = hardwareMap.get(IMU.class, "imu");
 
-        // TODO: replace this with your IMU's orientation
-        imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.FORWARD, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
-
-        // TODO: replace these with your encoder positions
-        leftEncoderPose = new Pose(1.375, 8.0625, 0);
-        rightEncoderPose = new Pose(1.375, -8.0625, 0);
-        strafeEncoderPose = new Pose(-2.625, 0.6875, Math.toRadians(90));
-
-        // TODO: replace these with your encoder ports
-        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "FLdrive"));
-        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "BRdrive"));
-        strafeEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "FRdrive"));
+        leftFront = new Encoder(hardwareMap.get(DcMotorEx.class, leftFrontMotorName));
+        leftRear = new Encoder(hardwareMap.get(DcMotorEx.class, leftRearMotorName));
+        rightRear = new Encoder(hardwareMap.get(DcMotorEx.class, rightRearMotorName));
+        rightFront = new Encoder(hardwareMap.get(DcMotorEx.class, rightFrontMotorName));
 
         // TODO: reverse any encoders necessary
-        leftEncoder.setDirection(Encoder.FORWARD);
-        rightEncoder.setDirection(Encoder.REVERSE);
-        strafeEncoder.setDirection(Encoder.REVERSE);
+        leftFront.setDirection(Encoder.REVERSE);
+        rightRear.setDirection(Encoder.REVERSE);
+        leftRear.setDirection(Encoder.FORWARD);
+        rightRear.setDirection(Encoder.FORWARD);
 
         setStartPose(setStartPose);
         timer = new NanoTimer();
         deltaTimeNano = 1;
         displacementPose = new Pose();
         currentVelocity = new Pose();
-        totalHeading = 0;
-
-        resetEncoders();
     }
 
     /**
@@ -227,22 +191,20 @@ public class ThreeWheelIMULocalizer extends Localizer {
      * This updates the Encoders.
      */
     public void updateEncoders() {
-        leftEncoder.update();
-        rightEncoder.update();
-        strafeEncoder.update();
-
-        double currentIMUOrientation = MathFunctions.normalizeAngle(imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS));
-        deltaRadians = MathFunctions.getTurnDirection(previousIMUOrientation, currentIMUOrientation) * MathFunctions.getSmallestAngleDifference(currentIMUOrientation, previousIMUOrientation);
-        previousIMUOrientation = currentIMUOrientation;
+        leftFront.update();
+        rightFront.update();
+        leftRear.update();
+        rightRear.update();
     }
 
     /**
      * This resets the Encoders.
      */
     public void resetEncoders() {
-        leftEncoder.reset();
-        rightEncoder.reset();
-        strafeEncoder.reset();
+        leftFront.reset();
+        rightFront.reset();
+        leftRear.reset();
+        rightRear.reset();
     }
 
     /**
@@ -254,15 +216,11 @@ public class ThreeWheelIMULocalizer extends Localizer {
     public Matrix getRobotDeltas() {
         Matrix returnMatrix = new Matrix(3,1);
         // x/forward movement
-        returnMatrix.set(0,0, FORWARD_TICKS_TO_INCHES * ((rightEncoder.getDeltaPosition() * leftEncoderPose.getY() - leftEncoder.getDeltaPosition() * rightEncoderPose.getY()) / (leftEncoderPose.getY() - rightEncoderPose.getY())));
+        returnMatrix.set(0,0, FORWARD_TICKS_TO_INCHES * (leftFront.getDeltaPosition() + rightFront.getDeltaPosition() + leftRear.getDeltaPosition() + rightRear.getDeltaPosition()));
         //y/strafe movement
-        returnMatrix.set(1,0, STRAFE_TICKS_TO_INCHES * (strafeEncoder.getDeltaPosition() - strafeEncoderPose.getX() * ((rightEncoder.getDeltaPosition() - leftEncoder.getDeltaPosition()) / (leftEncoderPose.getY() - rightEncoderPose.getY()))));
+        returnMatrix.set(1,0, STRAFE_TICKS_TO_INCHES * (-leftFront.getDeltaPosition() + rightFront.getDeltaPosition() + leftRear.getDeltaPosition() - rightRear.getDeltaPosition()));
         // theta/turning
-        if (MathFunctions.getSmallestAngleDifference(0, deltaRadians) > 0.00005 && useIMU) {
-            returnMatrix.set(2, 0, deltaRadians);
-        } else {
-            returnMatrix.set(2,0, TURN_TICKS_TO_RADIANS * ((rightEncoder.getDeltaPosition() - leftEncoder.getDeltaPosition()) / (leftEncoderPose.getY() - rightEncoderPose.getY())));
-        }
+        returnMatrix.set(2,0, TURN_TICKS_TO_RADIANS * ((-leftFront.getDeltaPosition() + rightFront.getDeltaPosition() - leftRear.getDeltaPosition() + rightRear.getDeltaPosition()) / (ROBOT_WIDTH + ROBOT_LENGTH)));
         return returnMatrix;
     }
 
