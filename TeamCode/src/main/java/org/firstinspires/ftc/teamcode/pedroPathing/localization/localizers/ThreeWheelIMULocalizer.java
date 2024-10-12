@@ -63,9 +63,9 @@ public class ThreeWheelIMULocalizer extends Localizer {
     private double previousIMUOrientation;
     private double deltaRadians;
     private double totalHeading;
-    public static double FORWARD_TICKS_TO_INCHES = 0.0029449;
-    public static double STRAFE_TICKS_TO_INCHES = 0.00295;
-    public static double TURN_TICKS_TO_RADIANS = 0.003;
+    public static double FORWARD_TICKS_TO_INCHES = 0.002985;
+    public static double STRAFE_TICKS_TO_INCHES = 0.002998;
+    public static double TURN_TICKS_TO_RADIANS = 0.003944;
 
     public static boolean useIMU = true;
 
@@ -90,20 +90,18 @@ public class ThreeWheelIMULocalizer extends Localizer {
         hardwareMap = map;
         imu = hardwareMap.get(IMU.class, "imu");
 
-        // TODO: replace this with your IMU's orientation
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.FORWARD, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
 
-        // TODO: replace these with your encoder positions
-        leftEncoderPose = new Pose(1.375, 8.0625, 0);
-        rightEncoderPose = new Pose(1.375, -8.0625, 0);
+        // TODO: For new bot, do this all over again
+        leftEncoderPose = new Pose(1.375, 8.0625, Math.toRadians(180));
+        rightEncoderPose = new Pose(1.375, -8.0625, Math.toRadians(180));
         strafeEncoderPose = new Pose(-2.625, 0.6875, Math.toRadians(90));
 
-        // TODO: replace these with your encoder ports
+        // this should be the same for new bot
         leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "FLdrive"));
-        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "BRdrive"));
+        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "BLdrive"));
         strafeEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "FRdrive"));
 
-        // TODO: reverse any encoders necessary
         leftEncoder.setDirection(Encoder.FORWARD);
         rightEncoder.setDirection(Encoder.REVERSE);
         strafeEncoder.setDirection(Encoder.REVERSE);
