@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.config.Config;
 
+@Config
 public class RobotConstants {
     // Motor Constants
     public static final double GEAR_RATIO = 12;
@@ -14,8 +16,10 @@ public class RobotConstants {
     public static final double WHEEL_RADIUS_ODO = 0.94;
     public static final double COUNTS_PER_REV_ODO = 2000;
 
-    // PID Constants
-    public static final double p_lift = 0, i_lift = 0, d_lift = 0, f_lift = 0;
+    // Robot Lengths
+    public static final double ROBOT_BACK_LENGTH = 17;
+    public static final double ROBOT_SIDE_LENGTH = 17;
+
 
     // Intake States
     public enum IntakeState {
@@ -49,7 +53,7 @@ public class RobotConstants {
     public static final double INTAKE_FORWARD = 1;
     public static final double INTAKE_BACKWARD = -1;
 
-    public static final double EXTENSION_IN = 0;
+    public static final double EXTENSION_IN = 0.04;
     public static final double EXTENSION_OUT = 1;
 
     public static final double PIVOT_IN = 0;
