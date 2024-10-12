@@ -63,9 +63,9 @@ public class ThreeWheelIMULocalizer extends Localizer {
     private double previousIMUOrientation;
     private double deltaRadians;
     private double totalHeading;
-    public static double FORWARD_TICKS_TO_INCHES = 0.002985;
-    public static double STRAFE_TICKS_TO_INCHES = 0.002998;
-    public static double TURN_TICKS_TO_RADIANS = 0.003944;
+    public static double FORWARD_TICKS_TO_INCHES = 0.002969571843477358;
+    public static double STRAFE_TICKS_TO_INCHES = 0.0029425932534618117;
+    public static double TURN_TICKS_TO_RADIANS = 0.003948770888975016;
 
     public static boolean useIMU = true;
 

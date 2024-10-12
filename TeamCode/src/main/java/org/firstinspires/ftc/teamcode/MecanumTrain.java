@@ -12,7 +12,6 @@ import static org.firstinspires.ftc.teamcode.RobotConstants.PIVOT_MID;
 import static org.firstinspires.ftc.teamcode.RobotConstants.PIVOT_OUT;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -63,8 +62,6 @@ public class MecanumTrain{
     public TouchSensor verticalLimit, horizontalLimit;
     public DistanceSensor leftFrontDist, rightFrontDist;
 
-    // TODO: PID Controller definitions
-    private PIDController pidLift;
 
 
     public MecanumTrain(HardwareMap hwMapX, ElapsedTime runtime) {
@@ -92,7 +89,7 @@ public class MecanumTrain{
 
         // ----------------- Sensors -----------------
         intakeColor = hwMap.get(ColorSensor.class, "intakeColor");
-//        bucketDetector = hwMap.get(ColorSensor.class, "bucketDetector");
+        bucketDetector = hwMap.get(ColorSensor.class, "bucketDetector");
         horizontalLimit = hwMap.get(TouchSensor.class, "horizontalLimit");
         verticalLimit = hwMap.get(TouchSensor.class, "verticalLimit");
         rightFrontDist = hwMap.get(DistanceSensor.class, "rightFrontDist");
@@ -189,15 +186,19 @@ public class MecanumTrain{
     }
 
     public void setIntakePivot(String dir) {
-        if (dir.equals("in")) {
-            intakePivot1.setPosition(PIVOT_IN);
-            intakePivot2.setPosition(PIVOT_IN);
-        } else if (dir.equals("out")) {
-            intakePivot1.setPosition(PIVOT_OUT);
-            intakePivot2.setPosition(PIVOT_OUT);
-        } else if (dir.equals("mid")) {
-            intakePivot1.setPosition(PIVOT_MID);
-            intakePivot2.setPosition(PIVOT_MID);
+        switch (dir) {
+            case "in":
+                intakePivot1.setPosition(PIVOT_IN);
+                intakePivot2.setPosition(PIVOT_IN);
+                break;
+            case "out":
+                intakePivot1.setPosition(PIVOT_OUT);
+                intakePivot2.setPosition(PIVOT_OUT);
+                break;
+            case "mid":
+                intakePivot1.setPosition(PIVOT_MID);
+                intakePivot2.setPosition(PIVOT_MID);
+                break;
         }
     }
 
@@ -212,23 +213,23 @@ public class MecanumTrain{
     public void liftExtend_lowBucket() {
         verticalExtension.setTargetPosition(450);//TODO: change to the accurate value
         verticalExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        verticalExtension.setPower(0.4); //TODO: Change to 1 once we have the correct values
+        verticalExtension.setPower(0.7); //TODO: Change to 1 once we have the correct values
     }
 
     public void liftExtend_highBucket() {
-        verticalExtension.setTargetPosition(1300); //TODO: change to the accurate value
+        verticalExtension.setTargetPosition(1200); //TODO: change to the accurate value
         verticalExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        verticalExtension.setPower(0.4); //TODO: Change to 1 once we have the correct values
+        verticalExtension.setPower(0.7); //TODO: Change to 1 once we have the correct values
     }
     public void liftRetract() {
         verticalExtension.setTargetPosition(liftStart);
         verticalExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        verticalExtension.setPower(0.4); //TODO: Change to 1 once we have the correct values
+        verticalExtension.setPower(0.7); //TODO: Change to 1 once we have the correct values
     }
     public void runLift(int pos) {
         verticalExtension.setTargetPosition(pos);
         verticalExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        verticalExtension.setPower(0.4); //TODO: Change to 1 once we have the correct values
+        verticalExtension.setPower(0.7); //TODO: Change to 1 once we have the correct values
     }
 
     public void resetLift() {
@@ -248,5 +249,13 @@ public class MecanumTrain{
         return false;
     }
 
+    public boolean sampleInOuttake() {
+        if (bucketDetector instanceof DistanceSensor) {
+            ColorSensor color = bucketDetector;
+            double distance = ((DistanceSensor) color).getDistance(DistanceUnit.MM);
+            return distance < 30;
+        }
+        return false;
+    }
 
 }
