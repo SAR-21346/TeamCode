@@ -14,10 +14,9 @@ import static org.firstinspires.ftc.teamcode.RobotConstants.LiftState.LIFT_INIT;
 import static org.firstinspires.ftc.teamcode.RobotConstants.LiftState.LIFT_RETRACT;
 import static org.firstinspires.ftc.teamcode.RobotConstants.LiftState.LIFT_START;
 import static org.firstinspires.ftc.teamcode.RobotConstants.LiftState.LIFT_STOP;
-import static org.firstinspires.ftc.teamcode.autonomous.FieldConstants.ascentParking;
+import static org.firstinspires.ftc.teamcode.autonomous.FieldConstants.ascentParkingBlue;
 import static org.firstinspires.ftc.teamcode.autonomous.FieldConstants.blueAllianceBasket;
 import static org.firstinspires.ftc.teamcode.autonomous.FieldConstants.blueAllianceBasketStart;
-import static org.firstinspires.ftc.teamcode.autonomous.FieldConstants.blueAllianceBlueCenterSpike;
 import static org.firstinspires.ftc.teamcode.autonomous.FieldConstants.blueAllianceNeutralCenterSpike;
 import static org.firstinspires.ftc.teamcode.autonomous.FieldConstants.blueAllianceNeutralLeftSpike;
 import static org.firstinspires.ftc.teamcode.autonomous.FieldConstants.blueAllianceNeutralRightSpike;
@@ -120,11 +119,9 @@ public class BlueBasketNoSpec_One_Three extends OpMode {
         rightSampleScore.setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(-45));
         rightSampleScore.setPathEndTimeoutConstraint(0);
 
-        centerSampleCycle = new Path(new BezierCurve(
+        centerSampleCycle = new Path(new BezierLine(
                 new Point(blueAllianceBasket),
-                new Point(35.0, 120.0, Point.CARTESIAN),
-                new Point(46.8, 107.0, Point.CARTESIAN),
-                new Point(blueAllianceBlueCenterSpike.getX()-4, blueAllianceNeutralCenterSpike.getY()-11, Point.CARTESIAN)
+                new Point(blueAllianceNeutralCenterSpike.getX()-4, blueAllianceNeutralCenterSpike.getY()-11, Point.CARTESIAN)
         ));
         centerSampleCycle.setLinearHeadingInterpolation(blueAllianceBasket.getHeading(), Math.toRadians(90));
         centerSampleCycle.setPathEndTimeoutConstraint(0);
@@ -135,9 +132,8 @@ public class BlueBasketNoSpec_One_Three extends OpMode {
         centerSampleScore.setLinearHeadingInterpolation(Math.toRadians(90), blueAllianceBasket.getHeading());
         centerSampleScore.setPathEndTimeoutConstraint(0);
 
-        leftSampleCycle = new Path(new BezierCurve(
+        leftSampleCycle = new Path(new BezierLine(
                 new Point(blueAllianceBasket),
-                new Point(44.0, 117.0, Point.CARTESIAN),
                 new Point(blueAllianceNeutralLeftSpike.getX()-4, blueAllianceNeutralLeftSpike.getY()-11, Point.CARTESIAN)
         ));
         leftSampleCycle.setLinearHeadingInterpolation(blueAllianceBasket.getHeading(), Math.toRadians(90));
@@ -151,10 +147,9 @@ public class BlueBasketNoSpec_One_Three extends OpMode {
 
         parkPath = new Path(new BezierCurve(
                 new Point(blueAllianceBasket),
-                new Point(ascentParking.getX(), 120, Point.CARTESIAN),
-                new Point(ascentParking)
+                new Point(ascentParkingBlue)
         ));
-        parkPath.setLinearHeadingInterpolation(blueAllianceBasket.getHeading(), ascentParking.getHeading());
+        parkPath.setLinearHeadingInterpolation(blueAllianceBasket.getHeading(), ascentParkingBlue.getHeading());
         parkPath.setPathEndTimeoutConstraint(0);
     }
 
@@ -174,6 +169,7 @@ public class BlueBasketNoSpec_One_Three extends OpMode {
             }
                 break;
             case 3:
+                bot.setBucket("flat");
                 bot.follower.followPath(rightSampleCycle);
                 setPathState(4);
                 break;
@@ -199,6 +195,7 @@ public class BlueBasketNoSpec_One_Three extends OpMode {
             }
                 break;
             case 7:
+                bot.setBucket("flat");
                 bot.follower.followPath(centerSampleCycle);
                 setPathState(8);
                 break;
@@ -224,6 +221,7 @@ public class BlueBasketNoSpec_One_Three extends OpMode {
             }
                 break;
             case 11:
+                bot.setBucket("flat");
                 bot.follower.followPath(leftSampleCycle);
                 setPathState(12);
                 break;
