@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-
 public class RobotConstants {
     // Motor Constants
     public static final double GEAR_RATIO = 12;
@@ -42,17 +41,6 @@ public class RobotConstants {
         LIFT_STOP,
         LIFT_RELEASE;
     }
-
-    public enum AutoMovementState {
-        MOVE_INIT,
-        MOVE_SUB,
-        INTAKE,
-        MOVE_BUCKET,
-        OUTAKE,
-        MOVE_BUCK_SUB,
-        MOVE_STOP;
-    }
-
 
     // Servo Positions
     public static final double INTAKE_OFF = 0;
