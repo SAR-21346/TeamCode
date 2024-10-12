@@ -182,15 +182,18 @@ public class RedBasketNoSpec_One_Three extends OpMode {
                 break;
             case 5:
                 if (intakeState == INTAKE_RETRACT) {
-                    bot.follower.followPath(rightSampleScore);
+                    bot.follower.followPath(rightSampleScore, true);
                     setPathState(6);
                 }
                 break;
             case 6:
                 if (pathTimer.getElapsedTimeSeconds() > 1.5) {
                     setLiftState(LIFT_START);
-                    if (liftTimer.getElapsedTimeSeconds() > 1.8) {
+                    if (bot.verticalExtension.getCurrentPosition() >= 1200) {
                         bot.setBucket("tip");
+                    }
+
+                    if (liftState == LIFT_STOP) {
                         setPathState(7);
                     }
                 }
@@ -208,15 +211,18 @@ public class RedBasketNoSpec_One_Three extends OpMode {
                 break;
             case 9:
                 if (intakeState == INTAKE_RETRACT) {
-                    bot.follower.followPath(centerSampleScore);
+                    bot.follower.followPath(centerSampleScore, true);
                     setPathState(10);
                 }
                 break;
             case 10:
                 if (pathTimer.getElapsedTimeSeconds() > 1.5) {
                     setLiftState(LIFT_START);
-                    if (liftTimer.getElapsedTimeSeconds() > 1.8) {
+                    if (bot.verticalExtension.getCurrentPosition() >= 1200) {
                         bot.setBucket("tip");
+                    }
+
+                    if (liftState == LIFT_STOP) {
                         setPathState(11);
                     }
                 }
@@ -234,15 +240,18 @@ public class RedBasketNoSpec_One_Three extends OpMode {
                 break;
             case 13:
                 if (intakeState == INTAKE_RETRACT) {
-                    bot.follower.followPath(leftSampleScore);
+                    bot.follower.followPath(leftSampleScore, true);
                     setPathState(14);
                 }
                 break;
             case 14:
                 if (pathTimer.getElapsedTimeSeconds() > 1.5) {
                     setLiftState(LIFT_START);
-                    if (liftTimer.getElapsedTimeSeconds() > 1.8) {
+                    if (bot.verticalExtension.getCurrentPosition() >= 1200) {
                         bot.setBucket("tip");
+                    }
+
+                    if (liftState == LIFT_STOP) {
                         setPathState(15);
                     }
                 }

@@ -162,8 +162,11 @@ public class BlueBasketNoSpec_One_Three extends OpMode {
             case 2: // Run the lift and outtake
             if (pathTimer.getElapsedTimeSeconds() > 1.5) {
                 setLiftState(LIFT_START);
-                if (liftTimer.getElapsedTimeSeconds() > 1.8) {
+                if (bot.verticalExtension.getCurrentPosition() >= 1200) {
                     bot.setBucket("tip");
+                }
+
+                if (liftState == LIFT_STOP) {
                     setPathState(3);
                 }
             }
@@ -187,12 +190,15 @@ public class BlueBasketNoSpec_One_Three extends OpMode {
                 break;
             case 6:
                 if (pathTimer.getElapsedTimeSeconds() > 1.5) {
-                setLiftState(LIFT_START);
-                if (liftTimer.getElapsedTimeSeconds() > 1.8) {
-                    bot.setBucket("tip");
-                    setPathState(7);
+                    setLiftState(LIFT_START);
+                    if (bot.verticalExtension.getCurrentPosition() >= 1200) {
+                        bot.setBucket("tip");
+                    }
+
+                    if (liftState == LIFT_STOP) {
+                        setPathState(7);
+                    }
                 }
-            }
                 break;
             case 7:
                 bot.setBucket("flat");
@@ -213,12 +219,15 @@ public class BlueBasketNoSpec_One_Three extends OpMode {
                 break;
             case 10:
                 if (pathTimer.getElapsedTimeSeconds() > 1.5) {
-                setLiftState(LIFT_START);
-                if (liftTimer.getElapsedTimeSeconds() > 1.8) {
-                    bot.setBucket("tip");
-                    setPathState(11);
+                    setLiftState(LIFT_START);
+                    if (bot.verticalExtension.getCurrentPosition() >= 1200) {
+                        bot.setBucket("tip");
+                    }
+
+                    if (liftState == LIFT_STOP) {
+                        setPathState(11);
+                    }
                 }
-            }
                 break;
             case 11:
                 bot.setBucket("flat");
@@ -240,8 +249,11 @@ public class BlueBasketNoSpec_One_Three extends OpMode {
             case 14:
                 if (pathTimer.getElapsedTimeSeconds() > 1.5) {
                     setLiftState(LIFT_START);
-                    if (liftTimer.getElapsedTimeSeconds() > 1.8) {
+                    if (bot.verticalExtension.getCurrentPosition() >= 1200) {
                         bot.setBucket("tip");
+                    }
+
+                    if (liftState == LIFT_STOP) {
                         setPathState(15);
                     }
                 }
