@@ -60,6 +60,6 @@ public class RobotConstants {
     public static final double PIVOT_MID = 0.5;
     public static final double PIVOT_OUT = 1;
 
-    public static final double BUCKET_FLAT = 0.3;
-    public static final double BUCKET_TIP = 1;
+    public static final double BUCKET_FLAT = 0.55;
+    public static final double BUCKET_TIP = 0;
 }

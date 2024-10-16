@@ -93,8 +93,11 @@ public class BlueBasketNoSpec_One_Three extends OpMode {
         outtakeStateUpdate();
 
         telemetry.addData("Path State", pathState);
+        telemetry.addData("PathTimer", pathTimer.getElapsedTimeSeconds());
         telemetry.addData("Intake State", intakeState);
+        telemetry.addData("IntakeTimer", intakeTimer.getElapsedTimeSeconds());
         telemetry.addData("Lift State", liftState);
+        telemetry.addData("LiftTimer", liftTimer.getElapsedTimeSeconds());
         telemetry.update();
     }
 
@@ -108,39 +111,41 @@ public class BlueBasketNoSpec_One_Three extends OpMode {
 
         rightSampleCycle = new Path(new BezierLine(
                 new Point(blueAllianceBasket),
-                new Point(blueAllianceNeutralRightSpike.getX()-4, blueAllianceNeutralRightSpike.getY()-11, Point.CARTESIAN)
+                new Point(blueAllianceNeutralRightSpike.getX()-6, blueAllianceNeutralRightSpike.getY()-8, Point.CARTESIAN)
         ));
         rightSampleCycle.setLinearHeadingInterpolation(Math.toRadians(-45), Math.toRadians(90));
         rightSampleCycle.setPathEndTimeoutConstraint(0);
 
         rightSampleScore = new Path(new BezierLine(
-                new Point(blueAllianceNeutralRightSpike.getX()-4, blueAllianceNeutralRightSpike.getY()-11, Point.CARTESIAN),
+                new Point(blueAllianceNeutralRightSpike.getX()-4, blueAllianceNeutralRightSpike.getY()-13, Point.CARTESIAN),
                 new Point(blueAllianceBasket)));
         rightSampleScore.setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(-45));
         rightSampleScore.setPathEndTimeoutConstraint(0);
 
-        centerSampleCycle = new Path(new BezierLine(
+        centerSampleCycle = new Path(new BezierCurve(
                 new Point(blueAllianceBasket),
-                new Point(blueAllianceNeutralCenterSpike.getX()-4, blueAllianceNeutralCenterSpike.getY()-11, Point.CARTESIAN)
+                new Point(blueAllianceNeutralCenterSpike.getX()-4, blueAllianceNeutralCenterSpike.getY()-20, Point.CARTESIAN),
+                new Point(blueAllianceNeutralCenterSpike.getX()-4, blueAllianceNeutralCenterSpike.getY()-13, Point.CARTESIAN)
         ));
         centerSampleCycle.setLinearHeadingInterpolation(blueAllianceBasket.getHeading(), Math.toRadians(90));
         centerSampleCycle.setPathEndTimeoutConstraint(0);
 
         centerSampleScore = new Path(new BezierLine(
-                new Point(blueAllianceNeutralCenterSpike.getX()-4, blueAllianceNeutralCenterSpike.getY()-11, Point.CARTESIAN),
+                new Point(blueAllianceNeutralCenterSpike.getX()-4, blueAllianceNeutralCenterSpike.getY()-13, Point.CARTESIAN),
                 new Point(blueAllianceBasket)));
         centerSampleScore.setLinearHeadingInterpolation(Math.toRadians(90), blueAllianceBasket.getHeading());
         centerSampleScore.setPathEndTimeoutConstraint(0);
 
-        leftSampleCycle = new Path(new BezierLine(
+        leftSampleCycle = new Path(new BezierCurve(
                 new Point(blueAllianceBasket),
-                new Point(blueAllianceNeutralLeftSpike.getX()-4, blueAllianceNeutralLeftSpike.getY()-11, Point.CARTESIAN)
+                new Point(blueAllianceNeutralLeftSpike.getX()-4, blueAllianceNeutralLeftSpike.getY()-20, Point.CARTESIAN),
+                new Point(blueAllianceNeutralLeftSpike.getX()-4, blueAllianceNeutralLeftSpike.getY()-13, Point.CARTESIAN)
         ));
         leftSampleCycle.setLinearHeadingInterpolation(blueAllianceBasket.getHeading(), Math.toRadians(90));
         leftSampleCycle.setPathEndTimeoutConstraint(0);
 
         leftSampleScore = new Path(new BezierLine(
-                new Point(blueAllianceNeutralLeftSpike.getX()-4, blueAllianceNeutralLeftSpike.getY()-11, Point.CARTESIAN),
+                new Point(blueAllianceNeutralLeftSpike.getX()-4, blueAllianceNeutralLeftSpike.getY()-13, Point.CARTESIAN),
                 new Point(blueAllianceBasket)));
         leftSampleScore.setLinearHeadingInterpolation(Math.toRadians(90), blueAllianceBasket.getHeading());
         leftSampleScore.setPathEndTimeoutConstraint(0);
@@ -160,21 +165,16 @@ public class BlueBasketNoSpec_One_Three extends OpMode {
                 setPathState(2);
                 break;
             case 2: // Run the lift and outtake
-            if (pathTimer.getElapsedTimeSeconds() > 1.5) {
-                setLiftState(LIFT_START);
-                if (bot.verticalExtension.getCurrentPosition() >= 1200) {
-                    bot.setBucket("tip");
-                }
-
-                if (liftState == LIFT_STOP) {
+                if (pathTimer.getElapsedTimeSeconds() > 1.5) {
+                    setLiftState(LIFT_START);
                     setPathState(3);
                 }
-            }
                 break;
             case 3: // Path to the right sample cycle
-                bot.setBucket("flat");
-                bot.follower.followPath(rightSampleCycle);
-                setPathState(4);
+                if (liftState == LIFT_STOP) {
+                    bot.follower.followPath(rightSampleCycle);
+                    setPathState(4);
+                }
                 break;
             case 4: // Flip out the intake
                 if (bot.follower.getCurrentTValue() > 0.95) {
@@ -191,19 +191,14 @@ public class BlueBasketNoSpec_One_Three extends OpMode {
             case 6: // Run the lift and outtake
                 if (pathTimer.getElapsedTimeSeconds() > 1.5) {
                     setLiftState(LIFT_START);
-                    if (bot.verticalExtension.getCurrentPosition() >= 1200) {
-                        bot.setBucket("tip");
-                    }
-
-                    if (liftState == LIFT_STOP) {
-                        setPathState(7);
-                    }
+                    setPathState(7);
                 }
                 break;
             case 7: // Path to the center sample cycle
-                bot.setBucket("flat");
-                bot.follower.followPath(centerSampleCycle);
-                setPathState(8);
+                if (liftState == LIFT_STOP) {
+                    bot.follower.followPath(centerSampleCycle);
+                    setPathState(8);
+                }
                 break;
             case 8: // Flip out the intake
                 if (bot.follower.getCurrentTValue() > 0.95) {
@@ -220,19 +215,14 @@ public class BlueBasketNoSpec_One_Three extends OpMode {
             case 10: // Run the lift and outtake
                 if (pathTimer.getElapsedTimeSeconds() > 1.5) {
                     setLiftState(LIFT_START);
-                    if (bot.verticalExtension.getCurrentPosition() >= 1200) {
-                        bot.setBucket("tip");
-                    }
-
-                    if (liftState == LIFT_STOP) {
-                        setPathState(11);
-                    }
+                    setPathState(11);
                 }
                 break;
             case 11: // Path to the left sample cycle
-                bot.setBucket("flat");
-                bot.follower.followPath(leftSampleCycle);
-                setPathState(12);
+                if (liftState == LIFT_STOP) {
+                    bot.follower.followPath(leftSampleCycle);
+                    setPathState(12);
+                }
                 break;
             case 12: // Flip out the intake
                 if (bot.follower.getCurrentTValue() > 0.95) {
