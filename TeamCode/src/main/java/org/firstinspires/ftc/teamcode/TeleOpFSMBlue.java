@@ -44,8 +44,6 @@ public class TeleOpFSMBlue extends OpMode {
 
     int target = 0;
 
-
-
     @Override
     public void init() {
         intakeTimer = new Timer();
@@ -168,9 +166,9 @@ public class TeleOpFSMBlue extends OpMode {
                     bot.setIntakePivot("in");
                     if (intakeTimer.getElapsedTimeSeconds() > 4.8) {
                         bot.setIntakeServo("backward");
+                        setIntakeState(INTAKE_STOP);
                     }
                 }
-                setIntakeState(INTAKE_RELEASE);
                 break;
             case INTAKE_SPIN:
                 bot.setIntakeServo("forward");
@@ -194,13 +192,6 @@ public class TeleOpFSMBlue extends OpMode {
                 bot.setHorizontalExtension("in");
                 if (intakeTimer.getElapsedTimeSeconds() > 1.2) {
                     setIntakeState(INTAKE_FLIP_IN);
-                }
-                break;
-            case INTAKE_RELEASE:
-                bot.setIntakePivot("in");
-                bot.setIntakeServo("backward");
-                if (intakeTimer.getElapsedTimeSeconds() > 2.0) {
-                    setIntakeState(INTAKE_STOP);
                 }
                 break;
             case INTAKE_STOP:

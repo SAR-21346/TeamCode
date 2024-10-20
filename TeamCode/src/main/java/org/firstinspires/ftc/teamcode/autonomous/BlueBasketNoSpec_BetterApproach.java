@@ -254,7 +254,7 @@ public class BlueBasketNoSpec_BetterApproach extends OpMode {
                 break;
             case 16: // Stop the opmode
                 if(!bot.follower.isBusy()) {
-                    requestOpModeStop();
+                        requestOpModeStop();
                 }
                 break;
         }
