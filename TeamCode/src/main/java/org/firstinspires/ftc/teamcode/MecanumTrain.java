@@ -139,7 +139,7 @@ public class MecanumTrain{
     // v3 - double (power for rightFrontDrive)
     public void setMotorPowers(double v, double v1, double v2, double v3, double speedMultiplier) {
         leftBackDrive.setPower(v1 * speedMultiplier);
-        leftFrontDrive.setPower(-v * speedMultiplier); // TODO: if doesn't work, change back to negative
+        leftFrontDrive.setPower(v * speedMultiplier); // TODO: if doesn't work, change back to negative
         rightBackDrive.setPower(v3 * speedMultiplier);
         rightFrontDrive.setPower(v2 * speedMultiplier);
     }
@@ -213,23 +213,23 @@ public class MecanumTrain{
     public void liftExtend_lowBucket() {
         verticalExtension.setTargetPosition(450);//TODO: change to the accurate value
         verticalExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        verticalExtension.setPower(0.7); //TODO: Change to 1 once we have the correct values
+        verticalExtension.setPower(0.4); //TODO: Change to 1 once we have the correct values
     }
 
     public void liftExtend_highBucket() {
-        verticalExtension.setTargetPosition(1200); //TODO: change to the accurate value
+        verticalExtension.setTargetPosition(1170); //TODO: change to the accurate value
         verticalExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        verticalExtension.setPower(0.7); //TODO: Change to 1 once we have the correct values
+        verticalExtension.setPower(0.8); //TODO: Change to 1 once we have the correct values
     }
     public void liftRetract() {
         verticalExtension.setTargetPosition(liftStart);
         verticalExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        verticalExtension.setPower(0.7); //TODO: Change to 1 once we have the correct values
+        verticalExtension.setPower(0.4); //TODO: Change to 1 once we have the correct values
     }
     public void runLift(int pos) {
         verticalExtension.setTargetPosition(pos);
         verticalExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        verticalExtension.setPower(0.7); //TODO: Change to 1 once we have the correct values
+        verticalExtension.setPower(0.4); //TODO: Change to 1 once we have the correct values
     }
 
     public void resetLift() {
