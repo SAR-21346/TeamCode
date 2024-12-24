@@ -22,14 +22,14 @@ public class FieldConstants {
     public static final Pose redAllianceNeutralLeftSpike = new Pose(45.5+24*2+4.5, 2+10.5+10.5);
 
     // Basket Park Locations
-    public static final Pose blueAllianceBasket = new Pose(15, 122, Math.toRadians(-70));
+    public static final Pose blueAllianceBasket = new Pose(15, 120, Math.toRadians(-60));
     public static final Pose redAllianceBasket = new Pose(122, 15, Math.toRadians(135));
 
     // Start Locations
-    public static final Pose blueAllianceBasketStart = new Pose(8, 84, Math.toRadians(0));
+    public static final Pose blueAllianceBasketStart = new Pose(8, 106, Math.toRadians(0));
     public static final Pose redAllianceBasketStart = new Pose (136, 60, Math.toRadians(180));
 
     // Park Locations
-    public static final Pose ascentParkingBlue = new Pose(60, 96, Math.toRadians(90));
+    public static final Pose ascentParkingBlue = new Pose(63, 96, Math.toRadians(90));
     public static final Pose ascentParkingRed = new Pose(84, 48, Math.toRadians(270));
 }

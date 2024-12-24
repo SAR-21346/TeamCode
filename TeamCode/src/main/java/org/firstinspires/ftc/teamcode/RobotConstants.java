@@ -55,12 +55,13 @@ public class RobotConstants {
     public static final double INTAKE_BACKWARD = -1;
 
     public static final double EXTENSION_IN = 0.04;
-    public static final double EXTENSION_OUT = 1;
+    public static final double EXTENSION_MID = 0.26;
+    public static final double EXTENSION_OUT = 0.5;
 
-    public static final double PIVOT_IN = 0;
+    public static final double PIVOT_IN = 0.1;
     public static final double PIVOT_MID = 0.5;
     public static final double PIVOT_OUT = 1;
 
-    public static double BUCKET_FLAT = 1;
-    public static double BUCKET_TIP = 0;
+    public static double BUCKET_FLAT = 0.6; //0.6
+    public static double BUCKET_TIP = 0.25; //0
 }

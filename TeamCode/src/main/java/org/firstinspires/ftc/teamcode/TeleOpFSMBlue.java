@@ -44,6 +44,7 @@ public class TeleOpFSMBlue extends OpMode {
 
     private boolean manual = false;
 
+    private int target = 0;
 
     @Override
     public void init() {
@@ -58,6 +59,8 @@ public class TeleOpFSMBlue extends OpMode {
         bot.verticalExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Reset the lift encoder
 
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
+
+        bot.follower.startTeleopDrive();
     }
 
     @Override
@@ -70,32 +73,6 @@ public class TeleOpFSMBlue extends OpMode {
 
     @Override
     public void loop() {
-        // -------------- INTAKE ----------------
-         intakeStateUpdate(); // Update the intake state
-
-        if (gamepad2.x) {
-            setIntakeState(INTAKE_START); // Start the intake state machine
-            intakeDistCheck = true; // Set the distance check to true
-        }
-
-        if (gamepad2.dpad_down) {
-            setIntakeState(INTAKE_FLIP_OUT);
-        }
-
-        if (gamepad2.y) {
-            setIntakeState(INTAKE_STOP);
-            setLiftState(LIFT_RETRACT);
-        }
-
-
-        // -------------- LIFT ----------------
-        outtakeStateUpdate(); // Update the lift state
-
-        if (gamepad2.b) {
-            setLiftState(LIFT_START); // Start the lift state machine
-        }
-
-        // -------------- FAILSAFE --------------
         if (gamepad2.left_stick_button && gamepad2.right_stick_button) {
             manual = !manual; // toggle manual mode
         }
@@ -113,25 +90,88 @@ public class TeleOpFSMBlue extends OpMode {
                 bot.setIntakeServo("backward");
             }
 
+            if (gamepad2.touchpad) {
+                bot.setIntakeServo("off");
+            }
+
             if (gamepad2.dpad_up) {
                 bot.setIntakePivot("in");
             }
+
+            if (gamepad2.left_bumper) {
+                bot.setBucket("flat");
+            }
+
+            if (gamepad2.right_bumper) {
+                bot.setBucket("tip");
+            }
+
+            if(gamepad2.left_trigger > 0){
+                float decreaseHeight = gamepad2.left_trigger;
+                target -= decreaseHeight*15;
+            }
+
+            if ((gamepad2.right_trigger > 0) && target <= 4000) {
+                float increaseFlip = gamepad2.right_trigger;
+                target += increaseFlip*15;
+            }
+
+            bot.runLift(target);
+
+            if (gamepad2.square && gamepad2.circle) {
+                bot.resetLift();
+            }
+        } else {
+            intakeStateUpdate(); // Update the intake state
+
+            if (gamepad2.x) {
+                setIntakeState(INTAKE_START); // Start the intake state machine
+                intakeDistCheck = true; // Set the distance check to true
+            }
+
+            if (gamepad2.dpad_down) {
+                setIntakeState(INTAKE_FLIP_OUT);
+            }
+
+            if (gamepad2.y) {
+                setIntakeState(INTAKE_STOP);
+                setLiftState(LIFT_RETRACT);
+            }
+
+            if (gamepad2.b) {
+                setLiftState(LIFT_START); // Start the lift state machine
+            }
+
+            outtakeStateUpdate(); // Update the lift state
         }
 
         // -------------- DRIVE ----------------
         double axial = -gamepad1.left_stick_y; // Get the axial value from the left stick y
-        double lateral = gamepad1.left_stick_x; // Get the lateral value from the left stick x
-        double yaw = gamepad1.right_stick_x; // Get the yaw value from the right stick x
+        double lateral = -gamepad1.left_stick_x; // Get the lateral value from the left stick x
+        double yaw = -gamepad1.right_stick_x; // Get the yaw value from the right stick x
 
         // calculate motor powers
-        double[] motorPowers = bot.calculateMotorPowers(axial, lateral, yaw);
-        if (gamepad1.right_bumper) { bot.setMotorPowers(motorPowers[0], motorPowers[1], motorPowers[2], motorPowers[3], SPEED_MULTIPLIER); }
-        else { bot.setMotorPowers(motorPowers[0], motorPowers[1], motorPowers[2], motorPowers[3], 1); }
+        //double[] motorPowers = bot.calculateMotorPowers(axial, lateral, yaw);
+        //if (gamepad1.right_bumper) { bot.setMotorPowers(motorPowers[0], motorPowers[1], motorPowers[2], motorPowers[3], SPEED_MULTIPLIER); }
+        //else { bot.setMotorPowers(motorPowers[0], motorPowers[1], motorPowers[2], motorPowers[3], 1); }
 
+        if (gamepad1.left_bumper) {
+            bot.follower.setTeleOpMovementVectors(
+                    axial * SPEED_MULTIPLIER,
+                    lateral * SPEED_MULTIPLIER,
+                    yaw * SPEED_MULTIPLIER
+            );
+        } else {
+            bot.follower.setTeleOpMovementVectors(axial, lateral, yaw);
+        }
+        bot.follower.update();
 
         // -------------- TELEMETRY ---------------
+        telemetry.addData("Manual", manual);
         telemetry.addData("distLeft", bot.leftFrontDist.getDistance(DistanceUnit.CM));
         telemetry.addData("distRight", bot.rightFrontDist.getDistance(DistanceUnit.CM));
+        telemetry.addData("distBack", bot.backDist.getDistance(DistanceUnit.INCH));
+        telemetry.addData("target", target);
         telemetry.addData("lift encoder", bot.verticalExtension.getCurrentPosition());
         telemetry.addData("horizontalLimit", bot.horizontalLimit.isPressed());
         telemetry.addData("leftEnc", bot.leftFrontDrive.getCurrentPosition());
@@ -178,37 +218,38 @@ public class TeleOpFSMBlue extends OpMode {
                 break;
             case INTAKE_SAMPLE_IN:
                 bot.setIntakeServo("off");
-                int r = bot.intakeColor.red(), g = bot.intakeColor.green(), b = bot.intakeColor.blue();
-                int maxValue = Math.max(r, Math.max(g, b));
-                if (bot.sampleDetected() && maxValue == r) {
-                    bot.setIntakeServo("backward");
-                    if (!bot.sampleDetected()){
-                        setIntakeState(INTAKE_SPIN);
-                    }
-                } else {
-                    setIntakeState(INTAKE_FLIP_IN);
-                }
+//                int r = bot.intakeColor.red(), g = bot.intakeColor.green(), b = bot.intakeColor.blue();
+//                int maxValue = Math.max(r, Math.max(g, b));
+//                if (bot.sampleDetected() && maxValue == r) {
+//                    bot.setIntakeServo("backward");
+//                    if (!bot.sampleDetected()){
+//                        setIntakeState(INTAKE_SPIN);
+//                    }
+//                }
+                setIntakeState(INTAKE_RETRACT);
                 break;
             case INTAKE_FLIP_IN:
                 bot.setIntakePivot("in");
-                if (intakeTimer.getElapsedTimeSeconds() > 0.2) {
-                    setIntakeState(INTAKE_RETRACT);
+                if (intakeTimer.getElapsedTimeSeconds() > 0.4) {
+                    setIntakeState(INTAKE_RELEASE);
                 }
                 break;
             case INTAKE_RETRACT:
                 bot.setHorizontalExtension("in");
-                if (intakeTimer.getElapsedTimeSeconds() > 0.3) {
-                    setIntakeState(INTAKE_RELEASE);
+                if (intakeTimer.getElapsedTimeSeconds() > 0.6) {
+                    setIntakeState(INTAKE_FLIP_IN);
                 }
                 break;
             case INTAKE_RELEASE:
                 if(intakeTimer.getElapsedTimeSeconds() > 0.5) {
                     bot.setIntakeServo("backward");
-                    setIntakeState(INTAKE_STOP);
+                    if(bot.sampleInOuttake()) {
+                        setIntakeState(INTAKE_STOP);
+                    }
                 }
                 break;
             case INTAKE_STOP:
-                if(intakeTimer.getElapsedTimeSeconds() > 1.0) {
+                if(intakeTimer.getElapsedTimeSeconds() > 0.4) {
                     bot.setIntakeServo("off");
                     bot.setIntakePivot("in");
                     bot.setHorizontalExtension("in");

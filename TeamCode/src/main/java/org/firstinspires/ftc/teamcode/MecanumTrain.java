@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import static org.firstinspires.ftc.teamcode.RobotConstants.BUCKET_FLAT;
 import static org.firstinspires.ftc.teamcode.RobotConstants.BUCKET_TIP;
 import static org.firstinspires.ftc.teamcode.RobotConstants.EXTENSION_IN;
+import static org.firstinspires.ftc.teamcode.RobotConstants.EXTENSION_MID;
 import static org.firstinspires.ftc.teamcode.RobotConstants.EXTENSION_OUT;
 import static org.firstinspires.ftc.teamcode.RobotConstants.INTAKE_BACKWARD;
 import static org.firstinspires.ftc.teamcode.RobotConstants.INTAKE_FORWARD;
@@ -60,7 +61,7 @@ public class MecanumTrain{
     // ----------------- Sensors -----------------
     public ColorSensor intakeColor, bucketDetector; // TODO: Add bucket detector
     public TouchSensor verticalLimit, horizontalLimit;
-    public DistanceSensor leftFrontDist, rightFrontDist;
+    public DistanceSensor leftFrontDist, rightFrontDist, backDist;
 
 
 
@@ -70,10 +71,10 @@ public class MecanumTrain{
         follower = new Follower(hwMap);
 
         // ----------------- Drive Motors -----------------
-        leftFrontDrive = hwMap.get(DcMotorEx.class, "FLdrive");
-        rightFrontDrive = hwMap.get(DcMotorEx.class, "FRdrive");
-        leftBackDrive = hwMap.get(DcMotorEx.class, "BLdrive");
-        rightBackDrive = hwMap.get(DcMotorEx.class, "BRdrive");
+        leftFrontDrive = hwMap.get(DcMotorEx.class, "frontLeftDrive");
+        rightFrontDrive = hwMap.get(DcMotorEx.class, "frontRightDrive");
+        leftBackDrive = hwMap.get(DcMotorEx.class, "backLeftDrive");
+        rightBackDrive = hwMap.get(DcMotorEx.class, "backRightDrive");
 
         motors = Arrays.asList(leftFrontDrive, leftBackDrive, rightFrontDrive, rightBackDrive);
 
@@ -81,8 +82,8 @@ public class MecanumTrain{
         verticalExtension = hwMap.get(DcMotorEx.class, "verticalExt");
 
         // ----------------- Servos -----------------
-        intakePivot1 = hwMap.get(Servo.class, "intakePivot");
-        intakePivot2 = hwMap.get(Servo.class, "intakePivot2");
+        intakePivot1 = hwMap.get(Servo.class, "intakePivotL");
+        intakePivot2 = hwMap.get(Servo.class, "intakePivotR");
         intakeServo = hwMap.get(CRServo.class, "intakeServo");
         bucket = hwMap.get(Servo.class, "bucket");
         horizontalExtension = hwMap.get(Servo.class, "horizontalExt");
@@ -90,10 +91,10 @@ public class MecanumTrain{
         // ----------------- Sensors -----------------
         intakeColor = hwMap.get(ColorSensor.class, "intakeColor");
         bucketDetector = hwMap.get(ColorSensor.class, "bucketDetector");
-        horizontalLimit = hwMap.get(TouchSensor.class, "horizontalLimit");
         verticalLimit = hwMap.get(TouchSensor.class, "verticalLimit");
         rightFrontDist = hwMap.get(DistanceSensor.class, "rightFrontDist");
         leftFrontDist = hwMap.get(DistanceSensor.class, "leftFrontDist");
+        backDist = hwMap.get(DistanceSensor.class, "backDist");
 
         // Set Modes for Motors
         setMotorsMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -180,6 +181,8 @@ public class MecanumTrain{
     public void setHorizontalExtension(String dir) {
         if (dir.equals("in")) {
             horizontalExtension.setPosition(EXTENSION_IN);
+        } else if (dir.equals("mid")) {
+            horizontalExtension.setPosition(EXTENSION_MID);
         } else if (dir.equals("out")) {
             horizontalExtension.setPosition(EXTENSION_OUT);
         }
@@ -211,20 +214,20 @@ public class MecanumTrain{
     }
 
     public void liftExtend_lowBucket() {
-        verticalExtension.setTargetPosition(450);//TODO: change to the accurate value
+        verticalExtension.setTargetPosition(1400);//TODO: change to the accurate value
         verticalExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        verticalExtension.setPower(0.4); //TODO: Change to 1 once we have the correct values
+        verticalExtension.setPower(0.7); //TODO: Change to 1 once we have the correct values
     }
 
     public void liftExtend_highBucket() {
-        verticalExtension.setTargetPosition(1170); //TODO: change to the accurate value
+        verticalExtension.setTargetPosition(3970); //TODO: change to the accurate value;
         verticalExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        verticalExtension.setPower(0.8); //TODO: Change to 1 once we have the correct values
+        verticalExtension.setPower(1); //TODO: Change to 1 once we have the correct values
     }
     public void liftRetract() {
         verticalExtension.setTargetPosition(liftStart);
         verticalExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        verticalExtension.setPower(0.4); //TODO: Change to 1 once we have the correct values
+        verticalExtension.setPower(1); //TODO: Change to 1 once we have the correct values
     }
     public void runLift(int pos) {
         verticalExtension.setTargetPosition(pos);
@@ -244,7 +247,7 @@ public class MecanumTrain{
         if (intakeColor instanceof DistanceSensor) {
             ColorSensor color = intakeColor;
             double distance = ((DistanceSensor) color).getDistance(DistanceUnit.MM);
-            return distance < 30;
+            return distance < 20;
         }
         return false;
     }
@@ -253,7 +256,7 @@ public class MecanumTrain{
         if (bucketDetector instanceof DistanceSensor) {
             ColorSensor color = bucketDetector;
             double distance = ((DistanceSensor) color).getDistance(DistanceUnit.MM);
-            return distance < 30;
+            return distance < 150;
         }
         return false;
     }
