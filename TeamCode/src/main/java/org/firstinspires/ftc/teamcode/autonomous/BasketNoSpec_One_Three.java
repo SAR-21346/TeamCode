@@ -10,6 +10,7 @@ import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_S
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_STOP;
 import static org.firstinspires.ftc.teamcode.RobotConstants.LiftState.BUCKET_TIP;
 import static org.firstinspires.ftc.teamcode.RobotConstants.LiftState.LIFT_EXTEND_HIGH;
+import static org.firstinspires.ftc.teamcode.RobotConstants.LiftState.LIFT_EXTEND_LOW;
 import static org.firstinspires.ftc.teamcode.RobotConstants.LiftState.LIFT_INIT;
 import static org.firstinspires.ftc.teamcode.RobotConstants.LiftState.LIFT_RETRACT;
 import static org.firstinspires.ftc.teamcode.RobotConstants.LiftState.LIFT_START;
@@ -28,7 +29,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.MecanumTrain;
 import org.firstinspires.ftc.teamcode.RobotConstants.IntakeState;
 import org.firstinspires.ftc.teamcode.RobotConstants.LiftState;
@@ -108,7 +108,7 @@ public class BasketNoSpec_One_Three extends OpMode {
         telemetry.addData("LiftTimer", liftTimer.getElapsedTimeSeconds());
         telemetry.addData("fullTimer", fullTimer.getElapsedTimeSeconds());
         telemetry.addData("Vertical Extension", bot.verticalExtension.getCurrentPosition());
-        telemetry.addData("Back Distance", bot.backDist.getDistance(DistanceUnit.INCH));
+        telemetry.addData("Position", bot.follower.getPose());
         telemetry.update();
     }
 
@@ -136,39 +136,53 @@ public class BasketNoSpec_One_Three extends OpMode {
         rightSampleScore = new Path(new BezierLine(
                 new Point(blueAllianceNeutralRightSpike.getX()-10, blueAllianceNeutralRightSpike.getY()-19, Point.CARTESIAN), // 33.5, 100.5
                 new Point(blueAllianceBasket.getX()+7, blueAllianceBasket.getY()+4, Point.CARTESIAN))); // 20,124
-        rightSampleScore.setLinearHeadingInterpolation(Math.toRadians(70), Math.toRadians(-60));
+        rightSampleScore.setLinearHeadingInterpolation(Math.toRadians(70), Math.toRadians(-55));
 
         centerSampleCycleChain = bot.follower.pathBuilder()
                 .addPath(new BezierCurve(
-                        new Point(blueAllianceBasket.getX()+3, blueAllianceBasket.getY()+3, Point.CARTESIAN), // 20,124
+                        new Point(blueAllianceBasket.getX()+7, blueAllianceBasket.getY()+4, Point.CARTESIAN), // 20,124
                         new Point(blueAllianceNeutralCenterSpike.getX()-36, blueAllianceNeutralCenterSpike.getY()-36, Point.CARTESIAN), // 15.5, 95.5
                         new Point(blueAllianceNeutralCenterSpike.getX()-15, blueAllianceNeutralCenterSpike.getY()-25, Point.CARTESIAN)  // 30.5, 97.5
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(-60),Math.toRadians(70))
                 .addPath(new BezierLine(
                         new Point(blueAllianceNeutralCenterSpike.getX()-15, blueAllianceNeutralCenterSpike.getY()-25, Point.CARTESIAN), // 30.5, 97.5
-                        new Point(blueAllianceNeutralCenterSpike.getX()-11, blueAllianceNeutralCenterSpike.getY()-17, Point.CARTESIAN)  // 33.5, 101.5
+                        new Point(blueAllianceNeutralCenterSpike.getX()-10, blueAllianceNeutralCenterSpike.getY()-15, Point.CARTESIAN)  // 33.5, 101.5
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(70), Math.toRadians(70))
+                .setLinearHeadingInterpolation(Math.toRadians(70), Math.toRadians(62.5))
                 .build();
 
         centerSampleScore = new Path(new BezierLine(
-                new Point(blueAllianceNeutralCenterSpike.getX()-12+3, blueAllianceNeutralCenterSpike.getY()-19+3, Point.CARTESIAN),
+                new Point(blueAllianceNeutralCenterSpike.getX()-10, blueAllianceNeutralCenterSpike.getY()-15, Point.CARTESIAN),
                 new Point(blueAllianceBasket.getX()+8, blueAllianceBasket.getY()+6, Point.CARTESIAN)));
         centerSampleScore.setLinearHeadingInterpolation(Math.toRadians(60), Math.toRadians(-60));
+
+//        leftSampleCycleChain = bot.follower.pathBuilder()
+//                .addPath(new BezierCurve(
+//                        new Point(blueAllianceBasket.getX()+3, blueAllianceBasket.getY()+3, Point.CARTESIAN), // 20,124
+//                        new Point(blueAllianceNeutralLeftSpike.getX()-36, blueAllianceNeutralLeftSpike.getY()-36, Point.CARTESIAN), // 15.5, 105.5
+//                        new Point(blueAllianceNeutralLeftSpike.getX()-12, blueAllianceNeutralLeftSpike.getY()-25, Point.CARTESIAN)  // 30.5, 107.5
+//                ))
+//                .setLinearHeadingInterpolation(Math.toRadians(-60), Math.toRadians(70))
+//                .addPath(new BezierLine(
+//                        new Point(blueAllianceNeutralLeftSpike.getX()-12, blueAllianceNeutralLeftSpike.getY()-25, Point.CARTESIAN), // 30.5, 107.5
+//                        new Point(blueAllianceNeutralLeftSpike.getX()-11, blueAllianceNeutralLeftSpike.getY()-17, Point.CARTESIAN)  // 33.5, 111.5
+//                ))
+//                .setLinearHeadingInterpolation(Math.toRadians(70), Math.toRadians(70))
+//                .build();
 
         leftSampleCycleChain = bot.follower.pathBuilder()
                 .addPath(new BezierCurve(
                         new Point(blueAllianceBasket.getX()+3, blueAllianceBasket.getY()+3, Point.CARTESIAN), // 20,124
                         new Point(blueAllianceNeutralLeftSpike.getX()-36, blueAllianceNeutralLeftSpike.getY()-36, Point.CARTESIAN), // 15.5, 105.5
-                        new Point(blueAllianceNeutralLeftSpike.getX()-12, blueAllianceNeutralLeftSpike.getY()-25, Point.CARTESIAN)  // 30.5, 107.5
+                        new Point(blueAllianceNeutralLeftSpike.getX()-5, blueAllianceNeutralLeftSpike.getY()-25, Point.CARTESIAN)  // 30.5, 107.5
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(-60), Math.toRadians(70))
+                .setLinearHeadingInterpolation(Math.toRadians(-60), Math.toRadians(90))
                 .addPath(new BezierLine(
-                        new Point(blueAllianceNeutralLeftSpike.getX()-12, blueAllianceNeutralLeftSpike.getY()-25, Point.CARTESIAN), // 30.5, 107.5
-                        new Point(blueAllianceNeutralLeftSpike.getX()-11, blueAllianceNeutralLeftSpike.getY()-17, Point.CARTESIAN)  // 33.5, 111.5
+                        new Point(blueAllianceNeutralLeftSpike.getX()-5, blueAllianceNeutralLeftSpike.getY()-25, Point.CARTESIAN), // 30.5, 107.5
+                        new Point(blueAllianceNeutralLeftSpike.getX()-3, blueAllianceNeutralLeftSpike.getY()-17, Point.CARTESIAN)  // 33.5, 111.5
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(70), Math.toRadians(85))
+                .setConstantHeadingInterpolation(Math.toRadians(90))
                 .build();
 
         leftSampleScore = new Path(new BezierLine(
@@ -201,14 +215,14 @@ public class BasketNoSpec_One_Three extends OpMode {
                 }
                 break;
             case 20:
-                if (pathTimer.getElapsedTimeSeconds() > 0.4) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.8) {
                     setIntakeState(INTAKE_FLIP_OUT);
                     setPathState(3);
                 }
                 break;
             case 3:// Retract the intake
                 if (intakeState == INTAKE_RETRACT) {
-                    bot.follower.setMaxPower(1);
+                    bot.follower.setMaxPower(0.75);
                     bot.follower.followPath(rightSampleScore);
                     setPathState(30);
                 }
@@ -233,7 +247,7 @@ public class BasketNoSpec_One_Three extends OpMode {
                 break;
             case 5: // Flip out the intake
                 if (intakeState == INTAKE_RETRACT) {
-                    bot.follower.setMaxPower(0.85);
+                    bot.follower.setMaxPower(0.65);
                     bot.follower.followPath(centerSampleScore);
                     setPathState(50);
                 }
@@ -272,17 +286,13 @@ public class BasketNoSpec_One_Three extends OpMode {
             case 8: // Path to the park
                 if (liftState == LIFT_RETRACT) {
                     bot.follower.setMaxPower(0.8);
-
-                    //bot.follower.followPath(parkPath);
+                    bot.follower.followPath(parkPath);
                     setPathState(9);
                 }
 
                 break;
             case 9: // Stop the opmode
-                //setLiftState(LIFT_EXTEND_LOW);
-                if(fullTimer.getElapsedTimeSeconds() >= 29.6) {
-                        bot.liftRetract();
-                }
+                setLiftState(LIFT_EXTEND_LOW);
                 break;
         }
     }
@@ -321,8 +331,10 @@ public class BasketNoSpec_One_Three extends OpMode {
                 }
                 break;
             case INTAKE_SAMPLE_IN:
-                bot.setIntakeServo("off");
-                setIntakeState(INTAKE_RETRACT);
+                if (intakeTimer.getElapsedTimeSeconds() > 0.1) {
+                    bot.setIntakeServo("off");
+                    setIntakeState(INTAKE_RETRACT);
+                }
                 break;
             case INTAKE_RETRACT:
                 bot.setHorizontalExtension("in");
@@ -332,8 +344,7 @@ public class BasketNoSpec_One_Three extends OpMode {
                 break;
             case INTAKE_FLIP_IN:
                 bot.setIntakePivot("in");
-                if (intakeTimer.getElapsedTimeSeconds() > 0.5) {
-                    bot.setIntakeServo("backward");
+                if (intakeTimer.getElapsedTimeSeconds() > 0.8) {
                     setIntakeState(INTAKE_SAMPLE_OUT);
                 }
                 break;
@@ -374,13 +385,10 @@ public class BasketNoSpec_One_Three extends OpMode {
                 }
                 break;
             case LIFT_EXTEND_HIGH:
-                if (bot.backDist.getDistance(DistanceUnit.INCH) > 12) {
-                    bot.setIntakePivot("mid");
                     bot.liftExtend_highBucket();
-                    if (bot.verticalExtension.getCurrentPosition() >= 3970) {
+                    if (bot.verticalExtension.getCurrentPosition() >= 3960) {
                         setLiftState(BUCKET_TIP);
                     }
-                }
                 break;
             case BUCKET_TIP:
                 bot.setBucket("tip");
