@@ -63,9 +63,9 @@ public class ThreeWheelIMULocalizer extends Localizer {
     private double previousIMUOrientation;
     private double deltaRadians;
     private double totalHeading;
-    public static double FORWARD_TICKS_TO_INCHES = 0.0029449;
-    public static double STRAFE_TICKS_TO_INCHES = 0.00295;
-    public static double TURN_TICKS_TO_RADIANS = 0.003;
+    public static double FORWARD_TICKS_TO_INCHES = 0.002969571843477358;
+    public static double STRAFE_TICKS_TO_INCHES = 0.0029425932534618117;
+    public static double TURN_TICKS_TO_RADIANS = 0.003948770888975016;
 
     public static boolean useIMU = true;
 
@@ -90,23 +90,22 @@ public class ThreeWheelIMULocalizer extends Localizer {
         hardwareMap = map;
         imu = hardwareMap.get(IMU.class, "imu");
 
-        // TODO: replace this with your IMU's orientation
-        imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.FORWARD, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
+        imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.LEFT, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD)));
 
-        // TODO: replace these with your encoder positions
-        leftEncoderPose = new Pose(1.375, 8.0625, 0);
-        rightEncoderPose = new Pose(1.375, -8.0625, 0);
+        imu.resetYaw();
+        // TODO: For new bot, do this all over again
+        leftEncoderPose = new Pose(1.375, 8.0625, Math.toRadians(180));
+        rightEncoderPose = new Pose(1.375, -8.0625, Math.toRadians(180));
         strafeEncoderPose = new Pose(-2.625, 0.6875, Math.toRadians(90));
 
-        // TODO: replace these with your encoder ports
-        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "FLdrive"));
-        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "BRdrive"));
-        strafeEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "FRdrive"));
+        // this should be the same for new bot
+        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "parL"));
+        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "parR"));
+        strafeEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "backLeftDrive"));
 
-        // TODO: reverse any encoders necessary
-        leftEncoder.setDirection(Encoder.FORWARD);
-        rightEncoder.setDirection(Encoder.REVERSE);
-        strafeEncoder.setDirection(Encoder.REVERSE);
+        leftEncoder.setDirection(Encoder.REVERSE);
+        rightEncoder.setDirection(Encoder.FORWARD);
+        strafeEncoder.setDirection(Encoder.FORWARD);
 
         setStartPose(setStartPose);
         timer = new NanoTimer();

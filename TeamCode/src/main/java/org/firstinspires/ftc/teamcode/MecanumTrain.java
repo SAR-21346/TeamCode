@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import static org.firstinspires.ftc.teamcode.RobotConstants.BUCKET_FLAT;
 import static org.firstinspires.ftc.teamcode.RobotConstants.BUCKET_TIP;
 import static org.firstinspires.ftc.teamcode.RobotConstants.EXTENSION_IN;
+import static org.firstinspires.ftc.teamcode.RobotConstants.EXTENSION_MID;
 import static org.firstinspires.ftc.teamcode.RobotConstants.EXTENSION_OUT;
 import static org.firstinspires.ftc.teamcode.RobotConstants.INTAKE_BACKWARD;
 import static org.firstinspires.ftc.teamcode.RobotConstants.INTAKE_FORWARD;
@@ -11,8 +12,9 @@ import static org.firstinspires.ftc.teamcode.RobotConstants.PIVOT_IN;
 import static org.firstinspires.ftc.teamcode.RobotConstants.PIVOT_MID;
 import static org.firstinspires.ftc.teamcode.RobotConstants.PIVOT_OUT;
 
+import androidx.annotation.NonNull;
+
 import com.acmerobotics.dashboard.config.Config;
-import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -26,6 +28,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -41,8 +44,11 @@ public class MecanumTrain{
     public DcMotorEx leftFrontDrive, leftBackDrive, rightFrontDrive, rightBackDrive;
     private final List<DcMotorEx> motors;
 
+    public DcMotorEx leftEnc, rightEnc, strafeEnc;
+
     // ----------------- Auxillary Motors -----------------
     public DcMotorEx verticalExtension;
+    public int liftStart;
 
     // ----------------- Servos -----------------
     public Servo intakePivot1, intakePivot2, bucket, horizontalExtension;
@@ -61,8 +67,6 @@ public class MecanumTrain{
     public TouchSensor verticalLimit, horizontalLimit;
     public DistanceSensor leftFrontDist, rightFrontDist;
 
-    // TODO: PID Controller definitions
-    private PIDController pidLift;
 
 
     public MecanumTrain(HardwareMap hwMapX, ElapsedTime runtime) {
@@ -71,45 +75,60 @@ public class MecanumTrain{
         follower = new Follower(hwMap);
 
         // ----------------- Drive Motors -----------------
-        leftFrontDrive = hwMap.get(DcMotorEx.class, "FLdrive");
-        rightFrontDrive = hwMap.get(DcMotorEx.class, "FRdrive");
-        leftBackDrive = hwMap.get(DcMotorEx.class, "BLdrive");
-        rightBackDrive = hwMap.get(DcMotorEx.class, "BRdrive");
+        leftFrontDrive = hwMap.get(DcMotorEx.class, "frontLeftDrive");
+        rightFrontDrive = hwMap.get(DcMotorEx.class, "frontRightDrive");
+        leftBackDrive = hwMap.get(DcMotorEx.class, "backLeftDrive");
+        rightBackDrive = hwMap.get(DcMotorEx.class, "backRightDrive");
 
         motors = Arrays.asList(leftFrontDrive, leftBackDrive, rightFrontDrive, rightBackDrive);
 
         // ----------------- Auxillary Motors -----------------
         verticalExtension = hwMap.get(DcMotorEx.class, "verticalExt");
 
+        leftEnc = hwMap.get(DcMotorEx.class, "parL");
+        rightEnc = hwMap.get(DcMotorEx.class, "parR");
+        strafeEnc = hwMap.get(DcMotorEx.class, "backLeftDrive");
+        leftEnc.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightEnc.setDirection(DcMotorSimple.Direction.FORWARD);
+        strafeEnc.setDirection(DcMotorSimple.Direction.FORWARD);
+
         // ----------------- Servos -----------------
-        intakePivot1 = hwMap.get(Servo.class, "intakePivot");
-        intakePivot2 = hwMap.get(Servo.class, "intakePivot2");
+        intakePivot1 = hwMap.get(Servo.class, "intakePivotL");
+        intakePivot2 = hwMap.get(Servo.class, "intakePivotR");
         intakeServo = hwMap.get(CRServo.class, "intakeServo");
         bucket = hwMap.get(Servo.class, "bucket");
         horizontalExtension = hwMap.get(Servo.class, "horizontalExt");
 
         // ----------------- Sensors -----------------
         intakeColor = hwMap.get(ColorSensor.class, "intakeColor");
-//        bucketDetector = hwMap.get(ColorSensor.class, "bucketDetector");
-        horizontalLimit = hwMap.get(TouchSensor.class, "horizontalLimit");
+        bucketDetector = hwMap.get(ColorSensor.class, "bucketDetector");
         verticalLimit = hwMap.get(TouchSensor.class, "verticalLimit");
         rightFrontDist = hwMap.get(DistanceSensor.class, "rightFrontDist");
         leftFrontDist = hwMap.get(DistanceSensor.class, "leftFrontDist");
 
         // Set Modes for Motors
         setMotorsMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        verticalExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         // Set directions for Motors
-        leftFrontDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+        verticalExtension.setDirection(DcMotorSimple.Direction.FORWARD);
 
         // Set ZeroPowerBehavior for Motors
         setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        verticalExtension.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Set BulkCachingMode for all hubs - gets sensor reads faster
         List<LynxModule> allHubs = hwMap.getAll(LynxModule.class);
         for (LynxModule hub : allHubs) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
+
+        liftStart = verticalExtension.getCurrentPosition();
+
+        leftFrontDrive.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftBackDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightFrontDrive.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightBackDrive.setDirection(DcMotorSimple.Direction.FORWARD);
 
         // TODO: Instantiate PID Controllers
         // pidLift = new PIDController(p, i, d);
@@ -178,21 +197,27 @@ public class MecanumTrain{
     public void setHorizontalExtension(String dir) {
         if (dir.equals("in")) {
             horizontalExtension.setPosition(EXTENSION_IN);
+        } else if (dir.equals("mid")) {
+            horizontalExtension.setPosition(EXTENSION_MID);
         } else if (dir.equals("out")) {
             horizontalExtension.setPosition(EXTENSION_OUT);
         }
     }
 
-    public void setIntakePivot(String dir) {
-        if (dir.equals("in")) {
-            intakePivot1.setPosition(PIVOT_IN);
-            intakePivot2.setPosition(PIVOT_IN);
-        } else if (dir.equals("out")) {
-            intakePivot1.setPosition(PIVOT_OUT);
-            intakePivot2.setPosition(PIVOT_OUT);
-        } else if (dir.equals("mid")) {
-            intakePivot1.setPosition(PIVOT_MID);
-            intakePivot2.setPosition(PIVOT_MID);
+    public void setIntakePivot(@NonNull String dir) {
+        switch (dir) {
+            case "in":
+                intakePivot1.setPosition(PIVOT_IN);
+                intakePivot2.setPosition(PIVOT_IN);
+                break;
+            case "out":
+                intakePivot1.setPosition(PIVOT_OUT);
+                intakePivot2.setPosition(PIVOT_OUT);
+                break;
+            case "mid":
+                intakePivot1.setPosition(PIVOT_MID);
+                intakePivot2.setPosition(PIVOT_MID);
+                break;
         }
     }
 
@@ -203,4 +228,73 @@ public class MecanumTrain{
             bucket.setPosition(BUCKET_TIP);
         }
     }
+
+    public void liftExtend_lowBucket() {
+        verticalExtension.setTargetPosition(1400);//TODO: change to the accurate value
+        verticalExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        verticalExtension.setPower(0.7); //TODO: Change to 1 once we have the correct values
+    }
+
+    public void liftExtend_highBucket() {
+        verticalExtension.setTargetPosition(3970); //TODO: change to the accurate value;
+        verticalExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        verticalExtension.setPower(1); //TODO: Change to 1 once we have the correct values
+    }
+    public void liftRetract() {
+        verticalExtension.setTargetPosition(liftStart);
+        verticalExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        verticalExtension.setPower(1); //TODO: Change to 1 once we have the correct values
+    }
+    public void runLift(int pos) {
+        verticalExtension.setTargetPosition(pos);
+        verticalExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        verticalExtension.setPower(0.4); //TODO: Change to 1 once we have the correct values
+    }
+
+    public void resetLift() {
+        if (verticalLimit.isPressed()) {
+            verticalExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        } else {
+            verticalExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            verticalExtension.setPower(-0.30);
+        }
+    }
+
+    public void stopLift() {
+        verticalExtension.setPower(0);
+    }
+
+    public boolean sampleDetected() {
+        if (intakeColor instanceof DistanceSensor) {
+            ColorSensor color = intakeColor;
+            double distance = ((DistanceSensor) color).getDistance(DistanceUnit.MM);
+            return distance < 20;
+        }
+        return false;
+    }
+  
+    public boolean sampleInOuttake() {
+        if (bucketDetector instanceof DistanceSensor) {
+            ColorSensor color = bucketDetector;
+            double distance = ((DistanceSensor) color).getDistance(DistanceUnit.MM);
+            return distance < 150;
+        }
+    }
+
+
+    public String colorDetection() {
+        String color = "";
+        int r = intakeColor.red(), g = intakeColor.green(), b = intakeColor.blue();
+        int maxValue = Math.max(r, Math.max(g, b));
+        if (maxValue == r) {
+            color = "red";
+        } else if (maxValue == b) {
+            color = "blue";
+        } else {
+            color = "yellow";
+        }
+
+        return color;
+    }
+
 }
