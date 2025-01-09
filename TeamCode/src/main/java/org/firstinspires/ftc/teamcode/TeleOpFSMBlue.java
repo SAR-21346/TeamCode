@@ -31,6 +31,7 @@ import org.firstinspires.ftc.teamcode.RobotConstants.IntakeState;
 import org.firstinspires.ftc.teamcode.RobotConstants.LiftState;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 
+
 @TeleOp(name = "Blue TeleOp", group = "TeleOp")
 public class TeleOpFSMBlue extends OpMode {
     MecanumTrain bot;
@@ -144,6 +145,10 @@ public class TeleOpFSMBlue extends OpMode {
             }
 
             outtakeStateUpdate(); // Update the lift state
+        }
+
+        if(gamepad2.dpad_up) {
+            bot.setBucket("tip");
         }
 
         // -------------- DRIVE ----------------

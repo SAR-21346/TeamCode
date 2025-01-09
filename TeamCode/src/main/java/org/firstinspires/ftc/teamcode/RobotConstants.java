@@ -48,7 +48,6 @@ public class RobotConstants {
         LIFT_RELEASE;
     }
 
-
     // Servo Positions
     public static final double INTAKE_OFF = 0;
     public static final double INTAKE_FORWARD = 1;

@@ -272,15 +272,15 @@ public class MecanumTrain{
         }
         return false;
     }
-
+  
     public boolean sampleInOuttake() {
         if (bucketDetector instanceof DistanceSensor) {
             ColorSensor color = bucketDetector;
             double distance = ((DistanceSensor) color).getDistance(DistanceUnit.MM);
             return distance < 150;
         }
-        return false;
     }
+
 
     public String colorDetection() {
         String color = "";
