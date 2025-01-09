@@ -4,6 +4,7 @@ import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_E
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_FLIP_IN;
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_FLIP_OUT;
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_INIT;
+import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_REJECT;
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_RELEASE;
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_RETRACT;
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_SAMPLE_IN;
@@ -40,7 +41,7 @@ public class TeleOpFSMBlue extends OpMode {
     private LiftState liftState; // Lift State - changes based on the state machine
 
     private ElapsedTime opmodeTimer; // Timer for the opmode
-    private final double SPEED_MULTIPLIER = 0.50; // Speed multiplier for drivers (RB)
+    private double SPEED_MULTIPLIER = 0.50; // Speed multiplier for drivers (RB)
 
     private boolean manual = false;
 
@@ -150,35 +151,38 @@ public class TeleOpFSMBlue extends OpMode {
         double lateral = -gamepad1.left_stick_x; // Get the lateral value from the left stick x
         double yaw = -gamepad1.right_stick_x; // Get the yaw value from the right stick x
 
-        // calculate motor powers
-        //double[] motorPowers = bot.calculateMotorPowers(axial, lateral, yaw);
-        //if (gamepad1.right_bumper) { bot.setMotorPowers(motorPowers[0], motorPowers[1], motorPowers[2], motorPowers[3], SPEED_MULTIPLIER); }
-        //else { bot.setMotorPowers(motorPowers[0], motorPowers[1], motorPowers[2], motorPowers[3], 1); }
+
 
         if (gamepad1.left_bumper) {
-            bot.follower.setTeleOpMovementVectors(
-                    axial * SPEED_MULTIPLIER,
-                    lateral * SPEED_MULTIPLIER,
-                    yaw * SPEED_MULTIPLIER
-            );
+            SPEED_MULTIPLIER = 0.50;
         } else {
-            bot.follower.setTeleOpMovementVectors(axial, lateral, yaw);
+            double currentPosition = bot.verticalExtension.getCurrentPosition();
+            currentPosition = Math.min(currentPosition, 3980);
+            SPEED_MULTIPLIER = 1 - (currentPosition / 3980);
+
+            SPEED_MULTIPLIER = Math.max(0.15, Math.min(1, SPEED_MULTIPLIER));
         }
+        bot.follower.setTeleOpMovementVectors(
+                axial * SPEED_MULTIPLIER,
+                lateral * SPEED_MULTIPLIER,
+                yaw * SPEED_MULTIPLIER
+        );
         bot.follower.update();
 
         // -------------- TELEMETRY ---------------
         telemetry.addData("Manual", manual);
-        telemetry.addData("distLeft", bot.leftFrontDist.getDistance(DistanceUnit.CM));
-        telemetry.addData("distRight", bot.rightFrontDist.getDistance(DistanceUnit.CM));
-        telemetry.addData("distBack", bot.backDist.getDistance(DistanceUnit.INCH));
+        telemetry.addData("distLeft", bot.leftFrontDist.getDistance(DistanceUnit.INCH));
+        telemetry.addData("distRight", bot.rightFrontDist.getDistance(DistanceUnit.INCH));
         telemetry.addData("target", target);
         telemetry.addData("lift encoder", bot.verticalExtension.getCurrentPosition());
-        telemetry.addData("horizontalLimit", bot.horizontalLimit.isPressed());
-        telemetry.addData("leftEnc", bot.leftFrontDrive.getCurrentPosition());
-        telemetry.addData("rightEnc", bot.leftBackDrive.getCurrentPosition());
-        telemetry.addData("strafeEnc", bot.rightFrontDrive.getCurrentPosition());
+        telemetry.addData("vertical limit", bot.verticalLimit.isPressed());
+        telemetry.addData("leftEnc", bot.leftEnc.getCurrentPosition());
+        telemetry.addData("rightEnc", bot.rightEnc.getCurrentPosition());
+        telemetry.addData("strafeEnc", bot.leftBackDrive.getCurrentPosition());
         telemetry.addData("current intake state", intakeState);
         telemetry.addData("current lift state", liftState);
+
+        telemetry.addData("color in intake", bot.colorDetection());
 
         telemetry.update();
     }
@@ -216,17 +220,21 @@ public class TeleOpFSMBlue extends OpMode {
                     setIntakeState(INTAKE_SAMPLE_IN);
                 }
                 break;
+            case INTAKE_REJECT:
+                bot.setIntakeServo("backward");
+                if (intakeTimer.getElapsedTimeSeconds() > 0.5) {
+                    setIntakeState(INTAKE_FLIP_OUT);
+                }
+                break;
             case INTAKE_SAMPLE_IN:
                 bot.setIntakeServo("off");
-//                int r = bot.intakeColor.red(), g = bot.intakeColor.green(), b = bot.intakeColor.blue();
-//                int maxValue = Math.max(r, Math.max(g, b));
-//                if (bot.sampleDetected() && maxValue == r) {
-//                    bot.setIntakeServo("backward");
-//                    if (!bot.sampleDetected()){
-//                        setIntakeState(INTAKE_SPIN);
-//                    }
-//                }
-                setIntakeState(INTAKE_RETRACT);
+                if (intakeTimer.getElapsedTimeSeconds() > 0.3) {
+                    if (bot.colorDetection().equals("red")) {
+                        setIntakeState(INTAKE_REJECT);
+                    } else {
+                        setIntakeState(INTAKE_RETRACT);
+                    }
+                }
                 break;
             case INTAKE_FLIP_IN:
                 bot.setIntakePivot("in");
@@ -262,7 +270,6 @@ public class TeleOpFSMBlue extends OpMode {
         switch(liftState) {
             case LIFT_INIT:
                 bot.resetLift();
-                bot.setBucket("flat");
                 break;
             case LIFT_START:
                 bot.liftRetract();
