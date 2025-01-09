@@ -29,6 +29,7 @@ public class RobotConstants {
         INTAKE_FLIP_IN,
         INTAKE_FLIP_OUT,
         INTAKE_SPIN,
+        INTAKE_REJECT,
         INTAKE_SAMPLE_IN,
         INTAKE_SAMPLE_OUT,
         INTAKE_RETRACT,
@@ -42,7 +43,6 @@ public class RobotConstants {
         LIFT_EXTEND_LOW,
         LIFT_EXTEND_HIGH,
         BUCKET_TIP,
-        LIFT_SAMPLE_RELEASED,
         LIFT_RETRACT,
         LIFT_STOP,
         LIFT_RELEASE;
@@ -54,7 +54,7 @@ public class RobotConstants {
     public static final double INTAKE_FORWARD = 1;
     public static final double INTAKE_BACKWARD = -1;
 
-    public static final double EXTENSION_IN = 0.04;
+    public static final double EXTENSION_IN = 0;
     public static final double EXTENSION_MID = 0.26;
     public static final double EXTENSION_OUT = 0.5;
 
