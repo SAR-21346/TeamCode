@@ -60,6 +60,7 @@ public class TeleOpTesting extends LinearOpMode{
             bot.rightBackDrive.setPower(0.0);
 
             telemetry.addLine("complete");
+            telemetry.update();
         }
     }
 }

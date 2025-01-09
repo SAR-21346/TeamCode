@@ -12,6 +12,8 @@ import static org.firstinspires.ftc.teamcode.RobotConstants.PIVOT_IN;
 import static org.firstinspires.ftc.teamcode.RobotConstants.PIVOT_MID;
 import static org.firstinspires.ftc.teamcode.RobotConstants.PIVOT_OUT;
 
+import androidx.annotation.NonNull;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -42,6 +44,8 @@ public class MecanumTrain{
     public DcMotorEx leftFrontDrive, leftBackDrive, rightFrontDrive, rightBackDrive;
     private final List<DcMotorEx> motors;
 
+    public DcMotorEx leftEnc, rightEnc, strafeEnc;
+
     // ----------------- Auxillary Motors -----------------
     public DcMotorEx verticalExtension;
     public int liftStart;
@@ -61,7 +65,7 @@ public class MecanumTrain{
     // ----------------- Sensors -----------------
     public ColorSensor intakeColor, bucketDetector; // TODO: Add bucket detector
     public TouchSensor verticalLimit, horizontalLimit;
-    public DistanceSensor leftFrontDist, rightFrontDist, backDist;
+    public DistanceSensor leftFrontDist, rightFrontDist;
 
 
 
@@ -81,6 +85,13 @@ public class MecanumTrain{
         // ----------------- Auxillary Motors -----------------
         verticalExtension = hwMap.get(DcMotorEx.class, "verticalExt");
 
+        leftEnc = hwMap.get(DcMotorEx.class, "parL");
+        rightEnc = hwMap.get(DcMotorEx.class, "parR");
+        strafeEnc = hwMap.get(DcMotorEx.class, "backLeftDrive");
+        leftEnc.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightEnc.setDirection(DcMotorSimple.Direction.FORWARD);
+        strafeEnc.setDirection(DcMotorSimple.Direction.FORWARD);
+
         // ----------------- Servos -----------------
         intakePivot1 = hwMap.get(Servo.class, "intakePivotL");
         intakePivot2 = hwMap.get(Servo.class, "intakePivotR");
@@ -94,14 +105,13 @@ public class MecanumTrain{
         verticalLimit = hwMap.get(TouchSensor.class, "verticalLimit");
         rightFrontDist = hwMap.get(DistanceSensor.class, "rightFrontDist");
         leftFrontDist = hwMap.get(DistanceSensor.class, "leftFrontDist");
-        backDist = hwMap.get(DistanceSensor.class, "backDist");
 
         // Set Modes for Motors
         setMotorsMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         verticalExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         // Set directions for Motors
-        verticalExtension.setDirection(DcMotorSimple.Direction.REVERSE);
+        verticalExtension.setDirection(DcMotorSimple.Direction.FORWARD);
 
         // Set ZeroPowerBehavior for Motors
         setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
@@ -114,6 +124,12 @@ public class MecanumTrain{
         }
 
         liftStart = verticalExtension.getCurrentPosition();
+
+        leftFrontDrive.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftBackDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightFrontDrive.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightBackDrive.setDirection(DcMotorSimple.Direction.FORWARD);
+
         // TODO: Instantiate PID Controllers
         // pidLift = new PIDController(p, i, d);
         }
@@ -188,7 +204,7 @@ public class MecanumTrain{
         }
     }
 
-    public void setIntakePivot(String dir) {
+    public void setIntakePivot(@NonNull String dir) {
         switch (dir) {
             case "in":
                 intakePivot1.setPosition(PIVOT_IN);
@@ -236,7 +252,12 @@ public class MecanumTrain{
     }
 
     public void resetLift() {
-        verticalExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        if (verticalLimit.isPressed()) {
+            verticalExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        } else {
+            verticalExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            verticalExtension.setPower(-0.30);
+        }
     }
 
     public void stopLift() {
@@ -259,6 +280,21 @@ public class MecanumTrain{
             return distance < 150;
         }
         return false;
+    }
+
+    public String colorDetection() {
+        String color = "";
+        int r = intakeColor.red(), g = intakeColor.green(), b = intakeColor.blue();
+        int maxValue = Math.max(r, Math.max(g, b));
+        if (maxValue == r) {
+            color = "red";
+        } else if (maxValue == b) {
+            color = "blue";
+        } else {
+            color = "yellow";
+        }
+
+        return color;
     }
 
 }
