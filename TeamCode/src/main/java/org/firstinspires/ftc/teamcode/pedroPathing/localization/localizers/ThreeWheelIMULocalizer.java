@@ -90,7 +90,7 @@ public class ThreeWheelIMULocalizer extends Localizer {
         hardwareMap = map;
         imu = hardwareMap.get(IMU.class, "imu");
 
-        imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.FORWARD, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
+        imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.LEFT, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD)));
 
         imu.resetYaw();
         // TODO: For new bot, do this all over again
@@ -101,11 +101,11 @@ public class ThreeWheelIMULocalizer extends Localizer {
         // this should be the same for new bot
         leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "parL"));
         rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "parR"));
-        strafeEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "backRightDrive"));
+        strafeEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "backLeftDrive"));
 
-        leftEncoder.setDirection(Encoder.FORWARD);
-        rightEncoder.setDirection(Encoder.REVERSE);
-        strafeEncoder.setDirection(Encoder.REVERSE);
+        leftEncoder.setDirection(Encoder.REVERSE);
+        rightEncoder.setDirection(Encoder.FORWARD);
+        strafeEncoder.setDirection(Encoder.FORWARD);
 
         setStartPose(setStartPose);
         timer = new NanoTimer();
