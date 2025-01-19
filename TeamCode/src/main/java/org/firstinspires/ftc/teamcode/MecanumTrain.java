@@ -15,6 +15,7 @@ import static org.firstinspires.ftc.teamcode.RobotConstants.PIVOT_OUT;
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.pedropathing.follower.Follower;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -29,7 +30,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
@@ -37,7 +37,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Config
-public class MecanumTrain{
+public class MecanumTrain {
     HardwareMap hwMap; // saves HardwareMap reference to hwMap
 
     // ----------------- Drive Motors -----------------
@@ -66,7 +66,6 @@ public class MecanumTrain{
     public ColorSensor intakeColor, bucketDetector; // TODO: Add bucket detector
     public TouchSensor verticalLimit, horizontalLimit;
     public DistanceSensor leftFrontDist, rightFrontDist;
-
 
 
     public MecanumTrain(HardwareMap hwMapX, ElapsedTime runtime) {
@@ -132,7 +131,7 @@ public class MecanumTrain{
 
         // TODO: Instantiate PID Controllers
         // pidLift = new PIDController(p, i, d);
-        }
+    }
 
     // calculateMotorPowers(axial, lateral, yaw)
     // axial - double
@@ -240,11 +239,13 @@ public class MecanumTrain{
         verticalExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         verticalExtension.setPower(1); //TODO: Change to 1 once we have the correct values
     }
+
     public void liftRetract() {
         verticalExtension.setTargetPosition(liftStart);
         verticalExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         verticalExtension.setPower(1); //TODO: Change to 1 once we have the correct values
     }
+
     public void runLift(int pos) {
         verticalExtension.setTargetPosition(pos);
         verticalExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -272,7 +273,7 @@ public class MecanumTrain{
         }
         return false;
     }
-  
+
     public boolean sampleInOuttake() {
         if (bucketDetector instanceof DistanceSensor) {
             ColorSensor color = bucketDetector;

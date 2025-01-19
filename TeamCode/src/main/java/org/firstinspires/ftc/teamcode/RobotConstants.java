@@ -34,7 +34,7 @@ public class RobotConstants {
         INTAKE_SAMPLE_OUT,
         INTAKE_RETRACT,
         INTAKE_RELEASE,
-        INTAKE_STOP;
+        INTAKE_STOP
     }
 
     public enum LiftState {
@@ -45,7 +45,7 @@ public class RobotConstants {
         BUCKET_TIP,
         LIFT_RETRACT,
         LIFT_STOP,
-        LIFT_RELEASE;
+        LIFT_RELEASE
     }
 
     // Servo Positions

@@ -1,7 +1,7 @@
-package pedroPathing.constants;
+package org.firstinspires.ftc.teamcode.pedroPathing.constants;
 
-import com.pedropathing.localization.*;
-import com.pedropathing.localization.constants.*;
+import com.pedropathing.localization.Encoder;
+import com.pedropathing.localization.constants.ThreeWheelConstants;
 
 public class LConstants {
     static {

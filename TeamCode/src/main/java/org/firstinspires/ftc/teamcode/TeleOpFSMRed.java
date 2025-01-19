@@ -12,6 +12,7 @@ import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_S
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -20,7 +21,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.RobotConstants.IntakeState;
-import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 
 @TeleOp(name = "Red TeleOp", group = "TeleOp")
 public class TeleOpFSMRed extends OpMode {
@@ -83,8 +83,11 @@ public class TeleOpFSMRed extends OpMode {
         // calculate motor powers
         double[] motorPowers = bot.calculateMotorPowers(axial, lateral, yaw);
 
-        if (gamepad1.right_bumper) { bot.setMotorPowers(motorPowers[0], motorPowers[1], motorPowers[2], motorPowers[3], SPEED_MULTIPLIER); }
-        else { bot.setMotorPowers(motorPowers[0], motorPowers[1], motorPowers[2], motorPowers[3], 1); }
+        if (gamepad1.right_bumper) {
+            bot.setMotorPowers(motorPowers[0], motorPowers[1], motorPowers[2], motorPowers[3], SPEED_MULTIPLIER);
+        } else {
+            bot.setMotorPowers(motorPowers[0], motorPowers[1], motorPowers[2], motorPowers[3], 1);
+        }
 
 
         // -------------- TELEMETRY ---------------
@@ -100,9 +103,9 @@ public class TeleOpFSMRed extends OpMode {
     }
 
 
-
     private boolean intakeDistCheck = false;
-    private void intakeStateUpdate () {
+
+    private void intakeStateUpdate() {
         switch (intakeState) {
             case INTAKE_START:
                 if (intakeDistCheck && (bot.leftFrontDist.getDistance(DistanceUnit.CM) + bot.rightFrontDist.getDistance(DistanceUnit.CM)) / 2 < 15) {
@@ -168,7 +171,7 @@ public class TeleOpFSMRed extends OpMode {
         }
     }
 
-    private void setIntakeState (IntakeState iState) {
+    private void setIntakeState(IntakeState iState) {
         intakeState = iState;
         intakeTimer.resetTimer();
         intakeStateUpdate();

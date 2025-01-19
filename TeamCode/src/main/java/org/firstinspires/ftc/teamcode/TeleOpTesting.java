@@ -10,8 +10,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 @TeleOp(name = "MotorVerification")
-public class TeleOpTesting extends LinearOpMode{
-    private ElapsedTime runtime = new ElapsedTime();
+public class TeleOpTesting extends LinearOpMode {
+    private final ElapsedTime runtime = new ElapsedTime();
     MecanumTrain bot;
 
     static final double SPEED_MULTIPLIER = 0.5;
