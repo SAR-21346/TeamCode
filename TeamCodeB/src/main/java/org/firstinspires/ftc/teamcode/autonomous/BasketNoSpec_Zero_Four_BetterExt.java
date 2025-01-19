@@ -1,11 +1,12 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
+import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_EXTEND;
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_FLIP_IN;
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_FLIP_OUT;
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_INIT;
+import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_RELEASE;
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_RETRACT;
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_SAMPLE_IN;
-import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_SAMPLE_OUT;
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_SPIN;
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_STOP;
 import static org.firstinspires.ftc.teamcode.RobotConstants.LiftState.BUCKET_TIP;
@@ -26,9 +27,12 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.MecanumTrain;
 import org.firstinspires.ftc.teamcode.RobotConstants.IntakeState;
 import org.firstinspires.ftc.teamcode.RobotConstants.LiftState;
@@ -40,8 +44,8 @@ import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.PathChain;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 
-@Autonomous(name = "Basket No Specimen Preload + 3", group = "Basket")
-public class BasketNoSpec_One_Three extends OpMode {
+@Autonomous(name = "Basket No Specimen 0 + 4 Testing", group = "Basket")
+public class BasketNoSpec_Zero_Four_BetterExt extends OpMode {
 
     private IntakeState intakeState;
     private LiftState liftState;
@@ -100,6 +104,12 @@ public class BasketNoSpec_One_Three extends OpMode {
         intakeStateUpdate();
         outtakeStateUpdate();
 
+        if (bot.bucketDetector instanceof DistanceSensor) {
+            ColorSensor color = bot.bucketDetector;
+            double distance = ((DistanceSensor) color).getDistance(DistanceUnit.MM);
+            telemetry.addData("bucket distance", distance);
+        }
+
         telemetry.addData("Path State", pathState);
         telemetry.addData("PathTimer", pathTimer.getElapsedTimeSeconds());
         telemetry.addData("Intake State", intakeState);
@@ -108,7 +118,6 @@ public class BasketNoSpec_One_Three extends OpMode {
         telemetry.addData("LiftTimer", liftTimer.getElapsedTimeSeconds());
         telemetry.addData("fullTimer", fullTimer.getElapsedTimeSeconds());
         telemetry.addData("Vertical Extension", bot.verticalExtension.getCurrentPosition());
-        telemetry.addData("Position", bot.follower.getPose());
         telemetry.update();
     }
 
@@ -128,11 +137,11 @@ public class BasketNoSpec_One_Three extends OpMode {
                 .setLinearHeadingInterpolation(Math.toRadians(-60), Math.toRadians(70))
                 .addPath(new BezierLine(
                         new Point(blueAllianceNeutralRightSpike.getX()-15, blueAllianceNeutralRightSpike.getY()-25, Point.CARTESIAN), // 30.5, 96.5
-                        new Point(blueAllianceNeutralRightSpike.getX()-11.5, blueAllianceNeutralRightSpike.getY()-17, Point.CARTESIAN) // 33.5, 100.5
+                        new Point(blueAllianceNeutralRightSpike.getX()-12.5, blueAllianceNeutralRightSpike.getY()-17, Point.CARTESIAN) // 33.5, 100.5
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(70), Math.toRadians(65))
                 .build();
-        
+
         rightSampleScore = new Path(new BezierLine(
                 new Point(blueAllianceNeutralRightSpike.getX()-10, blueAllianceNeutralRightSpike.getY()-19, Point.CARTESIAN), // 33.5, 100.5
                 new Point(blueAllianceBasket.getX()+7, blueAllianceBasket.getY()+4, Point.CARTESIAN))); // 20,124
@@ -141,53 +150,37 @@ public class BasketNoSpec_One_Three extends OpMode {
         centerSampleCycleChain = bot.follower.pathBuilder()
                 .addPath(new BezierCurve(
                         new Point(blueAllianceBasket.getX()+7, blueAllianceBasket.getY()+4, Point.CARTESIAN), // 20,124
-                        new Point(blueAllianceNeutralCenterSpike.getX()-36, blueAllianceNeutralCenterSpike.getY()-36, Point.CARTESIAN), // 15.5, 95.5
-                        new Point(blueAllianceNeutralCenterSpike.getX()-15, blueAllianceNeutralCenterSpike.getY()-25, Point.CARTESIAN)  // 30.5, 97.5
+                        new Point(blueAllianceNeutralCenterSpike.getX()-7, blueAllianceNeutralCenterSpike.getY()-17, Point.CARTESIAN)  // 30.5, 97.5
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(-60),Math.toRadians(70))
+                .setLinearHeadingInterpolation(Math.toRadians(-60),Math.toRadians(90))
                 .addPath(new BezierLine(
-                        new Point(blueAllianceNeutralCenterSpike.getX()-15, blueAllianceNeutralCenterSpike.getY()-25, Point.CARTESIAN), // 30.5, 97.5
-                        new Point(blueAllianceNeutralCenterSpike.getX()-10, blueAllianceNeutralCenterSpike.getY()-15, Point.CARTESIAN)  // 33.5, 101.5
+                        new Point(blueAllianceNeutralCenterSpike.getX()-7, blueAllianceNeutralCenterSpike.getY()-20, Point.CARTESIAN), // 30.5, 97.5
+                        new Point(blueAllianceNeutralCenterSpike.getX()-7, blueAllianceNeutralCenterSpike.getY()-15, Point.CARTESIAN)  // 33.5, 101.5
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(70), Math.toRadians(62.5))
+                .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(90))
                 .build();
 
         centerSampleScore = new Path(new BezierLine(
-                new Point(blueAllianceNeutralCenterSpike.getX()-10, blueAllianceNeutralCenterSpike.getY()-15, Point.CARTESIAN),
-                new Point(blueAllianceBasket.getX()+8, blueAllianceBasket.getY()+6, Point.CARTESIAN)));
+                new Point(blueAllianceNeutralCenterSpike.getX()-7, blueAllianceNeutralCenterSpike.getY()-15, Point.CARTESIAN),
+                new Point(blueAllianceBasket.getX()+9.5, blueAllianceBasket.getY()+6, Point.CARTESIAN)));
         centerSampleScore.setLinearHeadingInterpolation(Math.toRadians(60), Math.toRadians(-60));
 
-//        leftSampleCycleChain = bot.follower.pathBuilder()
-//                .addPath(new BezierCurve(
-//                        new Point(blueAllianceBasket.getX()+3, blueAllianceBasket.getY()+3, Point.CARTESIAN), // 20,124
-//                        new Point(blueAllianceNeutralLeftSpike.getX()-36, blueAllianceNeutralLeftSpike.getY()-36, Point.CARTESIAN), // 15.5, 105.5
-//                        new Point(blueAllianceNeutralLeftSpike.getX()-12, blueAllianceNeutralLeftSpike.getY()-25, Point.CARTESIAN)  // 30.5, 107.5
-//                ))
-//                .setLinearHeadingInterpolation(Math.toRadians(-60), Math.toRadians(70))
-//                .addPath(new BezierLine(
-//                        new Point(blueAllianceNeutralLeftSpike.getX()-12, blueAllianceNeutralLeftSpike.getY()-25, Point.CARTESIAN), // 30.5, 107.5
-//                        new Point(blueAllianceNeutralLeftSpike.getX()-11, blueAllianceNeutralLeftSpike.getY()-17, Point.CARTESIAN)  // 33.5, 111.5
-//                ))
-//                .setLinearHeadingInterpolation(Math.toRadians(70), Math.toRadians(70))
-//                .build();
 
         leftSampleCycleChain = bot.follower.pathBuilder()
                 .addPath(new BezierCurve(
-                        new Point(blueAllianceBasket.getX()+3, blueAllianceBasket.getY()+3, Point.CARTESIAN), // 20,124
-                        new Point(blueAllianceNeutralLeftSpike.getX()-36, blueAllianceNeutralLeftSpike.getY()-36, Point.CARTESIAN), // 15.5, 105.5
-                        new Point(blueAllianceNeutralLeftSpike.getX()-5, blueAllianceNeutralLeftSpike.getY()-25, Point.CARTESIAN)  // 30.5, 107.5
+                        new Point(blueAllianceBasket.getX()+8, blueAllianceBasket.getY()+6, Point.CARTESIAN), // 20,124
+                        new Point(blueAllianceNeutralLeftSpike.getX()-6, blueAllianceNeutralLeftSpike.getY()-21, Point.CARTESIAN)  // 30.5, 107.5
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(-60), Math.toRadians(90))
                 .addPath(new BezierLine(
-                        new Point(blueAllianceNeutralLeftSpike.getX()-5, blueAllianceNeutralLeftSpike.getY()-25, Point.CARTESIAN), // 30.5, 107.5
-                        new Point(blueAllianceNeutralLeftSpike.getX()-3, blueAllianceNeutralLeftSpike.getY()-17, Point.CARTESIAN)  // 33.5, 111.5
+                        new Point(blueAllianceNeutralLeftSpike.getX()-6, blueAllianceNeutralLeftSpike.getY()-21, Point.CARTESIAN), // 30.5, 107.5
+                        new Point(blueAllianceNeutralLeftSpike.getX()-4, blueAllianceNeutralLeftSpike.getY()-14, Point.CARTESIAN)  // 33.5, 111.5
                 ))
-                .setConstantHeadingInterpolation(Math.toRadians(90))
+                .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(95))
                 .build();
-
         leftSampleScore = new Path(new BezierLine(
-                new Point(blueAllianceNeutralLeftSpike.getX()-12, blueAllianceNeutralLeftSpike.getY()-17, Point.CARTESIAN),
-                new Point(blueAllianceBasket.getX()+8, blueAllianceBasket.getY()+8, Point.CARTESIAN)));
+                new Point(blueAllianceNeutralLeftSpike.getX()-4, blueAllianceNeutralLeftSpike.getY()-14, Point.CARTESIAN),
+                new Point(blueAllianceBasket.getX()+10, blueAllianceBasket.getY()+6, Point.CARTESIAN)));
         leftSampleScore.setLinearHeadingInterpolation(Math.toRadians(70), Math.toRadians(-60));
 
         parkPath = new Path(new BezierCurve(
@@ -215,8 +208,8 @@ public class BasketNoSpec_One_Three extends OpMode {
                 }
                 break;
             case 20:
-                if (pathTimer.getElapsedTimeSeconds() > 0.8) {
-                    setIntakeState(INTAKE_FLIP_OUT);
+                if (pathTimer.getElapsedTimeSeconds() > 1.1) {
+                    setIntakeState(INTAKE_EXTEND);
                     setPathState(3);
                 }
                 break;
@@ -234,33 +227,33 @@ public class BasketNoSpec_One_Three extends OpMode {
                 }
             case 4: // Path to the center sample cycle
                 if (liftState == LIFT_RETRACT) {
-                    bot.follower.setMaxPower(0.80);
+                    bot.follower.setMaxPower(1);
                     bot.follower.followPath(centerSampleCycleChain);
                     setPathState(40);
                 }
                 break;
             case 40:
-                if (pathTimer.getElapsedTimeSeconds() > 1.0) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.6) {
                     setIntakeState(INTAKE_FLIP_OUT);
                     setPathState(5);
                 }
                 break;
             case 5: // Flip out the intake
                 if (intakeState == INTAKE_RETRACT) {
-                    bot.follower.setMaxPower(0.65);
+                    bot.follower.setMaxPower(1);
                     bot.follower.followPath(centerSampleScore);
                     setPathState(50);
                 }
                 break;
             case 50:
-                if (pathTimer.getElapsedTimeSeconds() > 0.2) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.1) {
                     setLiftState(LIFT_START);
                     setPathState(6);
                 }
                 break;
             case 6: // Retract the intake
                 if (liftState == LIFT_RETRACT) {
-                    bot.follower.setMaxPower(0.80);
+                    bot.follower.setMaxPower(1);
                     bot.follower.followPath(leftSampleCycleChain);
                     setPathState(60);
                 }
@@ -273,7 +266,7 @@ public class BasketNoSpec_One_Three extends OpMode {
                 break;
             case 7: // Retract the intake
                 if (intakeState == INTAKE_RETRACT) {
-                    bot.follower.setMaxPower(0.8);
+                    bot.follower.setMaxPower(1);
                     bot.follower.followPath(leftSampleScore);
                     setPathState(70);
                 }
@@ -293,6 +286,9 @@ public class BasketNoSpec_One_Three extends OpMode {
                 break;
             case 9: // Stop the opmode
                 setLiftState(LIFT_EXTEND_LOW);
+                if (pathTimer.getElapsedTimeSeconds() > 0.2) {
+                    bot.verticalExtension.setTargetPosition(1200);
+                }
                 break;
         }
     }
@@ -319,10 +315,14 @@ public class BasketNoSpec_One_Three extends OpMode {
         switch (intakeState) {
             case INTAKE_INIT:
                 break;
+            case INTAKE_EXTEND:
+                bot.setHorizontalExtension("out");
+                if (intakeTimer.getElapsedTimeSeconds() > 0.1) {
+                    setIntakeState(INTAKE_FLIP_OUT);
+                }
             case INTAKE_FLIP_OUT:
                 bot.setIntakePivot("out");
                 setIntakeState(INTAKE_SPIN);
-                bot.setHorizontalExtension("out");
                 break;
             case INTAKE_SPIN:
                 bot.setIntakeServo("forward");
@@ -344,16 +344,14 @@ public class BasketNoSpec_One_Three extends OpMode {
                 break;
             case INTAKE_FLIP_IN:
                 bot.setIntakePivot("in");
-                if (intakeTimer.getElapsedTimeSeconds() > 0.8) {
-                    setIntakeState(INTAKE_SAMPLE_OUT);
+                if (intakeTimer.getElapsedTimeSeconds() > 1.1) {
+                    setIntakeState(INTAKE_RELEASE);
                 }
                 break;
-            case INTAKE_SAMPLE_OUT:
-                if(intakeTimer.getElapsedTimeSeconds() > 0.3) {
-                    bot.setIntakeServo("backward");
-                    if (bot.sampleInOuttake()) {
-                        setIntakeState(INTAKE_STOP);
-                    }
+            case INTAKE_RELEASE:
+                bot.setIntakeServo("backward");
+                if (bot.sampleInOuttake()) {
+                    setIntakeState(INTAKE_STOP);
                 }
                 break;
             case INTAKE_STOP:
@@ -385,10 +383,10 @@ public class BasketNoSpec_One_Three extends OpMode {
                 }
                 break;
             case LIFT_EXTEND_HIGH:
-                    bot.liftExtend_highBucket();
-                    if (bot.verticalExtension.getCurrentPosition() >= 3960) {
-                        setLiftState(BUCKET_TIP);
-                    }
+                bot.liftExtend_highBucket();
+                if (bot.verticalExtension.getCurrentPosition() >= 3960) {
+                    setLiftState(BUCKET_TIP);
+                }
                 break;
             case BUCKET_TIP:
                 bot.setBucket("tip");
@@ -407,4 +405,3 @@ public class BasketNoSpec_One_Three extends OpMode {
                 bot.verticalExtension.setPower(0);
                 break;
         }}}
-   

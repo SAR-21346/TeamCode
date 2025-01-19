@@ -7,6 +7,7 @@ repositories {
     }
 
     maven { url = 'https://maven.brott.dev/' }
+    maven { url = 'https://maven.pedropathing.com/'}
     maven { url = 'https://jitpack.io'}
 }
 
@@ -19,6 +20,7 @@ dependencies {
 
     // RoadRunner
     implementation "com.acmerobotics.dashboard:dashboard:0.4.16"
+    implementation 'com.pedropathing:pedro:1.0.6'
     implementation 'org.firstinspires.ftc:Inspection:10.1.0'
     implementation 'org.firstinspires.ftc:Blocks:10.1.0'
     implementation 'org.firstinspires.ftc:RobotCore:10.1.0'
