@@ -15,6 +15,8 @@ import static org.firstinspires.ftc.teamcode.RobotConstants.PIVOT_OUT;
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.util.Constants;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -29,7 +31,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
@@ -37,7 +40,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Config
-public class MecanumTrain{
+public class MecanumTrain {
     HardwareMap hwMap; // saves HardwareMap reference to hwMap
 
     // ----------------- Drive Motors -----------------
@@ -68,11 +71,12 @@ public class MecanumTrain{
     public DistanceSensor leftFrontDist, rightFrontDist;
 
 
-
     public MecanumTrain(HardwareMap hwMapX, ElapsedTime runtime) {
         hwMap = hwMapX; // saves reference to hwMap
 
+        Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hwMap);
+
 
         // ----------------- Drive Motors -----------------
         leftFrontDrive = hwMap.get(DcMotorEx.class, "frontLeftDrive");
@@ -132,7 +136,7 @@ public class MecanumTrain{
 
         // TODO: Instantiate PID Controllers
         // pidLift = new PIDController(p, i, d);
-        }
+    }
 
     // calculateMotorPowers(axial, lateral, yaw)
     // axial - double
@@ -211,7 +215,7 @@ public class MecanumTrain{
                 intakePivot2.setPosition(PIVOT_IN);
                 break;
             case "out":
-                intakePivot1.setPosition(PIVOT_OUT);
+                intakePivot1.setPosition(PIVOT_OUT-0.05);
                 intakePivot2.setPosition(PIVOT_OUT);
                 break;
             case "mid":
@@ -240,11 +244,13 @@ public class MecanumTrain{
         verticalExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         verticalExtension.setPower(1); //TODO: Change to 1 once we have the correct values
     }
+
     public void liftRetract() {
         verticalExtension.setTargetPosition(liftStart);
         verticalExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         verticalExtension.setPower(1); //TODO: Change to 1 once we have the correct values
     }
+
     public void runLift(int pos) {
         verticalExtension.setTargetPosition(pos);
         verticalExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -268,16 +274,16 @@ public class MecanumTrain{
         if (intakeColor instanceof DistanceSensor) {
             ColorSensor color = intakeColor;
             double distance = ((DistanceSensor) color).getDistance(DistanceUnit.MM);
-            return distance < 20;
+            return distance < 50;
         }
         return false;
     }
-  
+
     public boolean sampleInOuttake() {
         if (bucketDetector instanceof DistanceSensor) {
             ColorSensor color = bucketDetector;
             double distance = ((DistanceSensor) color).getDistance(DistanceUnit.MM);
-            return distance < 150;
+            return distance < 147;
         }
         return false;
     }
