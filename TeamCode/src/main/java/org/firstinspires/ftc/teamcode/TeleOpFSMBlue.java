@@ -23,7 +23,9 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -75,7 +77,7 @@ public class TeleOpFSMBlue extends OpMode {
 
     @Override
     public void loop() {
-        if (gamepad2.left_stick_button && gamepad2.right_stick_button) {
+        if (gamepad2.share && gamepad2.options) {
             manual = !manual; // toggle manual mode
         }
 
@@ -147,10 +149,6 @@ public class TeleOpFSMBlue extends OpMode {
             outtakeStateUpdate(); // Update the lift state
         }
 
-        if (gamepad2.dpad_up) {
-            bot.setBucket("tip");
-        }
-
         // -------------- DRIVE ----------------
         double axial = -gamepad1.left_stick_y; // Get the axial value from the left stick y
         double lateral = -gamepad1.left_stick_x; // Get the lateral value from the left stick x
@@ -186,12 +184,22 @@ public class TeleOpFSMBlue extends OpMode {
         telemetry.addData("current intake state", intakeState);
         telemetry.addData("current lift state", liftState);
 
+        if (bot.intakeColor instanceof DistanceSensor) {
+            ColorSensor color = bot.intakeColor;
+            double distance = ((DistanceSensor) color).getDistance(DistanceUnit.MM);
+            telemetry.addData("intakeDistance", distance);
+        }
+
+        if (bot.bucketDetector instanceof DistanceSensor) {
+            ColorSensor color = bot.bucketDetector;
+            double distance = ((DistanceSensor) color).getDistance(DistanceUnit.MM);
+            telemetry.addData("bucketDistance", distance);
+        }
+
         telemetry.addData("color in intake", bot.colorDetection());
 
         telemetry.update();
     }
-
-
     private boolean intakeDistCheck = false;
 
     private void intakeStateUpdate() {
@@ -208,15 +216,11 @@ public class TeleOpFSMBlue extends OpMode {
                 break;
             case INTAKE_EXTEND:
                 bot.setHorizontalExtension("out");
-                if (intakeTimer.getElapsedTimeSeconds() > 0.3) {
-                    setIntakeState(INTAKE_FLIP_OUT);
-                }
+                setIntakeState(INTAKE_FLIP_OUT);
                 break;
             case INTAKE_FLIP_OUT:
                 bot.setIntakePivot("out");
-                if (intakeTimer.getElapsedTimeSeconds() > 0.4) {
-                    setIntakeState(INTAKE_SPIN);
-                }
+                setIntakeState(INTAKE_SPIN);
                 break;
             case INTAKE_SPIN:
                 bot.setIntakeServo("forward");
@@ -226,18 +230,16 @@ public class TeleOpFSMBlue extends OpMode {
                 break;
             case INTAKE_REJECT:
                 bot.setIntakeServo("backward");
-                if (intakeTimer.getElapsedTimeSeconds() > 0.5) {
+                if (intakeTimer.getElapsedTimeSeconds() > 1.2) {
                     setIntakeState(INTAKE_FLIP_OUT);
                 }
                 break;
             case INTAKE_SAMPLE_IN:
                 bot.setIntakeServo("off");
-                if (intakeTimer.getElapsedTimeSeconds() > 0.3) {
-                    if (bot.colorDetection().equals("red")) {
-                        setIntakeState(INTAKE_REJECT);
-                    } else {
-                        setIntakeState(INTAKE_RETRACT);
-                    }
+                if (bot.colorDetection().equals("red")) {
+                    setIntakeState(INTAKE_REJECT);
+                } else {
+                    setIntakeState(INTAKE_RETRACT);
                 }
                 break;
             case INTAKE_FLIP_IN:
@@ -248,12 +250,10 @@ public class TeleOpFSMBlue extends OpMode {
                 break;
             case INTAKE_RETRACT:
                 bot.setHorizontalExtension("in");
-                if (intakeTimer.getElapsedTimeSeconds() > 0.6) {
-                    setIntakeState(INTAKE_FLIP_IN);
-                }
+                setIntakeState(INTAKE_FLIP_IN);
                 break;
             case INTAKE_RELEASE:
-                if (intakeTimer.getElapsedTimeSeconds() > 0.5) {
+                if (intakeTimer.getElapsedTimeSeconds() > 0.6) {
                     bot.setIntakeServo("backward");
                     if (bot.sampleInOuttake()) {
                         setIntakeState(INTAKE_STOP);

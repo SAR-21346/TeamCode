@@ -32,6 +32,7 @@ import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -39,7 +40,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.MecanumTrain;
 import org.firstinspires.ftc.teamcode.RobotConstants.IntakeState;
 import org.firstinspires.ftc.teamcode.RobotConstants.LiftState;
-
+@Disabled
 @Autonomous(name = "Basket No Specimen Preload + 3", group = "Basket")
 public class BasketNoSpec_One_Three extends OpMode {
 
