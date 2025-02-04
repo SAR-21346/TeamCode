@@ -118,6 +118,7 @@ public class RedPropPipeline implements VisionProcessor {
         Rect boundingRect = Imgproc.boundingRect(contour);
         return boundingRect.width;
     }
+
     @Override
     public void onDrawFrame(Canvas canvas, int onscreenWidth, int onscreenHeight, float scaleBmpPxToCanvasPx, float scaleCanvasDensity, Object userContext) {
 
@@ -133,10 +134,17 @@ public class RedPropPipeline implements VisionProcessor {
     public boolean isPropLeft() {
         return centerX > 0 && centerX < 250 && width > 100;
     }
+
     public boolean isPropCenter() {
         return centerX > 0 && centerX < 480 && width > 100;
     }
-    public boolean isPropCenterBack() { return centerX > 200 && centerX < 500 && width > 80; }
-    public boolean isPropRight() {return centerX > 580 && centerX < 800 && width > 100;}
+
+    public boolean isPropCenterBack() {
+        return centerX > 200 && centerX < 500 && width > 80;
+    }
+
+    public boolean isPropRight() {
+        return centerX > 580 && centerX < 800 && width > 100;
+    }
 
 }

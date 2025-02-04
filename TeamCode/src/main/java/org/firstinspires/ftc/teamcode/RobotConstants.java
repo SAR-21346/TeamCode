@@ -34,7 +34,7 @@ public class RobotConstants {
         INTAKE_SAMPLE_OUT,
         INTAKE_RETRACT,
         INTAKE_RELEASE,
-        INTAKE_STOP;
+        INTAKE_STOP
     }
 
     public enum LiftState {
@@ -45,21 +45,21 @@ public class RobotConstants {
         BUCKET_TIP,
         LIFT_RETRACT,
         LIFT_STOP,
-        LIFT_RELEASE;
+        LIFT_RELEASE
     }
 
     // Servo Positions
-    public static final double INTAKE_OFF = 0;
-    public static final double INTAKE_FORWARD = 1;
-    public static final double INTAKE_BACKWARD = -1;
+    public static double INTAKE_OFF = 0;
+    public static double INTAKE_FORWARD = 1;
+    public static double INTAKE_BACKWARD = -1;
 
-    public static final double EXTENSION_IN = 0;
-    public static final double EXTENSION_MID = 0.26;
-    public static final double EXTENSION_OUT = 0.5;
+    public static double EXTENSION_IN = 0;
+    public static double EXTENSION_MID = 0.26;
+    public static double EXTENSION_OUT = 0.55;
 
-    public static final double PIVOT_IN = 0.1;
-    public static final double PIVOT_MID = 0.5;
-    public static final double PIVOT_OUT = 1;
+    public static double PIVOT_IN = 0.08;
+    public static double PIVOT_MID = 0.5;
+    public static double PIVOT_OUT = 1;
 
     public static double BUCKET_FLAT = 0.6; //0.6
     public static double BUCKET_TIP = 0.25; //0
