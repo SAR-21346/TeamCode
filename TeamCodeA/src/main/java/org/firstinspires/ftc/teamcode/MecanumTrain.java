@@ -10,7 +10,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
@@ -42,7 +41,7 @@ public class MecanumTrain{
             clawEnc, hangPivotEnc, outtakeFlipEncL, outtakeFlipEncR;
 
 
-    public MecanumTrain(HardwareMap hwMapX, ElapsedTime runtime) {
+    public MecanumTrain(HardwareMap hwMapX) {
         hwMap = hwMapX; // saves reference to hwMap
 
         // ----------------- Odometry -----------------
