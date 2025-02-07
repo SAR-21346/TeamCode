@@ -1,16 +1,16 @@
 package org.firstinspires.ftc.teamcode.pedroPathing.examples;
 
-import static org.firstinspires.ftc.teamcode.pedroPathing.tuning.FollowerConstants.leftFrontMotorName;
-import static org.firstinspires.ftc.teamcode.pedroPathing.tuning.FollowerConstants.leftRearMotorName;
-import static org.firstinspires.ftc.teamcode.pedroPathing.tuning.FollowerConstants.rightFrontMotorName;
-import static org.firstinspires.ftc.teamcode.pedroPathing.tuning.FollowerConstants.rightRearMotorName;
+import static com.pedropathing.follower.FollowerConstants.leftFrontMotorName;
+import static com.pedropathing.follower.FollowerConstants.leftRearMotorName;
+import static com.pedropathing.follower.FollowerConstants.rightFrontMotorName;
+import static com.pedropathing.follower.FollowerConstants.rightRearMotorName;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
-import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
+import com.pedropathing.follower.Follower;
 
 /**
  * This is the TeleOpEnhancements OpMode. It is an example usage of the TeleOp enhancements that
