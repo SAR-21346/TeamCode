@@ -57,10 +57,10 @@ public class MecanumTrain{
 
 
         // ----------------- Drive Motors -----------------
-        leftFrontDrive = hwMap.get(DcMotorEx.class, "frontLeftDrive");
-        rightFrontDrive = hwMap.get(DcMotorEx.class, "frontRightDrive");
-        leftBackDrive = hwMap.get(DcMotorEx.class, "backLeftDrive");
-        rightBackDrive = hwMap.get(DcMotorEx.class, "backRightDrive");
+        leftFrontDrive = hwMap.get(DcMotorEx.class, "frontLeft");
+        rightFrontDrive = hwMap.get(DcMotorEx.class, "frontRight");
+        leftBackDrive = hwMap.get(DcMotorEx.class, "backLeft");
+        rightBackDrive = hwMap.get(DcMotorEx.class, "backRight");
 
         motors = Arrays.asList(leftFrontDrive, leftBackDrive, rightFrontDrive, rightBackDrive);
 
@@ -72,7 +72,7 @@ public class MecanumTrain{
         // ----------------- Servos -----------------
         extL = hwMap.get(Servo.class, "extL");
         extR = hwMap.get(Servo.class, "extR");
-
+        dropdownL = hwMap.get(Servo.class, "dropdownL");
 
         // ----------------- Sensors -----------------
         extEncL = hwMap.get(AnalogInput.class, "extEncL");
