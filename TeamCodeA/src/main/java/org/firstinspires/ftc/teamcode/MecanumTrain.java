@@ -1,16 +1,28 @@
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.teamcode.RobotConstants.LEFT_DROPDOWN_MAX;
+import static org.firstinspires.ftc.teamcode.RobotConstants.LEFT_DROPDOWN_MIN;
+import static org.firstinspires.ftc.teamcode.RobotConstants.LEFT_EXT_MAX;
+import static org.firstinspires.ftc.teamcode.RobotConstants.LEFT_EXT_MIN;
+import static org.firstinspires.ftc.teamcode.RobotConstants.RIGHT_DROPDOWN_MAX;
+import static org.firstinspires.ftc.teamcode.RobotConstants.RIGHT_DROPDOWN_MIN;
+import static org.firstinspires.ftc.teamcode.RobotConstants.RIGHT_EXT_MAX;
+import static org.firstinspires.ftc.teamcode.RobotConstants.RIGHT_EXT_MIN;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.util.Constants;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 
@@ -32,6 +44,7 @@ public class MecanumTrain{
     public Servo extL, extR, dropdownL, dropdownR,
             hangL, hangR, claw, hangPivot, outtakeFlipL, outtakeFlipR;
 
+
     // ----------------- Odometry -----------------
     public Follower follower;
     public DcMotorEx leftEnc, rightEnc, strafeEnc;
@@ -39,6 +52,12 @@ public class MecanumTrain{
     // ----------------- Sensors -----------------
     public AnalogInput extEncL, extEncR, dropdownEncL, dropdownEncR,
             clawEnc, hangPivotEnc, outtakeFlipEncL, outtakeFlipEncR;
+
+    public double extLPos, extRPos, dropdownLPos, dropdownRPos,
+            clawPos, hangPivotPos, outtakeFlipLPos, outtakeFlipRPos;
+
+    public ColorSensor intakeWheel, intakeWall;
+    public double intakeWallDist, intakeWheelDist;
 
 
     public MecanumTrain(HardwareMap hwMapX) {
@@ -73,10 +92,16 @@ public class MecanumTrain{
         extL = hwMap.get(Servo.class, "extL");
         extR = hwMap.get(Servo.class, "extR");
         dropdownL = hwMap.get(Servo.class, "dropdownL");
+        dropdownR = hwMap.get(Servo.class, "dropdownR");
 
         // ----------------- Sensors -----------------
         extEncL = hwMap.get(AnalogInput.class, "extEncL");
         extEncR = hwMap.get(AnalogInput.class, "extEncR");
+        dropdownEncL = hwMap.get(AnalogInput.class, "dropdownEncL");
+        dropdownEncR = hwMap.get(AnalogInput.class, "dropdownEncR");
+
+        intakeWheel = hwMap.get(ColorSensor.class, "intakeWheel");
+        intakeWall = hwMap.get(ColorSensor.class, "intakeWall");
 
         // Set ZeroPowerBehavior for Motors
         setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
@@ -88,6 +113,8 @@ public class MecanumTrain{
         setBulkCachingMode();
 
         setDriveMotorDirections();
+        intake.setDirection(DcMotorSimple.Direction.REVERSE);
+        liftL.setDirection(DcMotorSimple.Direction.REVERSE);
         }
 
     // calculateMotorPowers(axial, lateral, yaw)
@@ -148,5 +175,77 @@ public class MecanumTrain{
         leftBackDrive.setDirection(DcMotorSimple.Direction.REVERSE);
         rightFrontDrive.setDirection(DcMotorSimple.Direction.REVERSE);
         rightBackDrive.setDirection(DcMotorSimple.Direction.FORWARD);
+    }
+
+    public void encoderUpdate() {
+        extLPos = extEncL.getVoltage() / 3.3 * 360;
+        extRPos = extEncR.getVoltage() / 3.3 * 360;
+    }
+
+    public void distSensorUpdate () {
+        if (intakeWall instanceof DistanceSensor) {
+            ColorSensor color = intakeWall;
+            intakeWallDist = ((DistanceSensor) color).getDistance(DistanceUnit.MM);
+        }
+
+        if (intakeWheel instanceof DistanceSensor) {
+            ColorSensor color = intakeWheel;
+            intakeWheelDist = ((DistanceSensor) color).getDistance(DistanceUnit.MM);
+        }
+    }
+
+    public void pivot_down() {
+        dropdownL.setPosition(LEFT_DROPDOWN_MAX);
+        dropdownR.setPosition(RIGHT_DROPDOWN_MAX);
+    }
+
+    public void pivot_up() {
+        dropdownL.setPosition(LEFT_DROPDOWN_MIN);
+        dropdownR.setPosition(RIGHT_DROPDOWN_MIN);
+    }
+
+    public void extend (int distance) {
+        switch (distance) {
+            case 1:
+                extL.setPosition(LEFT_EXT_MAX*0.2);
+                extR.setPosition(RIGHT_EXT_MAX*0.2);
+                break;
+            case 2:
+                extL.setPosition(LEFT_EXT_MAX*0.4);
+                extR.setPosition(RIGHT_EXT_MAX*0.4);
+                break;
+            case 3:
+                extL.setPosition(LEFT_EXT_MAX*0.6);
+                extR.setPosition(RIGHT_EXT_MAX*0.6);
+                break;
+            case 4:
+                extL.setPosition(LEFT_EXT_MAX*0.8);
+                extR.setPosition(RIGHT_EXT_MAX*0.8);
+                break;
+            case 5:
+                extL.setPosition(LEFT_EXT_MAX);
+                extR.setPosition(RIGHT_EXT_MAX);
+                break;
+        }
+    }
+
+    public void retract() {
+        extL.setPosition(LEFT_EXT_MIN);
+        extR.setPosition(RIGHT_EXT_MIN);
+    }
+
+    // intakeWheelDetect()
+    // Detects the color of the object in front of the intake wheel
+    // returns 1 for red, 2 for blue, 3 for yellow
+    public int intakeWheelDetect() {
+        int r = intakeWheel.red(), g = intakeWheel.green(), b = intakeWheel.blue();
+        int maxValue = Math.max(r, Math.max(g, b));
+        if (maxValue == r) {
+            return 1;
+        } else if (maxValue == b) {
+            return 2;
+        } else {
+            return 3;
+        }
     }
 }
