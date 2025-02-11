@@ -1,18 +1,21 @@
 package org.firstinspires.ftc.teamcode.pedroPathing.tuners_tests.localization;
 
-import static com.pedropathing.follower.FollowerConstants.leftFrontMotorName;
-import static com.pedropathing.follower.FollowerConstants.leftRearMotorName;
-import static com.pedropathing.follower.FollowerConstants.rightFrontMotorName;
-import static com.pedropathing.follower.FollowerConstants.rightRearMotorName;
 import static com.pedropathing.follower.FollowerConstants.leftFrontMotorDirection;
+import static com.pedropathing.follower.FollowerConstants.leftFrontMotorName;
 import static com.pedropathing.follower.FollowerConstants.leftRearMotorDirection;
+import static com.pedropathing.follower.FollowerConstants.leftRearMotorName;
 import static com.pedropathing.follower.FollowerConstants.rightFrontMotorDirection;
+import static com.pedropathing.follower.FollowerConstants.rightFrontMotorName;
 import static com.pedropathing.follower.FollowerConstants.rightRearMotorDirection;
+import static com.pedropathing.follower.FollowerConstants.rightRearMotorName;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.pedropathing.localization.PoseUpdater;
 import com.pedropathing.util.Constants;
+import com.pedropathing.util.DashboardPoseTracker;
+import com.pedropathing.util.Drawing;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -20,14 +23,11 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import com.pedropathing.localization.PoseUpdater;
-import com.pedropathing.util.DashboardPoseTracker;
-import com.pedropathing.util.Drawing;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 
 import java.util.Arrays;
 import java.util.List;
-
-import pedroPathing.constants.*;
 
 /**
  * This is the LocalizationTest OpMode. This is basically just a simple mecanum drive attached to a
