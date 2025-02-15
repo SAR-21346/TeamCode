@@ -18,16 +18,29 @@ import static org.firstinspires.ftc.teamcode.RobotConstants.LiftState.LIFT_STOP;
 import static org.firstinspires.ftc.teamcode.autonomous.FieldConstants.ascentParkingBlue;
 import static org.firstinspires.ftc.teamcode.autonomous.FieldConstants.blueAllianceBasket;
 import static org.firstinspires.ftc.teamcode.autonomous.FieldConstants.blueAllianceBasketStart;
+import static org.firstinspires.ftc.teamcode.autonomous.FieldConstants.blueAllianceBlueRightSpike;
 import static org.firstinspires.ftc.teamcode.autonomous.FieldConstants.blueAllianceNeutralCenterSpike;
 import static org.firstinspires.ftc.teamcode.autonomous.FieldConstants.blueAllianceNeutralLeftSpike;
 import static org.firstinspires.ftc.teamcode.autonomous.FieldConstants.blueAllianceNeutralRightSpike;
+import static org.firstinspires.ftc.teamcode.autonomous.FieldConstants.blueAlliancePreloadSpec;
+import static org.firstinspires.ftc.teamcode.autonomous.FieldConstants.blueAllianceSample1;
+import static org.firstinspires.ftc.teamcode.autonomous.FieldConstants.blueAllianceSample2;
+import static org.firstinspires.ftc.teamcode.autonomous.FieldConstants.blueAllianceSample3;
+import static org.firstinspires.ftc.teamcode.autonomous.FieldConstants.blueAllianceSpec;
+import static org.firstinspires.ftc.teamcode.autonomous.FieldConstants.blueAllianceSpec1;
+import static org.firstinspires.ftc.teamcode.autonomous.FieldConstants.blueAllianceSpec1turn;
+import static org.firstinspires.ftc.teamcode.autonomous.FieldConstants.blueAllianceSpec2;
+import static org.firstinspires.ftc.teamcode.autonomous.FieldConstants.blueAllianceSpec3;
+import static org.firstinspires.ftc.teamcode.autonomous.FieldConstants.blueAllianceSpecPickup;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
+import com.pedropathing.pathgen.PathBuilder;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Timer;
@@ -53,7 +66,22 @@ public class auto extends OpMode {
 
     private int pathState;
 
+    Pose startPose = new Pose(
+            blueAllianceBasketStart.getX(),
+            blueAllianceBasketStart.getY(),
+            blueAllianceBasketStart.getHeading());
 
+    Path preloadBasketScore, rightSampleScore, centerSampleScore, leftSampleScore, parkPath;
+
+    PathChain rightSampleCycleChain, centerSampleCycleChain, leftSampleCycleChain;
+    private Path preloadSpecScore;
+    private Path Spec1;
+    private BezierCurve Sample1PickUp;
+    private PathChain SampleCycleChain;
+    private PathBuilder SpecimenScore;
+    private PathBuilder Specimen1Score;
+    private PathBuilder Specimen2Score;
+    private PathBuilder Specimen3Score;
 
     @Override
     public void init() {
@@ -103,6 +131,60 @@ public class auto extends OpMode {
         telemetry.addData("Vertical Extension", bot.verticalExtension.getCurrentPosition());
 //        telemetry.addData("Position", bot.follower.getPose());
         telemetry.update();
+    }
+
+    private void buildPaths() {
+
+        preloadSpecScore = new Path(new BezierLine(
+                new Point(startPose),
+                blueAlliancePreloadSpec
+        ));
+
+        SampleCycleChain = new PathBuilder()
+                .addPath(new BezierCurve(
+                        blueAllianceSample1,
+                        new Point(15.6, 50.9)
+                ))
+                .setLinearHeadingInterpolation(Math.toRadians(315), Math.toRadians(215))
+                .addPath(new BezierCurve(
+                        blueAllianceSample2
+                ))
+                .setConstantHeadingInterpolation(Math.toRadians(65)) // fix
+                .addPath(new BezierCurve(
+                        blueAllianceSample3
+                ))
+                .setConstantHeadingInterpolation(Math.toRadians(65)) // fix
+                .build();
+
+        Specimen1Score = new PathBuilder()
+                // specimen picup to score spec 1
+                .addPath(new Path(new BezierLine(
+                            blueAllianceSpecPickup,
+                            blueAllianceSpec1)
+                ))
+                .setLinearHeadingInterpolation(Math.toRadians(315), Math.toRadians(0))
+                .addPath(new Path(new BezierLine(
+                                blueAllianceSpec1,
+                                blueAllianceSpecPickup
+                                )))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(315));
+        Specimen2Score = new PathBuilder()
+                .addPath(new Path(new BezierLine(
+                        blueAllianceSpecPickup,
+                        blueAllianceSpec2
+                        )))
+                .setLinearHeadingInterpolation(Math.toRadians(315), Math.toRadians(0))
+                .addPath(new Path(new BezierLine(
+                        blueAllianceSpec2,
+                        blueAllianceSpecPickup
+                        )))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(315));
+        Specimen3Score = new PathBuilder()
+
+                .addPath(new Path(new BezierLine(
+                        blueAllianceSpecPickup,
+                        blueAllianceSpec3
+                )));
     }
 
 
