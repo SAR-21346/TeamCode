@@ -5,7 +5,7 @@ import com.acmerobotics.dashboard.config.Config;
 @Config
 public class RobotConstants {
     // PIDF Coefficients
-    public static double kP = 0.0;
+    public static double kP = 0.014;
     public static double kI = 0.0;
     public static double kD = 0.0;
     public static double kF = 0.0;
@@ -39,14 +39,15 @@ public class RobotConstants {
         SPEC_PICKUP,
         EXTEND_HIGH_SPEC,
         SCORE_HIGH_SPEC,
+        RETRACT,
         STOP
     }
 
     // Servo Positions
     // INTAKE
-    public static double LEFT_EXT_MIN = 0.1;
+    public static double LEFT_EXT_MIN = 0;
     public static double LEFT_EXT_MAX = 0.62;
-    public static double RIGHT_EXT_MIN = 0.1;
+    public static double RIGHT_EXT_MIN = 0;
     public static double RIGHT_EXT_MAX = 0.62;
     public static double LEFT_DROPDOWN_MIN = 0.1;
     public static double LEFT_DROPDOWN_MAX = 0.52;
@@ -56,8 +57,8 @@ public class RobotConstants {
     // OUTTAKE
     public static double OUTTAKE_FLAT_L = 0;
     public static double OUTTAKE_FLAT_R = 0;
-    public static double OUTTAKE_SCORE_BUCKET_L = 0.6;
-    public static double OUTTAKE_SCORE_BUCKET_R = 0.6;
+    public static double OUTTAKE_SCORE_BUCKET_L = 0.7;
+    public static double OUTTAKE_SCORE_BUCKET_R = 0.7;
     public static double OUTTAKE_SPEC_L = 0.9;
     public static double OUTTAKE_SPEC_R = 0.9;
     public static double OUTTAKE_SCORE_SPEC_L = 0.3;
@@ -66,7 +67,7 @@ public class RobotConstants {
     public static double OUTTAKE_SCORE_SPEC_2_R = 0.5;
 
     // CLAW
-    public static double CLAW_MIN = 0.1;
+    public static double CLAW_MIN = 0;
     public static double CLAW_MAX = 0.6;
 
     // Intake Power
@@ -75,6 +76,7 @@ public class RobotConstants {
 
     // Lift Positions
     public static int LIFT_MIN = 0;
-    public static int LIFT_HIGH_BUCKET = 1000;
-    public static int LIFT_SPEC = 500;
+    public static int LIFT_HIGH_BUCKET = 3350;
+    public static int LIFT_SPEC = 1800;
+    public static int LIFT_MAX = 3400;
 }

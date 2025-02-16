@@ -40,6 +40,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
@@ -72,16 +73,18 @@ public class MecanumTrain{
 
     // ----------------- Sensors -----------------
     public AnalogInput extEncL, extEncR, dropdownEncL, dropdownEncR,
-            clawEnc, hangPivotEnc, outtakeFlipEncL, outtakeFlipEncR;
+            clawEnc, hangPivotEnc, outtakeFlipEnc;
 
     public double extLPos, extRPos, dropdownLPos, dropdownRPos,
-            clawPos, hangPivotPos, outtakeFlipLPos, outtakeFlipRPos;
+            clawPos, hangPivotPos, outtakeFlipPos;
 
     public ColorSensor intakeWheel, intakeWall;
     public double intakeWallDist, intakeWheelDist;
 
     public DistanceSensor leftDist, rightDist;
     public double leftDistVal, rightDistVal;
+
+    public TouchSensor verticalLimit;
 
 
     public MecanumTrain(HardwareMap hwMapX) {
@@ -120,15 +123,20 @@ public class MecanumTrain{
         outtakeFlipL = hwMap.get(Servo.class, "outtakeFlipL");
         outtakeFlipR = hwMap.get(Servo.class, "outtakeFlipR");
         claw = hwMap.get(Servo.class, "claw");
+        hangPivot = hwMap.get(Servo.class, "hangPivot");
+        hangL = hwMap.get(Servo.class, "hangLockL");
 
         // ----------------- Sensors -----------------
         extEncL = hwMap.get(AnalogInput.class, "extEncL");
         extEncR = hwMap.get(AnalogInput.class, "extEncR");
         dropdownEncL = hwMap.get(AnalogInput.class, "dropdownEncL");
         dropdownEncR = hwMap.get(AnalogInput.class, "dropdownEncR");
+        outtakeFlipEnc = hwMap.get(AnalogInput.class, "outtakeFlipEnc");
 
         intakeWheel = hwMap.get(ColorSensor.class, "intakeWheel");
         intakeWall = hwMap.get(ColorSensor.class, "intakeWall");
+
+        verticalLimit = hwMap.get(TouchSensor.class, "verticalLimit");
 
         // Set ZeroPowerBehavior for Motors
         setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
@@ -144,6 +152,7 @@ public class MecanumTrain{
         liftL.setDirection(DcMotorSimple.Direction.REVERSE);
 
         controller = new PIDFController(kP, kI, kD, kF);
+        liftR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
 
     // ----------------- Drivetrain -----------------
@@ -209,6 +218,7 @@ public class MecanumTrain{
     public void encoderUpdate() {
         extLPos = extEncL.getVoltage() / 3.3 * 360;
         extRPos = extEncR.getVoltage() / 3.3 * 360;
+        outtakeFlipPos = outtakeFlipEnc.getVoltage() / 3.3 * 360;
     }
 
     // distSensorUpdate()
@@ -316,15 +326,12 @@ public class MecanumTrain{
     }
 
     public void resetLift() {
-//        if (verticalLimit.isPressed()) {
-//            liftR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//            liftL.setPower(0);
-//        } else {
-//            liftL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//            liftR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//            liftR.setPower(-0.30);
-//            liftL.setPower(-0.30);
-//        }
+        if (verticalLimit.isPressed()) {
+            liftR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            liftTarget = 0;
+        } else {
+            liftTarget -= 20;
+        }
     }
 
     public void outtake_flat() {

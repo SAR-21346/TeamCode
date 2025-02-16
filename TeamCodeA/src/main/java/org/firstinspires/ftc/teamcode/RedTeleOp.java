@@ -16,16 +16,17 @@ import static org.firstinspires.ftc.teamcode.RobotConstants.LIFT_HIGH_BUCKET;
 import static org.firstinspires.ftc.teamcode.RobotConstants.OuttakeState.EXTEND_HIGH_BUCKET;
 import static org.firstinspires.ftc.teamcode.RobotConstants.OuttakeState.EXTEND_HIGH_SPEC;
 import static org.firstinspires.ftc.teamcode.RobotConstants.OuttakeState.INTAKE_GRAB;
+import static org.firstinspires.ftc.teamcode.RobotConstants.OuttakeState.RETRACT;
 import static org.firstinspires.ftc.teamcode.RobotConstants.OuttakeState.SCORE_HIGH_BUCKET;
 import static org.firstinspires.ftc.teamcode.RobotConstants.OuttakeState.SCORE_HIGH_SPEC;
 import static org.firstinspires.ftc.teamcode.RobotConstants.OuttakeState.SPEC_PICKUP;
+import static org.firstinspires.ftc.teamcode.RobotConstants.OuttakeState.START;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.RobotConstants.IntakeState;
@@ -34,8 +35,6 @@ import org.firstinspires.ftc.teamcode.RobotConstants.OuttakeState;
 @TeleOp(name = "Red Drive")
 public class RedTeleOp extends OpMode {
     MecanumTrain bot;
-
-    Gamepad currentGamepad1, currentGamepad2, previousGamepad1, previousGamepad2;
 
     IntakeState intakeState;
     OuttakeState outtakeState;
@@ -51,6 +50,7 @@ public class RedTeleOp extends OpMode {
         bot = new MecanumTrain(hardwareMap);
 
         intakeTimer = new Timer();
+        outtakeTimer = new Timer();
 
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
     }
@@ -58,6 +58,7 @@ public class RedTeleOp extends OpMode {
     @Override
     public void start() {
         setIntakeState(INIT);
+        setOuttakeState(OuttakeState.INIT);
     }
 
     @Override
@@ -85,16 +86,27 @@ public class RedTeleOp extends OpMode {
             setIntakeState(STOP);
         }
 
+        if (gamepad2.dpad_up) {
+            setOuttakeState(START);
+        }
+
+        if (gamepad2.left_stick_button) {
+            setOuttakeState(OuttakeState.STOP);
+        }
+
+
         bot.encoderUpdate();
         bot.distSensorUpdate();
         bot.updateLift();
         intakeStateUpdate();
+        outtakeStateUpdate();
 
         telemetry.addData("current intake state", intakeState);
         telemetry.addData("intake wheel distance", bot.intakeWheelDist);
         telemetry.addData("intake wall distance", bot.intakeWallDist);
-        telemetry.addData("extLPos", bot.extLPos);
-        telemetry.addData("extRPos", bot.extRPos);
+        telemetry.addData("liftPos", bot.liftR.getCurrentPosition());
+
+        telemetry.addData("current outtake state", outtakeState);
     }
 
     private void intakeStateUpdate() {
@@ -171,15 +183,14 @@ public class RedTeleOp extends OpMode {
             case INIT:
                 // make sure outtake is reset to right pos
                 bot.resetLift();
-                break;
-            case START:
-                bot.retractLift();
                 bot.outtake_flat();
                 bot.claw_open();
+                break;
+            case START:
                 setOuttakeState(INTAKE_GRAB);
                 break;
             case INTAKE_GRAB:
-                if (gamepad2.dpad_up) {
+                if (gamepad2.dpad_left) {
                     setOuttakeState(SPEC_PICKUP);
                 }
                 if(bot.intakeWallDetect()) { // Checks if something is in the intake
@@ -190,27 +201,22 @@ public class RedTeleOp extends OpMode {
             case EXTEND_HIGH_BUCKET:
                 // Extend it to top basket
                 bot.extend_high_bucket();
-                if (bot.liftR.getCurrentPosition() >= LIFT_HIGH_BUCKET-20) { // replace 10 with height of vert ext
-                    bot.outtake_score_bucket();
+                if (bot.liftR.getCurrentPosition() >= LIFT_HIGH_BUCKET-30) { // replace 10 with height of vert ext
                     setOuttakeState(SCORE_HIGH_BUCKET);
                 }
                 break;
             case SCORE_HIGH_BUCKET:
-                if (true) { // replace with encoder value of outtake servo
+                bot.outtake_score_bucket();
+                if (gamepad2.left_bumper) { // replace with encoder value of outtake servo
                     bot.claw_open();
-                    // wait for claw
-                    bot.outtake_flat();
-                    // wait for outtake encoder pos
-                    bot.retractLift();
-                    // once at 0, stop outtake
-                    setOuttakeState(OuttakeState.STOP);
+                    setOuttakeState(RETRACT);
                 }
                 break;
             case SPEC_PICKUP:
                 // set outtake to spec pos
                 bot.outtake_spec();
                 // wait for outtake encoder pos
-                if (gamepad2.dpad_down) {
+                if (gamepad2.dpad_left) {
                     bot.claw_close();
                     setOuttakeState(EXTEND_HIGH_SPEC);
                 }
@@ -224,9 +230,21 @@ public class RedTeleOp extends OpMode {
                 break;
             case SCORE_HIGH_SPEC:
                 // Code for attaching spec to rung
-                setOuttakeState(OuttakeState.STOP);
+                setOuttakeState(RETRACT);
                 break;
+            case RETRACT:
+                // wait for claw
+                if (outtakeTimer.getElapsedTimeSeconds() > 1.3) {
+                    bot.outtake_flat();
+                    if (outtakeTimer.getElapsedTimeSeconds() > 2) {
+                        bot.retractLift();
+                        setOuttakeState(OuttakeState.STOP);
+                    }
+                }
             case STOP:
+                bot.outtake_flat();
+                bot.retractLift();
+                bot.claw_open();
                 break;
 
         }
