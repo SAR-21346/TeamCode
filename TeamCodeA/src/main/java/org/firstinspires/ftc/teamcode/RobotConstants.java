@@ -14,6 +14,8 @@ public class RobotConstants {
     // Robot Lengths
     public static final double ROBOT_BACK_LENGTH = 16.25;
     public static final double ROBOT_SIDE_LENGTH = 16;
+    public static final double MAX_EXT_DIST= 33;
+    public static final double ROBOT_CENTER_TO_MAX_EXT = MAX_EXT_DIST-(ROBOT_SIDE_LENGTH/2);
 
     // Intake States
     public enum IntakeState {
