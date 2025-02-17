@@ -1,14 +1,14 @@
 package org.firstinspires.ftc.teamcode.testing;
 
 
-import static org.firstinspires.ftc.teamcode.RobotConstants.LEFT_DROPDOWN_MAX;
-import static org.firstinspires.ftc.teamcode.RobotConstants.LEFT_DROPDOWN_MIN;
-import static org.firstinspires.ftc.teamcode.RobotConstants.LEFT_EXT_MAX;
-import static org.firstinspires.ftc.teamcode.RobotConstants.LEFT_EXT_MIN;
-import static org.firstinspires.ftc.teamcode.RobotConstants.RIGHT_DROPDOWN_MAX;
-import static org.firstinspires.ftc.teamcode.RobotConstants.RIGHT_DROPDOWN_MIN;
-import static org.firstinspires.ftc.teamcode.RobotConstants.RIGHT_EXT_MAX;
-import static org.firstinspires.ftc.teamcode.RobotConstants.RIGHT_EXT_MIN;
+import static org.firstinspires.ftc.teamcode.RobotConstants.OUTTAKE_FLAT_L;
+import static org.firstinspires.ftc.teamcode.RobotConstants.OUTTAKE_FLAT_R;
+import static org.firstinspires.ftc.teamcode.RobotConstants.OUTTAKE_SCORE_BUCKET_L;
+import static org.firstinspires.ftc.teamcode.RobotConstants.OUTTAKE_SCORE_BUCKET_R;
+import static org.firstinspires.ftc.teamcode.RobotConstants.OUTTAKE_SCORE_SPEC_L;
+import static org.firstinspires.ftc.teamcode.RobotConstants.OUTTAKE_SCORE_SPEC_R;
+import static org.firstinspires.ftc.teamcode.RobotConstants.OUTTAKE_SPEC_L;
+import static org.firstinspires.ftc.teamcode.RobotConstants.OUTTAKE_SPEC_R;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -25,6 +25,8 @@ public class TeleOpDriveTest extends OpMode {
     @Override
     public void init() {
         bot = new MecanumTrain(hardwareMap);
+        bot.liftTarget = 0;
+
     }
 
     @Override
@@ -37,53 +39,52 @@ public class TeleOpDriveTest extends OpMode {
         bot.setMotorPowers(powers[0], powers[1], powers[2], powers[3], 1);
 
         if (gamepad2.dpad_up) {
-            bot.extL.setPosition(LEFT_EXT_MIN);
-            bot.extR.setPosition(RIGHT_EXT_MIN);
-            bot.dropdownL.setPosition(LEFT_DROPDOWN_MIN);
-            bot.dropdownR.setPosition(RIGHT_DROPDOWN_MIN);
+            bot.outtakeFlipL.setPosition(OUTTAKE_FLAT_L);
+            bot.outtakeFlipR.setPosition(OUTTAKE_FLAT_R);
         }
         if (gamepad2.dpad_down) {
-            bot.extL.setPosition(LEFT_EXT_MAX);
-            bot.extR.setPosition(RIGHT_EXT_MAX);
-            bot.dropdownL.setPosition(LEFT_DROPDOWN_MAX);
-            bot.dropdownR.setPosition(RIGHT_DROPDOWN_MAX);
+            bot.outtakeFlipL.setPosition(OUTTAKE_SPEC_L);
+            bot.outtakeFlipR.setPosition(OUTTAKE_SPEC_R);
         }
         if (gamepad2.dpad_left) {
-            bot.dropdownL.setPosition(LEFT_DROPDOWN_MIN);
-            bot.dropdownR.setPosition(RIGHT_DROPDOWN_MIN);
+            bot.outtakeFlipL.setPosition(OUTTAKE_SCORE_BUCKET_L);
+            bot.outtakeFlipR.setPosition(OUTTAKE_SCORE_BUCKET_R);
         }
         if (gamepad2.dpad_right) {
-            bot.dropdownL.setPosition(LEFT_DROPDOWN_MAX);
-            bot.dropdownR.setPosition(RIGHT_DROPDOWN_MAX);
+            bot.outtakeFlipL.setPosition(OUTTAKE_SCORE_SPEC_L);
+            bot.outtakeFlipR.setPosition(OUTTAKE_SCORE_SPEC_R);
         }
 
-        if (gamepad2.x) {
-            bot.intake.setPower(.7);
-        } else {
-            bot.intake.setPower(0);
+        if (gamepad2.options) {
+            bot.resetLift();
         }
 
-        if (gamepad2.left_bumper) {
-            bot.liftL.setPower(-.8);
-            bot.liftR.setPower(-.8);
-        } else if (gamepad2.right_bumper) {
-            bot.liftL.setPower(.8);
-            bot.liftR.setPower(.8);
-        } else {
-            bot.liftL.setPower(0);
-            bot.liftR.setPower(0);
+
+        if (gamepad2.a) {
+            bot.liftTarget = 3000;
+        } else if (gamepad2.b) {
+            bot.liftTarget = 1500;
+        } else if (gamepad2.x) {
+            bot.liftTarget = 0;
+        } else if (gamepad2.y) {
+            bot.liftTarget = 3400;
         }
+
+        bot.updateLift();
+
+        bot.encoderUpdate();
+        telemetry.addData("lift", bot.liftR.getCurrentPosition());
+        telemetry.addData("liftTarget", bot.liftTarget);
         telemetry.addData("leftFront", powers[0]);
         telemetry.addData("leftRear", powers[1]);
         telemetry.addData("rightFront", powers[2]);
         telemetry.addData("rightRear", powers[3]);
         telemetry.addLine();
 
-        double encL = bot.extEncL.getVoltage() / 3.3 * 360;
-        double encR = bot.extEncR.getVoltage() / 3.3 * 360;
+        telemetry.addData("encL", bot.extLPos);
+        telemetry.addData("encR", bot.extRPos);
+        telemetry.addData("outtakeFlipEnc", bot.outtakeFlipPos);
 
-        telemetry.addData("encL", encL);
-        telemetry.addData("encR", encR);
 
         telemetry.addData("intakeWheel", bot.intakeWheelDetect());
 
@@ -98,6 +99,12 @@ public class TeleOpDriveTest extends OpMode {
             double distance = ((DistanceSensor) color).getDistance(DistanceUnit.MM);
             telemetry.addData("intakeWheelDist", distance);
         }
+
+        telemetry.addData("verticalLimit", bot.verticalLimit.isPressed());
+
+        telemetry.addData("leftEnc", bot.leftEnc.getCurrentPosition());
+        telemetry.addData("rightEnc", bot.rightEnc.getCurrentPosition());
+        telemetry.addData("strafeEnc", bot.strafeEnc.getCurrentPosition());
         telemetry.update();
     }
 }
