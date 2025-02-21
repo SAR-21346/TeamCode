@@ -91,7 +91,7 @@ public class RedTeleOp extends OpMode {
         }
 
         if (gamepad2.left_stick_button) {
-            setOuttakeState(OuttakeState.STOP);
+            setOuttakeState(RETRACT);
         }
 
 
@@ -117,7 +117,7 @@ public class RedTeleOp extends OpMode {
                 break;
             case DISTANCE_CHECK:
                 // Check distance
-                if (true) { // replace "true" with distance check
+                if ((bot.leftDistVal + bot.rightDistVal) / 2 > 20) { // replace "true" with distance check
                     setIntakeState(EXTEND);
                 }
                 break;
@@ -126,13 +126,15 @@ public class RedTeleOp extends OpMode {
                 bot.extend(5);
                 setIntakeState(PIVOT_DOWN);
             case PIVOT_DOWN:
-                if(bot.extRPos < 200) { // replace "true" with slide limit check
+                if(intakeTimer.getElapsedTimeSeconds() > 0.8) { // replace "true" with slide limit check
                     bot.pivot_down();
+                    bot.outtake_clearance();
                     setIntakeState(INTAKE_ENABLE);
                 }
                 break;
             case PIVOT_DOWN_BYPASS:
                 bot.pivot_down();
+                bot.outtake_clearance();
                 setIntakeState(INTAKE_ENABLE);
             case INTAKE_ENABLE:
                 // Pick up sample
@@ -164,7 +166,7 @@ public class RedTeleOp extends OpMode {
                 // retract slides
                 bot.retract();
                 bot.intake.setPower(0);
-                if (bot.extRPos > 200) {
+                if (intakeTimer.getElapsedTimeSeconds() > 0.8) {
                     setIntakeState(STOP);
                 }
                 break;
@@ -173,6 +175,7 @@ public class RedTeleOp extends OpMode {
                 bot.pivot_up();
                 // retract slides
                 bot.retract();
+                bot.outtake_flat();
                 bot.intake.setPower(0);
                 break;
         }
@@ -201,7 +204,7 @@ public class RedTeleOp extends OpMode {
             case EXTEND_HIGH_BUCKET:
                 // Extend it to top basket
                 bot.extend_high_bucket();
-                if (bot.liftR.getCurrentPosition() >= LIFT_HIGH_BUCKET-30) { // replace 10 with height of vert ext
+                if (bot.liftR.getCurrentPosition() >= LIFT_HIGH_BUCKET-50) { // replace 10 with height of vert ext
                     setOuttakeState(SCORE_HIGH_BUCKET);
                 }
                 break;
@@ -234,16 +237,17 @@ public class RedTeleOp extends OpMode {
                 break;
             case RETRACT:
                 // wait for claw
-                if (outtakeTimer.getElapsedTimeSeconds() > 1.3) {
+                if (outtakeTimer.getElapsedTimeSeconds() > 1.5) {
                     bot.outtake_flat();
-                    if (outtakeTimer.getElapsedTimeSeconds() > 2) {
-                        bot.retractLift();
+                    bot.retractLift();
+
+                    if (bot.liftR.getCurrentPosition() < 300) {
                         setOuttakeState(OuttakeState.STOP);
                     }
                 }
             case STOP:
                 bot.outtake_flat();
-                bot.retractLift();
+                bot.resetLift();
                 bot.claw_open();
                 break;
 

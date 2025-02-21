@@ -10,6 +10,8 @@ import static org.firstinspires.ftc.teamcode.RobotConstants.OUTTAKE_SCORE_SPEC_R
 import static org.firstinspires.ftc.teamcode.RobotConstants.OUTTAKE_SPEC_L;
 import static org.firstinspires.ftc.teamcode.RobotConstants.OUTTAKE_SPEC_R;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -22,10 +24,15 @@ import org.firstinspires.ftc.teamcode.MecanumTrain;
 public class TeleOpDriveTest extends OpMode {
     MecanumTrain bot;
 
+    FtcDashboard dash;
+
+
     @Override
     public void init() {
         bot = new MecanumTrain(hardwareMap);
         bot.liftTarget = 0;
+
+       dash = FtcDashboard.getInstance();
 
     }
 
@@ -62,15 +69,28 @@ public class TeleOpDriveTest extends OpMode {
 
         if (gamepad2.a) {
             bot.liftTarget = 3000;
+//            bot.liftR.setPower(1);
+//            bot.liftL.setPower(1);
         } else if (gamepad2.b) {
             bot.liftTarget = 1500;
+//            bot.liftR.setPower(-1);
+//            bot.liftL.setPower(-1);
         } else if (gamepad2.x) {
             bot.liftTarget = 0;
         } else if (gamepad2.y) {
             bot.liftTarget = 3400;
+        } else {
+            bot.liftR.setPower(0);
+            bot.liftL.setPower(0);
         }
 
         bot.updateLift();
+
+        TelemetryPacket packet = new TelemetryPacket();
+        packet.put("liftPos", bot.liftR.getCurrentPosition());
+        packet.put("liftTarget", bot.liftTarget);
+
+        dash.sendTelemetryPacket(packet);
 
         bot.encoderUpdate();
         telemetry.addData("lift", bot.liftR.getCurrentPosition());
@@ -105,6 +125,10 @@ public class TeleOpDriveTest extends OpMode {
         telemetry.addData("leftEnc", bot.leftEnc.getCurrentPosition());
         telemetry.addData("rightEnc", bot.rightEnc.getCurrentPosition());
         telemetry.addData("strafeEnc", bot.strafeEnc.getCurrentPosition());
+
+        bot.distSensorUpdate();
+        telemetry.addData("leftDist", bot.leftDistVal);
+        telemetry.addData("rightDist", bot.rightDistVal);
         telemetry.update();
     }
 }

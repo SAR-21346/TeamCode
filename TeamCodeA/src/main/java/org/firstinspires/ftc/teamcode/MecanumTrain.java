@@ -8,6 +8,8 @@ import static org.firstinspires.ftc.teamcode.RobotConstants.LEFT_EXT_MAX;
 import static org.firstinspires.ftc.teamcode.RobotConstants.LEFT_EXT_MIN;
 import static org.firstinspires.ftc.teamcode.RobotConstants.LIFT_HIGH_BUCKET;
 import static org.firstinspires.ftc.teamcode.RobotConstants.LIFT_SPEC;
+import static org.firstinspires.ftc.teamcode.RobotConstants.OUTTAKE_CLEARANCE_L;
+import static org.firstinspires.ftc.teamcode.RobotConstants.OUTTAKE_CLEARANCE_R;
 import static org.firstinspires.ftc.teamcode.RobotConstants.OUTTAKE_FLAT_L;
 import static org.firstinspires.ftc.teamcode.RobotConstants.OUTTAKE_FLAT_R;
 import static org.firstinspires.ftc.teamcode.RobotConstants.OUTTAKE_SCORE_BUCKET_L;
@@ -136,6 +138,9 @@ public class MecanumTrain{
         intakeWheel = hwMap.get(ColorSensor.class, "intakeWheel");
         intakeWall = hwMap.get(ColorSensor.class, "intakeWall");
 
+        leftDist = hwMap.get(DistanceSensor.class, "leftDist");
+        rightDist = hwMap.get(DistanceSensor.class, "rightDist");
+
         verticalLimit = hwMap.get(TouchSensor.class, "verticalLimit");
 
         // Set ZeroPowerBehavior for Motors
@@ -152,7 +157,6 @@ public class MecanumTrain{
         liftL.setDirection(DcMotorSimple.Direction.REVERSE);
 
         controller = new PIDFController(kP, kI, kD, kF);
-        liftR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
 
     // ----------------- Drivetrain -----------------
@@ -233,6 +237,9 @@ public class MecanumTrain{
             ColorSensor color = intakeWheel;
             intakeWheelDist = ((DistanceSensor) color).getDistance(DistanceUnit.MM);
         }
+
+        leftDistVal = leftDist.getDistance(DistanceUnit.INCH);
+        rightDistVal = rightDist.getDistance(DistanceUnit.INCH);
     }
 
     // ----------------- Intake -----------------
@@ -309,6 +316,9 @@ public class MecanumTrain{
     public void updateLift () {
         double power = controller.calculate(liftR.getCurrentPosition(), liftTarget);
 
+
+        liftL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        liftR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         liftL.setPower(power);
         liftR.setPower(power);
     }
@@ -330,13 +340,18 @@ public class MecanumTrain{
             liftR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             liftTarget = 0;
         } else {
-            liftTarget -= 20;
+            liftTarget -= 50;
         }
     }
 
     public void outtake_flat() {
         outtakeFlipL.setPosition(OUTTAKE_FLAT_L);
         outtakeFlipR.setPosition(OUTTAKE_FLAT_R);
+    }
+
+    public void outtake_clearance() {
+        outtakeFlipL.setPosition(OUTTAKE_CLEARANCE_L);
+        outtakeFlipR.setPosition(OUTTAKE_CLEARANCE_R);
     }
 
     public void outtake_score_bucket() {
