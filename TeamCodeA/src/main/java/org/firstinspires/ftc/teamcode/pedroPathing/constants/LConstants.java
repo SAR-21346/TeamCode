@@ -5,12 +5,12 @@ import com.pedropathing.localization.constants.*;
 
 public class LConstants {
     static {
-        ThreeWheelConstants.forwardTicksToInches = 0.00294567; // 0.0029468431, 0.00294177178, 0.0029454338, 0.002945901, 0.00294823653, 0.0029439639
-        ThreeWheelConstants.strafeTicksToInches = 0.002982075; // 0.002971800, 0.002980075, 0.0029765267,  0.002981959,0.0029788379, 0.002955759, 0.00298381407, 0.0029733620
-        ThreeWheelConstants.turnTicksToInches = 0.003003217969;
-        ThreeWheelConstants.leftY = 6.625;
-        ThreeWheelConstants.rightY = -6.625;
-        ThreeWheelConstants.strafeX = -6;
+        ThreeWheelConstants.forwardTicksToInches = 	0.002941; //  0.002926152, 0.0029458987,  0.002911096, 0.002939359, 0.0029427327, 0.00294636326, 0.0029105637, 0.0029442111
+        ThreeWheelConstants.strafeTicksToInches =  -0.0029641; // -0.003102108, 0.0029608858, 0.0029150875,  0.00299381291, 0.002966502375, 0.003015066195,  0.0030183372, 0.0029657692, 0.0029913114, 0.003005978697
+        ThreeWheelConstants.turnTicksToInches = 0.0029186; // 0.002917526, 0.00291964
+        ThreeWheelConstants.leftY = 6.5;
+        ThreeWheelConstants.rightY = -6.25;
+        ThreeWheelConstants.strafeX = -7;
         ThreeWheelConstants.leftEncoder_HardwareMapName = "backLeft";
         ThreeWheelConstants.rightEncoder_HardwareMapName = "parR";
         ThreeWheelConstants.strafeEncoder_HardwareMapName = "backRight";
