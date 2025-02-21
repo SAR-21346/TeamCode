@@ -102,8 +102,6 @@ public class RedTeleOp extends OpMode {
         outtakeStateUpdate();
 
         telemetry.addData("current intake state", intakeState);
-        telemetry.addData("intake wheel distance", bot.intakeWheelDist);
-        telemetry.addData("intake wall distance", bot.intakeWallDist);
         telemetry.addData("liftPos", bot.liftR.getCurrentPosition());
 
         telemetry.addData("current outtake state", outtakeState);
@@ -117,7 +115,7 @@ public class RedTeleOp extends OpMode {
                 break;
             case DISTANCE_CHECK:
                 // Check distance
-                if ((bot.leftDistVal + bot.rightDistVal) / 2 > 20) { // replace "true" with distance check
+                if ((bot.leftDistVal + bot.rightDistVal) / 2 > 12) { // replace "true" with distance check
                     setIntakeState(EXTEND);
                 }
                 break;
