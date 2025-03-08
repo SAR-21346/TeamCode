@@ -5,9 +5,9 @@ import com.acmerobotics.dashboard.config.Config;
 @Config
 public class RobotConstants {
     // PIDF Coefficients
-    public static double kP = 0.014;
-    public static double kI = 0.0;
-    public static double kD = 0.0;
+    public static double kP = 0.008;
+    public static double kI = 0.0001;
+    public static double kD = 0.0001;
     public static double kF = 0.0;
 
 
@@ -28,6 +28,7 @@ public class RobotConstants {
         INTAKE_ENABLE,
         INTAKE_ACCEPT,
         INTAKE_REJECT,
+        INTAKE_REJECT_BYPASS,
         PIVOT_UP,
         STOP
     }
@@ -61,18 +62,18 @@ public class RobotConstants {
     public static double OUTTAKE_FLAT_R = 0.04;
     public static double OUTTAKE_CLEARANCE_L = 0.8;
     public static double OUTTAKE_CLEARANCE_R = 0.2;
-    public static double OUTTAKE_SCORE_BUCKET_L = 0.4;
-    public static double OUTTAKE_SCORE_BUCKET_R = 0.6;
-    public static double OUTTAKE_SPEC_L = 0;
-    public static double OUTTAKE_SPEC_R = 1;
-    public static double OUTTAKE_SCORE_SPEC_L = 0.7;
-    public static double OUTTAKE_SCORE_SPEC_R = 0.3;
-    public static double OUTTAKE_SCORE_SPEC_2_L = 0.5;
-    public static double OUTTAKE_SCORE_SPEC_2_R = 0.5;
+    public static double OUTTAKE_SCORE_BUCKET_L = 0.3;
+    public static double OUTTAKE_SCORE_BUCKET_R = 0.7;
+    public static double OUTTAKE_SPEC_L = 0.04;
+    public static double OUTTAKE_SPEC_R = 0.96;
+    public static double OUTTAKE_SCORE_SPEC_L = 0.2;
+    public static double OUTTAKE_SCORE_SPEC_R = 0.8;
+    public static double OUTTAKE_SCORE_SPEC_2_L = 0;
+    public static double OUTTAKE_SCORE_SPEC_2_R = 1;
 
     // CLAW
     public static double CLAW_MIN = 0;
-    public static double CLAW_MAX = 0.3;
+    public static double CLAW_MAX = 0.318;
 
     // Intake Power
     public static double INTAKE_POWER_POS = 0.8;
@@ -81,6 +82,6 @@ public class RobotConstants {
     // Lift Positions
     public static int LIFT_MIN = 0;
     public static int LIFT_HIGH_BUCKET = 3350;
-    public static int LIFT_SPEC = 1800;
+    public static int LIFT_SPEC = 1300;
     public static int LIFT_MAX = 3400;
 }

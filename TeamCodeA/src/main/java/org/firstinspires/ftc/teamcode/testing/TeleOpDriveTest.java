@@ -69,12 +69,12 @@ public class TeleOpDriveTest extends OpMode {
 
         if (gamepad2.a) {
             bot.liftTarget = 3000;
-//            bot.liftR.setPower(1);
-//            bot.liftL.setPower(1);
+            bot.liftR.setPower(1);
+            bot.liftL.setPower(1);
         } else if (gamepad2.b) {
             bot.liftTarget = 1500;
-//            bot.liftR.setPower(-1);
-//            bot.liftL.setPower(-1);
+            bot.liftR.setPower(-1);
+            bot.liftL.setPower(-1);
         } else if (gamepad2.x) {
             bot.liftTarget = 0;
         } else if (gamepad2.y) {
@@ -84,7 +84,7 @@ public class TeleOpDriveTest extends OpMode {
             bot.liftL.setPower(0);
         }
 
-        bot.updateLift();
+//        bot.updateLift();
 
         TelemetryPacket packet = new TelemetryPacket();
         packet.put("liftPos", bot.liftR.getCurrentPosition());

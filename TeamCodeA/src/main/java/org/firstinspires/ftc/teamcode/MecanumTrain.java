@@ -157,6 +157,7 @@ public class MecanumTrain{
         liftL.setDirection(DcMotorSimple.Direction.REVERSE);
 
         controller = new PIDFController(kP, kI, kD, kF);
+        liftR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
 
     // ----------------- Drivetrain -----------------
@@ -245,14 +246,14 @@ public class MecanumTrain{
     // ----------------- Intake -----------------
     // pivot_down()
     // Pivots the intake down
-    public void pivot_down() {
+    public void intake_pivot_down() {
         dropdownL.setPosition(LEFT_DROPDOWN_MAX);
         dropdownR.setPosition(RIGHT_DROPDOWN_MAX);
     }
 
     // pivot_up()
     // Pivots the intake up
-    public void pivot_up() {
+    public void intake_pivot_up() {
         dropdownL.setPosition(LEFT_DROPDOWN_MIN);
         dropdownR.setPosition(RIGHT_DROPDOWN_MIN);
     }
@@ -260,7 +261,7 @@ public class MecanumTrain{
     // extend(distance)
     // distance - int (1-5)
     // Extends the horizontal slides to a certain distance
-    public void extend (int distance) {
+    public void intake_extend(int distance) {
         switch (distance) {
             case 1:
                 extL.setPosition(LEFT_EXT_MAX*0.2);
@@ -287,7 +288,7 @@ public class MecanumTrain{
 
     // retract()
     // Retracts the horizontal slides
-    public void retract() {
+    public void intake_retract() {
         extL.setPosition(LEFT_EXT_MIN);
         extR.setPosition(RIGHT_EXT_MIN);
     }
@@ -337,10 +338,10 @@ public class MecanumTrain{
 
     public void resetLift() {
         if (verticalLimit.isPressed()) {
-            liftR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             liftTarget = 0;
+            liftR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         } else {
-            liftTarget -= 50;
+            liftTarget -= 10;
         }
     }
 
@@ -381,6 +382,4 @@ public class MecanumTrain{
     public void claw_close() {
         claw.setPosition(CLAW_MIN);
     }
-
-
 }

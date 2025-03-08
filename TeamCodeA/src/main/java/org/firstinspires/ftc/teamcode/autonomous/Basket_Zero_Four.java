@@ -7,6 +7,7 @@ import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_A
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_ENABLE;
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.INTAKE_REJECT;
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.PIVOT_DOWN;
+import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.PIVOT_DOWN_BYPASS;
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.PIVOT_UP;
 import static org.firstinspires.ftc.teamcode.RobotConstants.IntakeState.STOP;
 import static org.firstinspires.ftc.teamcode.RobotConstants.LIFT_HIGH_BUCKET;
@@ -37,9 +38,7 @@ import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.MecanumTrain;
@@ -73,6 +72,9 @@ public class Basket_Zero_Four extends OpMode {
 
         bot = new MecanumTrain(hardwareMap);
         bot.follower.setStartingPose(basketStart);
+        setIntakeState(IntakeState.INIT);
+        bot.outtake_flat();
+        setOuttakeState(INIT);
     }
 
     @Override
@@ -80,22 +82,26 @@ public class Basket_Zero_Four extends OpMode {
         fullTimer.resetTimer();
         buildPaths();
         setPathState(1);
-        setIntakeState(IntakeState.INIT);
-        setOuttakeState(INIT);
+
+
     }
 
     @Override
     public void loop() {
         bot.follower.update();
 
+        bot.updateLift();
+        bot.distSensorUpdate();
         autonomousPathUpdate();
         intakeStateUpdate();
         outtakeStateUpdate();
 
+        telemetry.addData("TValue", bot.follower.getCurrentTValue());
         telemetry.addData("Path State", pathState);
         telemetry.addData("PathTimer", pathTimer.getElapsedTimeSeconds());
         telemetry.addData("Intake State", intakeState);
         telemetry.addData("IntakeTimer", intakeTimer.getElapsedTimeSeconds());
+        telemetry.addData("outtake state",outtakeState);
         telemetry.addData("LiftTimer", outtakeTimer.getElapsedTimeSeconds());
         telemetry.addData("fullTimer", fullTimer.getElapsedTimeSeconds());
         telemetry.addData("Position", bot.follower.getPose());
@@ -104,63 +110,85 @@ public class Basket_Zero_Four extends OpMode {
 
     private void buildPaths() {
         preload = bot.follower.pathBuilder()
-                .addPath(new Path(
-                        new BezierCurve(
-                                new Point(basketStart),
-                                new Point(28.25, 117, Point.CARTESIAN),
-                                new Point(basket))))
+                .addPath(new Path(new BezierCurve(
+                            new Point(basketStart),
+                            new Point(28, 105.75, Point.CARTESIAN),
+                            new Point(23.5, 116.5, Point.CARTESIAN))))
                 .setLinearHeadingInterpolation(basketStart.getHeading(), basket.getHeading())
+                .addParametricCallback(0.05, () -> setOuttakeState(INTAKE_GRAB))
+                .addPath(new Path(new BezierLine(
+                        new Point(23.5, 116.5, Point.CARTESIAN),
+                        new Point(basket))))
+                .setConstantHeadingInterpolation(basket.getHeading())
+                .addParametricCallback(0.65, () -> setIntakeState(EXTEND))
                 .setPathEndHeadingConstraint(3.0)
                 .build();
 
         cycle1 = bot.follower.pathBuilder()
-                .addPath(new Path(
-                                new BezierCurve(new Point(basket), // start
-                                                new Point(13, 124, Point.CARTESIAN), // control point 1
-                                                new Point(neutralRightSpike.getX(), neutralRightSpike.getY(), Point.CARTESIAN))
-                ))
-                .setLinearHeadingInterpolation(basket.getHeading(), neutralRightSpike.getHeading())
+                .addPath(new Path(new BezierLine(
+                        new Point(basket),
+                        new Point(neutralRightSpike.getX() - 9, neutralRightSpike.getY(), Point.CARTESIAN))))
+                .setLinearHeadingInterpolation(basket.getHeading(), neutralRightSpike.getHeading(), 0.6)
+                .addPath(new Path(new BezierLine(new Point(basket), new Point(neutralRightSpike))))
+                .setConstantHeadingInterpolation(neutralRightSpike.getHeading())
+                .setPathEndVelocityConstraint(20)
+                .setPathEndTimeoutConstraint(50)
                 .build();
 
         cycle1Score = bot.follower.pathBuilder()
                 .addPath(new Path(new BezierLine(new Point(neutralRightSpike),new Point(basket))))
                 .setLinearHeadingInterpolation(neutralRightSpike.getHeading(), basket.getHeading())
+                .addParametricCallback(0.5, () -> setOuttakeState(START))
                 .build();
 
         cycle2 = bot.follower.pathBuilder()
+                .addPath(new Path(new BezierLine(
+                        new Point(basket),
+                        new Point(neutralCenterSpike.getX() - 4, neutralCenterSpike.getY(), Point.CARTESIAN))))
+                .setLinearHeadingInterpolation(basket.getHeading(), neutralCenterSpike.getHeading(), 0.05)
+                .addParametricCallback(0.1, () -> setIntakeState(EXTEND))
                 .addPath(new Path(new BezierLine(new Point(basket), new Point(neutralCenterSpike))))
-                .setLinearHeadingInterpolation(basket.getHeading(), neutralCenterSpike.getHeading())
+                .setConstantHeadingInterpolation(neutralCenterSpike.getHeading())
+                .setPathEndTimeoutConstraint(50)
+                .setZeroPowerAccelerationMultiplier(2)
                 .build();
 
         cycle2Score = bot.follower.pathBuilder()
-                .addPath(new Path(
-                                new BezierLine(
-                                        new Point(neutralCenterSpike.getX()-ROBOT_CENTER_TO_MAX_EXT, neutralCenterSpike.getY(), Point.CARTESIAN), // start
-                                        new Point(basket))
-                ))
+                .addPath(new Path(new BezierLine(new Point(neutralCenterSpike), new Point(basket))))
                 .setLinearHeadingInterpolation(neutralCenterSpike.getHeading(), basket.getHeading())
+                .addParametricCallback(0.5, () -> setOuttakeState(START))
                 .build();
 
         cycle3 = bot.follower.pathBuilder()
-                .addPath(new Path(
-                                new BezierCurve(
-                                                new Point(basket), // start
-                                                new Point(10, 113, Point.CARTESIAN), // control point 1
-                                                new Point(34, 95.75, Point.CARTESIAN), // control point 2
-                                                new Point(neutralLeftSpike.getX(), neutralLeftSpike.getY()-ROBOT_CENTER_TO_MAX_EXT, Point.CARTESIAN) // end
+                .addPath(new Path(new BezierLine(
+                                    new Point(basket), // start
+                                    new Point(neutralLeftSpike.getX(), neutralLeftSpike.getY()-15, Point.CARTESIAN) // end
                         )
                 ))
                 .setLinearHeadingInterpolation(basket.getHeading(), neutralLeftSpike.getHeading())
+                .addParametricCallback(0.5, () -> setIntakeState(EXTEND))
+                .addPath(new Path(new BezierLine(
+                        new Point(neutralLeftSpike.getX(), neutralLeftSpike.getY()-15, Point.CARTESIAN),
+                        new Point(neutralLeftSpike)
+                )))
+                .setConstantHeadingInterpolation(neutralLeftSpike.getHeading())
+                .addPath(new Path(new BezierLine(
+                        new Point(neutralLeftSpike),
+                        new Point(neutralLeftSpike.getX(), neutralLeftSpike.getY()-1, Point.CARTESIAN)
+                )))
+                .setLinearHeadingInterpolation(neutralLeftSpike.getHeading(), neutralLeftSpike.getHeading() + Math.toRadians(5))
+                .setPathEndTimeoutConstraint(140)
                 .build();
 
 
         cycle3Score = bot.follower.pathBuilder()
                 .addPath(new Path(
                         new BezierLine(
-                                new Point(neutralLeftSpike.getX(), neutralLeftSpike.getY()-ROBOT_CENTER_TO_MAX_EXT, Point.CARTESIAN), // start
+                                new Point(neutralLeftSpike.getX(), neutralLeftSpike.getY()-1, Point.CARTESIAN), // start
                                 new Point(basket)))
                 )
-                .setLinearHeadingInterpolation(neutralCenterSpike.getHeading(), basket.getHeading())
+                .setLinearHeadingInterpolation(neutralLeftSpike.getHeading(), basket.getHeading())
+                .addParametricCallback(0.75, () -> setOuttakeState(START))
                 .build();
 
         park = bot.follower.pathBuilder()
@@ -178,90 +206,50 @@ public class Basket_Zero_Four extends OpMode {
         switch (pathState) {
             case 1: // preload
                 bot.follower.followPath(preload, true);
-                setPathState(10);
-                break;
-            case 10: // outtake fsm begin, score preload
-                if (bot.follower.getCurrentTValue() > 0.10) {
-                    setOuttakeState(INTAKE_GRAB);
-                    setPathState(2);
-                }
+                setPathState(2);
                 break;
             case 2: // outtake fsm end, begin cycle 1 path
-                if (outtakeState == RETRACT) {
+                if (!bot.follower.isBusy() && outtakeState == RETRACT) {
                     bot.follower.followPath(cycle1, true);
-                    setPathState(20);
-                }
-                break;
-            case 20: // intake fsm begin
-                if (pathTimer.getElapsedTimeSeconds() > 0.2) {
-                    setIntakeState(EXTEND);
-                    setPathState(21);
-                }
-                break;
-            case 21: // intake fsm end, outtake fsm begin
-                if (intakeState == PIVOT_UP) {
-                    setOuttakeState(INTAKE_GRAB);
                     setPathState(3);
                 }
+                break;
             case 3: // drive to bucket
-                if (outtakeState == EXTEND_HIGH_BUCKET) {
-                    bot.follower.followPath(cycle1Score, true);
+                if (!bot.follower.isBusy() && intakeState == PIVOT_UP) {
+                    bot.follower.followPath(cycle1Score, 0.85, true);
                     setPathState(4);
                 }
                 break;
-            case 4: // outtake fsm end
-                if (outtakeState == RETRACT) {
-                    bot.follower.followPath(cycle2, true);
-                    setPathState(20);
-                }
-                break;
-            case 40: // intake fsm begin, begin cycle 2
-                if (pathTimer.getElapsedTimeSeconds() > 0.2) {
-                    setIntakeState(EXTEND);
-                    setPathState(41);
-                }
-                break;
-            case 41: // intake fsm end, outtake fsm begin
-                if (intakeState == PIVOT_UP) {
-                    setOuttakeState(INTAKE_GRAB);
+            case 4: // outtake fsm end, begin cycle 1 path
+                if (!bot.follower.isBusy() && outtakeState == RETRACT) {
+                    bot.follower.followPath(cycle2, 0.9, true);
                     setPathState(5);
                 }
-            case 5: // begin cycle 2 score
-                if (outtakeState == EXTEND_HIGH_BUCKET) {
-                    bot.follower.followPath(cycle2Score, true);
+                break;
+            case 5: // drive to bucket
+                if (!bot.follower.isBusy() && intakeState == PIVOT_UP) {
+                    bot.follower.followPath(cycle2Score, 0.75, true);
                     setPathState(6);
                 }
                 break;
-            case 6: // outtake fsm end, begin cycle 3
+            case 6: // outtake fsm end
                 if (outtakeState == RETRACT) {
-                    bot.follower.followPath(cycle3, true);
-                    setPathState(60);
-                }
-                break;
-            case 60:
-                if (pathTimer.getElapsedTimeSeconds() > 0.2) {
-                    setIntakeState(EXTEND);
-                    setPathState(61);
-                }
-                break;
-            case 61:
-                if (intakeState == PIVOT_UP) {
-                    setOuttakeState(INTAKE_GRAB);
+                    bot.follower.followPath(cycle3, 0.75, true);
                     setPathState(7);
                 }
-            case 7:
-                if (outtakeState == EXTEND_HIGH_BUCKET) {
+                break;
+            case 7: // drive to bucket
+                if (!bot.follower.isBusy() && intakeState == PIVOT_UP) {
                     bot.follower.followPath(cycle3Score, true);
-                     setPathState(8);
+                    setPathState(7);
                 }
                 break;
-            case 8:
-                if (outtakeState == RETRACT) {
-                    bot.follower.followPath(park, true);
-                    setPathState(-1);
+            case 8: // outtake fsm end, begin cycle 1 path
+                if (!bot.follower.isBusy() && outtakeState == RETRACT) {
+                    bot.follower.followPath(park, 0.5, true);
+                    setPathState(5);
                 }
                 break;
-
         }
     }
 
@@ -286,39 +274,51 @@ public class Basket_Zero_Four extends OpMode {
     private void intakeStateUpdate() {
         switch (intakeState) {
             case INIT:
-                bot.retract();
-                bot.pivot_up();
+                bot.intake_retract();
+                bot.intake_pivot_up();
+                break;
+            case DISTANCE_CHECK:
+                // Check distance
+                if ((bot.leftDistVal + bot.rightDistVal) / 2 > 12) { // replace "true" with distance check
+                    setIntakeState(EXTEND);
+                }
                 break;
             case EXTEND:
                 // Extend horizontal slides
-                bot.extend(5);
+                bot.intake_extend(3);
                 setIntakeState(PIVOT_DOWN);
+                break;
             case PIVOT_DOWN:
-                if(intakeTimer.getElapsedTimeSeconds() > 0.4) { // replace "true" with slide limit check
-                    bot.pivot_down();
-                    bot.outtake_clearance();
-                    setIntakeState(INTAKE_ENABLE);
-                }
+               bot.intake_pivot_down();
+               bot.outtake_clearance();
+               setIntakeState(INTAKE_ENABLE);
+               break;
+            case PIVOT_DOWN_BYPASS:
+                bot.intake_pivot_down();
+                bot.outtake_clearance();
+                setIntakeState(INTAKE_ENABLE);
                 break;
             case INTAKE_ENABLE:
                 // Pick up sample
-                bot.intake.setPower(INTAKE_POWER_POS);
+                bot.intake.setPower(.6);
                 bot.distSensorUpdate();
-                if (bot.intakeWheelDist < 25 || bot.intakeWallDetect()) {
-                   setIntakeState(INTAKE_ACCEPT);
+                if (bot.intakeWallDetect()) {
+                    setIntakeState(INTAKE_ACCEPT);
                 }
                 break;
             case INTAKE_ACCEPT:
                 bot.distSensorUpdate();
-                if (bot.intakeWallDetect()) {
-                    bot.intake.setPower(0);
-                    setIntakeState(PIVOT_UP);
+                if (intakeTimer.getElapsedTimeSeconds() > 0.3) {
+                    if (bot.intakeWallDetect()) {
+                        bot.intake.setPower(0);
+                        setIntakeState(PIVOT_UP);
+                    }
                 }
             case PIVOT_UP:
                 // pivot intake up
-                bot.pivot_up();
+                bot.intake_pivot_up();
                 // retract slides
-                bot.retract();
+                bot.intake_retract();
                 bot.intake.setPower(0);
                 if (intakeTimer.getElapsedTimeSeconds() > 0.8) {
                     setIntakeState(STOP);
@@ -326,10 +326,9 @@ public class Basket_Zero_Four extends OpMode {
                 break;
             case STOP:
                 // pivot intake up
-                bot.pivot_up();
+                bot.intake_pivot_up();
                 // retract slides
-                bot.retract();
-                bot.outtake_flat();
+                bot.intake_retract();
                 bot.intake.setPower(0);
                 break;
         }
@@ -340,10 +339,14 @@ public class Basket_Zero_Four extends OpMode {
             case INIT:
                 // make sure outtake is reset to right pos
                 bot.resetLift();
-                bot.outtake_flat();
                 bot.claw_open();
                 break;
+            case START:
+                bot.outtake_flat();
+                if (outtakeTimer.getElapsedTimeSeconds() > 0.8) { setOuttakeState(INTAKE_GRAB); }
+                break;
             case INTAKE_GRAB:
+                bot.outtake_flat();
                 if(bot.intakeWallDetect()) { // Checks if something is in the intake
                     bot.claw_close();
                     setOuttakeState(EXTEND_HIGH_BUCKET);
@@ -352,31 +355,31 @@ public class Basket_Zero_Four extends OpMode {
             case EXTEND_HIGH_BUCKET:
                 // Extend it to top basket
                 bot.extend_high_bucket();
-                if (bot.liftR.getCurrentPosition() >= LIFT_HIGH_BUCKET-30) { // replace 10 with height of vert ext
+                bot.outtake_score_bucket();
+                if (bot.liftR.getCurrentPosition() >= LIFT_HIGH_BUCKET-50) {
                     setOuttakeState(SCORE_HIGH_BUCKET);
                 }
                 break;
             case SCORE_HIGH_BUCKET:
-                bot.outtake_score_bucket();
-                if (outtakeTimer.getElapsedTimeSeconds() > 1) { // replace with encoder value of outtake servo
-                    bot.claw_open();
-                    setOuttakeState(RETRACT);
-                }
+                bot.claw_open();
+                setOuttakeState(RETRACT);
                 break;
             case RETRACT:
                 // wait for claw
-                bot.outtake_flat();
-                bot.retractLift();
-
-                if (bot.liftR.getCurrentPosition() < 300) {
+                if (outtakeTimer.getElapsedTimeSeconds() > 1.4) {
+                    bot.outtake_flat();
                     setOuttakeState(OuttakeState.STOP);
                 }
-                 break;
             case STOP:
-                bot.outtake_flat();
-                bot.resetLift();
+                bot.outtake_clearance();
+                if (bot.liftR.getCurrentPosition() > 200) {
+                    bot.retractLift();
+                } else {
+                    bot.resetLift();
+                }
                 bot.claw_open();
                 break;
+
         }
     }
 }
