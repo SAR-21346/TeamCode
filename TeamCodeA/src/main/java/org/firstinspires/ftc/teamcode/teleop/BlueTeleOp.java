@@ -111,6 +111,14 @@ public class BlueTeleOp extends OpMode {
             setIntakeState(INTAKE_REJECT_BYPASS);
         }
 
+        if(gamepad1.a) {
+            bot.extend_hang();
+        }
+
+        if(gamepad1.b) {
+            bot.retractLift();
+        }
+
 
         bot.encoderUpdate();
         bot.distSensorUpdate();

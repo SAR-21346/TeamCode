@@ -82,6 +82,7 @@ public class RobotConstants {
     // Lift Positions
     public static int LIFT_MIN = 0;
     public static int LIFT_HIGH_BUCKET = 3350;
+    public static int LIFT_HANG = 3000;
     public static int LIFT_SPEC = 1300;
     public static int LIFT_MAX = 3400;
 }

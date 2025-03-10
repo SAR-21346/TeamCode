@@ -7,6 +7,7 @@ import static org.firstinspires.ftc.teamcode.RobotConstants.LEFT_DROPDOWN_MIN;
 import static org.firstinspires.ftc.teamcode.RobotConstants.LEFT_EXT_MAX;
 import static org.firstinspires.ftc.teamcode.RobotConstants.LEFT_EXT_MIN;
 import static org.firstinspires.ftc.teamcode.RobotConstants.LIFT_HIGH_BUCKET;
+import static org.firstinspires.ftc.teamcode.RobotConstants.LIFT_HANG;
 import static org.firstinspires.ftc.teamcode.RobotConstants.LIFT_SPEC;
 import static org.firstinspires.ftc.teamcode.RobotConstants.OUTTAKE_CLEARANCE_L;
 import static org.firstinspires.ftc.teamcode.RobotConstants.OUTTAKE_CLEARANCE_R;
@@ -328,6 +329,10 @@ public class MecanumTrain{
         liftTarget = LIFT_HIGH_BUCKET;
     }
 
+    public void extend_hang() {
+        liftTarget = LIFT_HANG;
+    }
+
     public void extend_high_spec() {
         liftTarget = LIFT_SPEC;
     }
@@ -343,6 +348,10 @@ public class MecanumTrain{
         } else {
             liftTarget -= 10;
         }
+    }
+
+    public boolean getVerticalLimit() {
+        return verticalLimit.isPressed();
     }
 
     public void outtake_flat() {
